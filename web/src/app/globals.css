@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-base: #0e0e10;
+  --color-panel: #121215;
+  --color-panel-hover: #1a1a1e;
+  --color-paddock-orange: #ff9b48;
+  --color-telemetry-cyan: #7ef6ee;
+  --color-alert-red: #e10600;
+  --color-outline-variant: #48474a;
+  --color-surface: #0e0e10;
+  --color-surface-dim: #0e0e10;
+  --color-surface-container-low: #131315;
+  --color-surface-container: #19191c;
+  --color-surface-container-high: #1f1f22;
+  --color-surface-container-highest: #262528;
+  --color-on-surface: #f9f5f8;
+  --color-on-surface-variant: #adaaad;
+  --color-primary: #ff9b48;
+  --color-primary-dim: #f17f00;
+  --color-secondary: #7ef6ee;
+  --color-tertiary: #ff725d;
+  --color-error: #ff7351;
+  --font-sans: var(--font-body);
+  --font-body: var(--font-body);
+  --font-headline: var(--font-heading);
+  --font-mono: var(--font-telemetry);
+}
+
+body {
+  background: #0e0e10;
+  color: #f9f5f8;
+}
+
+* {
+  border-color: rgb(72 71 74 / 0.3);
+}
+
+.glass-panel {
+  background: rgb(38 37 40 / 0.4);
+  backdrop-filter: blur(20px);
+}
+
+.paddock-glow-orange {
+  box-shadow: 0 0 18px rgb(255 155 72 / 0.35);
+}
+
+.paddock-glow-cyan {
+  box-shadow: 0 0 18px rgb(126 246 238 / 0.35);
+}
+
+.helmet-visor {
+  clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+}
+
+.helmet-crop {
+  clip-path: polygon(15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 15%);
+}
+
+.ticker-wrap {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-move {
+  display: inline-block;
+  animation: ticker 28s linear infinite;
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #48474a #0e0e10;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: #0e0e10;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: #48474a;
+}
+
+.dashboard-panel {
+  background: #121215;
+  border: 1px solid rgb(34 34 38);
+}
+
+.hud-input {
+  border: 1px solid rgb(72 71 74 / 0.35);
+  background: #131315;
+}
+
+button,
+a,
+input {
+  transition: all 0.22s ease;
+}
