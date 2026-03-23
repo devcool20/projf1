@@ -22,8 +22,7 @@ export function HudTopBar() {
 
   return (
     <header className="glass-panel fixed inset-x-0 left-20 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-outline-variant/20 px-5">
-      <div className="flex items-center gap-6">
-        <h1 className="font-headline text-xl font-black italic tracking-tight text-primary">PADDOCK OS</h1>
+      <div className="flex items-center">
         <TelemetryTicker />
       </div>
 

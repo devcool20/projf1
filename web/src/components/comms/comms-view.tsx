@@ -2,9 +2,10 @@
 
 import { commThreads as defaultThreads } from "@/lib/mock-data";
 import { CommReply, CommThread } from "@/lib/types";
+import { computeSignalScore, getSignalLabel } from "@/lib/signal-score";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Heart, MessageCircle, Share2 } from "lucide-react";
+import { Heart, MessageCircle, Share2, Signal } from "lucide-react";
 import { FormEvent, useMemo, useState } from "react";
 
 type Props = {
@@ -232,6 +233,8 @@ export function CommsView({ query }: Props) {
           {filtered.map((thread) => {
             const isSelected = selectedThreadId === thread.id;
             const replyCount = countReplies(thread.replies);
+            const score = computeSignalScore(thread);
+            const signal = getSignalLabel(score);
 
             return (
               <motion.button
@@ -252,7 +255,24 @@ export function CommsView({ query }: Props) {
                   <p className="font-mono text-[10px] text-on-surface-variant">{thread.createdAt}</p>
                 </div>
                 <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-on-surface/90">{thread.message}</p>
-                <div className="mt-4 flex items-center gap-4 text-xs text-on-surface-variant">
+
+                {/* Signal Score Meter */}
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="h-1 flex-1 overflow-hidden rounded-full bg-surface-container-high">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${score}%`, background: signal.color }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Signal className="h-3 w-3" style={{ color: signal.color }} />
+                    <span className="font-mono text-[9px] font-bold uppercase tracking-wider" style={{ color: signal.color }}>
+                      {signal.label}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center gap-4 text-xs text-on-surface-variant">
                   <span className="flex items-center gap-1">
                     <Heart className="h-3.5 w-3.5" />
                     {thread.likes}
@@ -288,6 +308,36 @@ export function CommsView({ query }: Props) {
             </div>
 
             <p className="mt-4 text-base leading-relaxed text-on-surface">{selectedThread.message}</p>
+
+            {/* Signal Score Detail */}
+            {(() => {
+              const detailScore = computeSignalScore(selectedThread);
+              const detailSignal = getSignalLabel(detailScore);
+              return (
+                <div className="mt-4 rounded border border-outline-variant/20 bg-surface-container-low px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Signal className="h-4 w-4" style={{ color: detailSignal.color }} />
+                      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+                        Thread Signal Score
+                      </span>
+                    </div>
+                    <span className="font-mono text-lg font-bold" style={{ color: detailSignal.color }}>
+                      {detailScore}
+                    </span>
+                  </div>
+                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-container-high">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${detailScore}%`, background: detailSignal.color }}
+                    />
+                  </div>
+                  <p className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.2em]" style={{ color: detailSignal.color }}>
+                    {detailSignal.label} Signal — Derived from likes, reply depth, and engagement
+                  </p>
+                </div>
+              );
+            })()}
 
             {selectedThread.imageUrl && (
               <div className="relative mt-4 h-60 overflow-hidden rounded-sm border border-outline-variant/30">

@@ -18,7 +18,7 @@ const telemetryFont = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Paddock OS",
+  title: "projf1",
   description: "Mission control inspired Formula 1 fan experience.",
 };
 

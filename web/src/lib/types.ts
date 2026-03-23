@@ -148,6 +148,46 @@ export type ScreeningEvent = {
   bookedSeats: number;
 };
 
+export type ApiDriverStanding = {
+  position: number;
+  driverName: string;
+  driverCode: string;
+  nationality: string;
+  teamName: string;
+  points: number;
+};
+
+export type ApiTeamStanding = {
+  position: number;
+  teamName: string;
+  points: number;
+};
+
+export type StandingsApiResponse<T> = {
+  success: boolean;
+  meta: {
+    season: number;
+    fetchedAt: string;
+    stale: boolean;
+    rowCount: number;
+  };
+  data: T[];
+};
+
+export type RaceWeekend = {
+  id: string;
+  name: string;
+  circuit: string;
+  city: string;
+  country: string;
+  flagEmoji: string;
+  fp1Iso: string;
+  qualifyingIso: string;
+  raceIso: string;
+  round: number;
+  totalRounds: number;
+};
+
 export type PitWallThread = {
   id: string;
   title: string;
