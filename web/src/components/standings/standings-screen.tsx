@@ -81,7 +81,7 @@ export function StandingsScreen() {
         <WifiOff className="h-12 w-12 text-alert-red" />
         <p className="font-mono text-sm text-alert-red">{error}</p>
         <p className="max-w-md text-center font-mono text-xs text-on-surface-variant">
-          Make sure the Paddock Data Agent is running on localhost:4100
+          Make sure the Paddock Data Agent is reachable from this frontend.
         </p>
         <button
           onClick={handleRefresh}
