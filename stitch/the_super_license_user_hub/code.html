@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-fixed": "#ff9382",
+                        "secondary-fixed-dim": "#6fe7e0",
+                        "surface-tint": "#ff9b48",
+                        "outline": "#767577",
+                        "surface-container-high": "#1f1f22",
+                        "surface": "#0e0e10",
+                        "on-tertiary-fixed-variant": "#790200",
+                        "tertiary-dim": "#e81105",
+                        "on-secondary-fixed": "#004845",
+                        "inverse-primary": "#944c00",
+                        "tertiary-container": "#f41e10",
+                        "inverse-on-surface": "#565457",
+                        "surface-variant": "#262528",
+                        "on-tertiary-container": "#000000",
+                        "surface-container-highest": "#262528",
+                        "primary": "#ff9b48",
+                        "tertiary-fixed-dim": "#ff7c68",
+                        "on-background": "#f9f5f8",
+                        "surface-container-lowest": "#000000",
+                        "surface-container-low": "#131315",
+                        "on-primary-container": "#421e00",
+                        "inverse-surface": "#fcf8fb",
+                        "on-primary": "#522700",
+                        "on-error": "#450900",
+                        "surface-bright": "#2c2c2f",
+                        "on-primary-fixed": "#0f0400",
+                        "on-secondary-fixed-variant": "#006763",
+                        "on-surface": "#f9f5f8",
+                        "secondary": "#7ef6ee",
+                        "primary-container": "#fd8600",
+                        "secondary-dim": "#6fe7e0",
+                        "on-tertiary-fixed": "#3a0100",
+                        "secondary-container": "#006a66",
+                        "background": "#0e0e10",
+                        "error": "#ff7351",
+                        "outline-variant": "#48474a",
+                        "surface-container": "#19191c",
+                        "error-container": "#b92902",
+                        "on-primary-fixed-variant": "#4f2600",
+                        "on-tertiary": "#490100",
+                        "on-surface-variant": "#adaaad",
+                        "error-dim": "#d53d18",
+                        "on-error-container": "#ffd2c8",
+                        "surface-dim": "#0e0e10",
+                        "tertiary": "#ff725d",
+                        "on-secondary": "#005c58",
+                        "on-secondary-container": "#dbfffb",
+                        "primary-dim": "#f17f00",
+                        "primary-fixed-dim": "#e97b00",
+                        "secondary-fixed": "#7ef6ee",
+                        "primary-fixed": "#fd8600"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .helmet-visor-crop {
+            clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+        }
+        .kinetic-glow {
+            background: radial-gradient(circle at 50% 50%, rgba(255, 155, 72, 0.05) 0%, transparent 70%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#0e0e10]/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full border-b border-[#48474a]/15 shadow-[0_0_20px_rgba(255,155,72,0.08)]">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-bold tracking-[-0.04em] text-[#ff9b48] font-['Space_Grotesk'] uppercase">Super License</span>
+</div>
+<div class="hidden md:flex items-center gap-8 font-['Space_Grotesk'] tracking-tighter uppercase">
+<a class="text-[#f9f5f8]/60 hover:text-[#7ef6ee] transition-colors duration-200 active:scale-95 transition-transform" href="#">Dashboard</a>
+<a class="text-[#f9f5f8]/60 hover:text-[#7ef6ee] transition-colors duration-200 active:scale-95 transition-transform" href="#">Telemetry</a>
+<a class="text-[#f9f5f8]/60 hover:text-[#7ef6ee] transition-colors duration-200 active:scale-95 transition-transform" href="#">Race Hub</a>
+<a class="text-[#ff9b48] border-b-2 border-[#ff9b48] active:scale-95 transition-transform" href="#">Profile</a>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-[#f9f5f8]/60 hover:text-[#7ef6ee] cursor-pointer">notifications</span>
+<span class="material-symbols-outlined text-[#f9f5f8]/60 hover:text-[#7ef6ee] cursor-pointer">settings</span>
+<span class="material-symbols-outlined text-[#f9f5f8]/60 hover:text-[#7ef6ee] cursor-pointer">sensors</span>
+</div>
+<img alt="User Driver Helmet Visor" class="w-8 h-8 rounded-full border border-primary/30" data-alt="Close up of a professional racing helmet visor reflecting lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChhG73kDFg7aliU53TQGTfMH0IMOqJt1m4-D05kxY-ndpoV0cQ6gH6YT-4AMPDelEo2O_KDdPJxk26QemWnmD3LWBjFPqjRfdqoAn8BlZD9J8s1zNyJiJ99RH5_dzt-dz7XvicdmMQH2N9NHVI1h6X2hHLH_6IGAL18cLsDQIRE8lews842Kycu4q79Ag3FLeyZTIkwo_BG0gZtl6E-7_N6hKtfZ3Z7iHIhd-EidVEnWfbLuRsntOc4nVlhuCD_1mUZzDkiGJ97pLc"/>
+</div>
+</header>
+<!-- SideNavBar (Pit Wall) -->
+<aside class="fixed left-0 top-0 h-full w-64 border-r border-[#7ef6ee]/30 bg-[#000000] flex flex-col pt-20 pb-6 hidden md:flex shadow-[4px_0_24px_rgba(126,246,238,0.05)] z-40">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 bg-surface-variant flex items-center justify-center rounded-sm">
+<span class="material-symbols-outlined text-secondary text-xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">shield</span>
+</div>
+<div>
+<p class="font-['JetBrains_Mono'] text-[10px] text-secondary/60 leading-none">Driver ID: 44-STR</p>
+<p class="font-['JetBrains_Mono'] text-xs text-on-surface uppercase font-bold">Super License Active</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 font-['JetBrains_Mono'] text-xs uppercase">
+<a class="text-[#f9f5f8]/40 hover:text-[#f9f5f8] px-4 py-3 flex items-center gap-3 hover:bg-[#262528] transition-all duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="text-[#f9f5f8]/40 hover:text-[#f9f5f8] px-4 py-3 flex items-center gap-3 hover:bg-[#262528] transition-all duration-150" href="#">
+<span class="material-symbols-outlined">speed</span> Telemetry
+            </a>
+<a class="text-[#f9f5f8]/40 hover:text-[#f9f5f8] px-4 py-3 flex items-center gap-3 hover:bg-[#262528] transition-all duration-150" href="#">
+<span class="material-symbols-outlined">flag</span> Race Hub
+            </a>
+<a class="text-[#f9f5f8]/40 hover:text-[#f9f5f8] px-4 py-3 flex items-center gap-3 hover:bg-[#262528] transition-all duration-150" href="#">
+<span class="material-symbols-outlined">radio</span> Radio Ops
+            </a>
+<a class="text-[#f9f5f8]/40 hover:text-[#f9f5f8] px-4 py-3 flex items-center gap-3 hover:bg-[#262528] transition-all duration-150" href="#">
+<span class="material-symbols-outlined">construction</span> Pit Wall
+            </a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full bg-secondary/10 border border-secondary text-secondary font-mono text-xs py-3 px-4 flex items-center justify-center gap-2 hover:bg-secondary hover:text-surface-container-lowest transition-all">
+<span class="material-symbols-outlined text-sm">sensors</span> Transmit Ready
+            </button>
+<a class="text-[#f9f5f8]/40 hover:text-[#f9f5f8] px-4 py-3 flex items-center gap-3 mt-4" href="#">
+<span class="material-symbols-outlined">logout</span> Log Out
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-24 pb-12 px-6 lg:px-12 kinetic-glow min-h-screen">
+<div class="max-w-6xl mx-auto space-y-12">
+<!-- Top Section: License Card -->
+<section class="relative">
+<div class="grid lg:grid-cols-3 gap-8">
+<!-- The License ID -->
+<div class="lg:col-span-2 bg-surface-container-high relative overflow-hidden group shadow-2xl border border-outline-variant/10">
+<!-- Technical Overlay Pattern -->
+<div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="absolute top-0 right-0 p-4 opacity-20 font-mono text-4xl select-none">FIA / SL-2024</div>
+<div class="p-8 flex flex-col md:flex-row gap-8 items-start md:items-center relative z-10">
+<!-- Avatar with Helmet Visor Crop -->
+<div class="relative">
+<div class="w-40 h-40 bg-primary/20 helmet-visor-crop overflow-hidden border-2 border-primary">
+<img alt="User Profile" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" data-alt="A driver profile photo wearing a sleek carbon fiber helmet" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBfeYcewbgsTmfjiKSg9gefNeTq3I0_Nv1YQxFq6Q_hXa8VRPVoLKYTUx1k2f3S4w1OeATT3Fxe6FO_4UB4N9AD13nkSw5DEJ3YPFHJMTshjht-VAJ2M20hZCpzUnnz8fYl44nM43_Q1Oh2l6QwhJ3Da2Zo5t_whgGyZoryVUggZqcgoLNkVtrOFjIu1PjbK50eONTjnLKmbNMrMr56kTVDTPNmcrGRONhoQA_Wc8jgd0DUgA5IHKvPXhwpSDh3Yhsc0M0vHwAoczI"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-secondary text-surface-container-lowest px-2 py-1 font-mono text-[10px] font-bold">VERIFIED</div>
+</div>
+<div class="space-y-4 flex-1">
+<div class="space-y-1">
+<span class="font-mono text-xs text-primary tracking-widest uppercase">Identity Header</span>
+<h1 class="font-headline text-4xl lg:text-5xl font-extrabold tracking-tighter uppercase text-on-surface">MAXIMILLIAN STRATEGY_VOID</h1>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="bg-surface-container-highest px-3 py-1 flex items-center gap-2 border-l-2 border-primary">
+<span class="material-symbols-outlined text-sm text-primary">calendar_today</span>
+<span class="font-mono text-xs uppercase">Rookie Year: 2021</span>
+</div>
+<div class="bg-surface-container-highest px-3 py-1 flex items-center gap-2 border-l-2 border-secondary">
+<span class="material-symbols-outlined text-sm text-secondary">groups</span>
+<span class="font-mono text-xs uppercase">McLaren Papaya</span>
+</div>
+<div class="bg-surface-container-highest px-3 py-1 flex items-center gap-2 border-l-2 border-tertiary">
+<span class="material-symbols-outlined text-sm text-tertiary">sports_score</span>
+<span class="font-mono text-xs uppercase">Lando Norris</span>
+</div>
+</div>
+</div>
+</div>
+<div class="h-1 w-full bg-gradient-to-r from-primary via-secondary to-tertiary"></div>
+</div>
+<!-- DNA Visualization (Spider Chart Aesthetic) -->
+<div class="bg-surface-container-low p-6 border border-outline-variant/10 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">Driver DNA // Engagement</span>
+<span class="material-symbols-outlined text-secondary text-sm">query_stats</span>
+</div>
+<div class="relative h-48 flex items-center justify-center my-4">
+<!-- Simplified Technical SVG Chart Representation -->
+<svg class="w-full h-full opacity-40" viewbox="0 0 100 100">
+<circle class="text-outline-variant" cx="50" cy="50" fill="none" r="45" stroke="currentColor" stroke-width="0.5"></circle>
+<circle class="text-outline-variant" cx="50" cy="50" fill="none" r="30" stroke="currentColor" stroke-width="0.5"></circle>
+<path class="text-outline-variant" d="M50 5 L50 95 M5 50 L95 50 M18 18 L82 82 M18 82 L82 18" stroke="currentColor" stroke-width="0.5"></path>
+<polygon fill="rgba(126, 246, 238, 0.2)" points="50,20 80,40 70,70 30,80 20,40" stroke="#7ef6ee" stroke-width="1.5"></polygon>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline text-3xl font-bold text-on-surface">94.2</span>
+<span class="font-mono text-[10px] text-secondary">ALPHA SCORE</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 text-[9px] font-mono text-on-surface-variant">
+<div class="flex justify-between border-b border-outline-variant/20 pb-1"><span>AGGR</span><span>88%</span></div>
+<div class="flex justify-between border-b border-outline-variant/20 pb-1"><span>CONS</span><span>92%</span></div>
+<div class="flex justify-between border-b border-outline-variant/20 pb-1"><span>TECH</span><span>99%</span></div>
+<div class="flex justify-between border-b border-outline-variant/20 pb-1"><span>REAC</span><span>84%</span></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Section (The Dashboard) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Stat 1 -->
+<div class="bg-surface-container-low p-6 border-l-4 border-primary group hover:bg-surface-container transition-colors">
+<div class="flex flex-col">
+<span class="font-mono text-xs text-primary mb-1">RECOVERY RATE</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline text-5xl font-bold tracking-tighter">98.2</span>
+<span class="font-mono text-sm text-on-surface-variant">%</span>
+</div>
+<div class="mt-4 h-1 bg-surface-variant w-full">
+<div class="h-full bg-primary" style="width: 98.2%"></div>
+</div>
+</div>
+</div>
+<!-- Stat 2 -->
+<div class="bg-surface-container-low p-6 border-l-4 border-secondary group hover:bg-surface-container transition-colors">
+<div class="flex flex-col">
+<span class="font-mono text-xs text-secondary mb-1">SECTOR VMAX</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline text-5xl font-bold tracking-tighter">342</span>
+<span class="font-mono text-sm text-on-surface-variant">KPH</span>
+</div>
+<div class="mt-4 flex gap-1 h-1">
+<div class="h-full bg-secondary flex-1"></div>
+<div class="h-full bg-secondary flex-1"></div>
+<div class="h-full bg-secondary flex-1"></div>
+<div class="h-full bg-secondary/20 flex-1"></div>
+</div>
+</div>
+</div>
+<!-- Stat 3 -->
+<div class="bg-surface-container-low p-6 border-l-4 border-tertiary group hover:bg-surface-container transition-colors">
+<div class="flex flex-col">
+<span class="font-mono text-xs text-tertiary mb-1">GLOBAL RANKING</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline text-5xl font-bold tracking-tighter">#004</span>
+<span class="font-mono text-sm text-on-surface-variant">/ 12K</span>
+</div>
+<div class="mt-4 flex justify-between items-center">
+<span class="font-mono text-[10px] text-tertiary uppercase">Top 0.1% Globally</span>
+<span class="material-symbols-outlined text-tertiary text-sm">trending_up</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Content Section (The Timeline) -->
+<section class="space-y-8">
+<div class="flex items-center justify-between border-b border-outline-variant/30 pb-4">
+<h2 class="font-headline text-2xl font-bold tracking-tight uppercase flex items-center gap-3">
+<span class="w-2 h-8 bg-primary"></span>
+                        Radio Transcripts
+                    </h2>
+<button class="bg-primary hover:bg-primary-dim text-on-primary font-mono text-xs px-6 py-2 flex items-center gap-2 transition-all active:scale-95 shadow-[0_0_15px_rgba(255,155,72,0.3)]">
+<span class="material-symbols-outlined text-sm">send</span>
+                        TRANSMIT
+                    </button>
+</div>
+<div class="space-y-6">
+<!-- Transcript 1 -->
+<article class="bg-surface-container-high/40 backdrop-blur-md p-6 border border-outline-variant/10 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary/30 group-hover:bg-primary transition-colors"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-variant helmet-visor-crop flex items-center justify-center border border-primary/20">
+<img alt="User Profile Thumb" class="w-full h-full object-cover" data-alt="Small driver profile thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCG4jGDgNLvEiMjZv4A1qaxifAtS27RVziAWUuhlLYBCghXVIzPNiXTLxLdA_N30fhWG5OabjEAzdQMMB3K1XUxahJtj1V1e5kijljHqq9woAEyH-AnyR0xGmScqQTYawwItlS8G9ln-Ra9krYYOIWQlHBEbncZjreYm0_5Zgy_xCSCut_xzkX72sbyT5D0i3rPg2t1u5vitvpGxulIiEiCi7J0whzvDbs0XKCHjsU5jTRlz3uKLX_at8ifsB4psdWGFppAohEsK_P_"/>
+</div>
+<div>
+<p class="font-mono text-sm text-on-surface font-bold">MAXIMILLIAN</p>
+<p class="font-mono text-[10px] text-on-surface-variant">COMMS CHANNEL: 01</p>
+</div>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant">12 OCT 2024 // 14:32:01</span>
+</div>
+<p class="font-body text-on-surface leading-relaxed pl-4 border-l border-primary/20 italic">
+                            "The undercut strategy at Turn 4 was absolutely clinical. Notice the tyre degradation on the left rear of the lead car—it was only a matter of time before the lock-up."
+                        </p>
+<div class="mt-6 flex gap-6">
+<button class="flex items-center gap-2 font-mono text-[10px] text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">favorite</span> 2.4K
+                            </button>
+<button class="flex items-center gap-2 font-mono text-[10px] text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-sm">chat_bubble</span> 142
+                            </button>
+<button class="flex items-center gap-2 font-mono text-[10px] text-on-surface-variant hover:text-tertiary transition-colors">
+<span class="material-symbols-outlined text-sm">share</span> TRANSMIT
+                            </button>
+</div>
+</article>
+<!-- Transcript 2 -->
+<article class="bg-surface-container-high/40 backdrop-blur-md p-6 border border-outline-variant/10 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary/30 group-hover:bg-secondary transition-colors"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-variant helmet-visor-crop flex items-center justify-center border border-secondary/20">
+<img alt="User Profile Thumb" class="w-full h-full object-cover" data-alt="Small driver profile thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMsvyXYImo4dKXDC8ef1O093Lsh-bkl7iRxsdEqovda58qMesq1_CZKFt8vp-R-1Bxd-Hb2aJSQJH4pgg_nI4kUbEM3Sv5clkN_VfhV-J6HPx8vXi6wrJkPKZ7RVyJ3VvjeZlgX2yYjKx1EfvHtovRGPr0Cz8mjOuKxzEk0jNbfjm1l2Pr8FZofcGK104f1vm6zpZ8rUYrr0moJcWE_ZaEOjQ84FQDfZCsFnkF4GBGSDROHxeUZMqOtQOTjfWVMMovAxhTMHNn4T7c"/>
+</div>
+<div>
+<p class="font-mono text-sm text-on-surface font-bold">MAXIMILLIAN</p>
+<p class="font-mono text-[10px] text-on-surface-variant">COMMS CHANNEL: 04</p>
+</div>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant">11 OCT 2024 // 09:15:44</span>
+</div>
+<p class="font-body text-on-surface leading-relaxed pl-4 border-l border-secondary/20 italic">
+                            "Telemetry update: DRS zone 2 is yielding 12% more top-end speed than yesterday's practice sessions. Wind direction has shifted slightly to a headwind on the main straight."
+                        </p>
+<div class="mt-6 flex gap-6">
+<button class="flex items-center gap-2 font-mono text-[10px] text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">favorite</span> 890
+                            </button>
+<button class="flex items-center gap-2 font-mono text-[10px] text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-sm">chat_bubble</span> 28
+                            </button>
+<button class="flex items-center gap-2 font-mono text-[10px] text-on-surface-variant hover:text-tertiary transition-colors">
+<span class="material-symbols-outlined text-sm">share</span> TRANSMIT
+                            </button>
+</div>
+</article>
+<!-- Transcript 3 -->
+<article class="bg-surface-container-high/40 backdrop-blur-md p-6 border border-outline-variant/10 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-tertiary/30 group-hover:bg-tertiary transition-colors"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-variant helmet-visor-crop flex items-center justify-center border border-tertiary/20">
+<img alt="User Profile Thumb" class="w-full h-full object-cover" data-alt="Small driver profile thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdI9NNAtB-w7apOcHxGI8k2bMr0wWjAB-fRx4i6NQoV1iVaekT4cTqy7qBPD8i0PwGCOWCy1gtN-r2C5oAWnVy4Xr3Ssqxvln60k-hefhDZT95kfqQgo6FHgRdqEcl9Gj5uIjCLM-PIvKofnTrQbHKPOSPjZDphENbEEp9rVI9S6oXfFhsU7dEou_ecYOt4gxZaeE7YJx4dmFLGcx2zIEx4i8ccKh8riEd62pDz56ghC0OHh75pAYRe7qHPO6-QfNOfwgkOhRGvs54"/>
+</div>
+<div>
+<p class="font-mono text-sm text-on-surface font-bold">MAXIMILLIAN</p>
+<p class="font-mono text-[10px] text-on-surface-variant">COMMS CHANNEL: 01</p>
+</div>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant">10 OCT 2024 // 18:00:12</span>
+</div>
+<p class="font-body text-on-surface leading-relaxed pl-4 border-l border-tertiary/20 italic">
+                            "Full throttle into the weekend. The McLaren upgrade package looks sharp in the wind tunnel data. Let's see how it translates to the tarmac."
+                        </p>
+<div class="mt-6 flex gap-6">
+<button class="flex items-center gap-2 font-mono text-[10px] text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">favorite</span> 5.1K
+                            </button>
+<button class="flex items-center gap-2 font-mono text-[10px] text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-sm">chat_bubble</span> 312
+                            </button>
+<button class="flex items-center gap-2 font-mono text-[10px] text-on-surface-variant hover:text-tertiary transition-colors">
+<span class="material-symbols-outlined text-sm">share</span> TRANSMIT
+                            </button>
+</div>
+</article>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full bg-[#0e0e10]/95 backdrop-blur-xl border-t border-[#48474a]/15 flex justify-around items-center h-16 z-50">
+<a class="flex flex-col items-center text-[#f9f5f8]/40" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-mono">DASH</span>
+</a>
+<a class="flex flex-col items-center text-[#f9f5f8]/40" href="#">
+<span class="material-symbols-outlined">speed</span>
+<span class="text-[10px] font-mono">TELE</span>
+</a>
+<a class="flex flex-col items-center text-[#ff9b48]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-[10px] font-mono">PRO</span>
+</a>
+<a class="flex flex-col items-center text-[#f9f5f8]/40" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-mono">SET</span>
+</a>
+</nav>
+</body></html>

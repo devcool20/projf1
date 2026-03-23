@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>THE GRID: LIVE THREADS | PADDOCK OS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "error-container": "#b92902",
+                        "primary-fixed": "#fd8600",
+                        "surface-bright": "#2c2c2f",
+                        "on-secondary-fixed": "#004845",
+                        "background": "#0e0e10",
+                        "on-surface": "#f9f5f8",
+                        "secondary-fixed-dim": "#6fe7e0",
+                        "primary": "#ff9b48",
+                        "surface-container": "#19191c",
+                        "outline": "#767577",
+                        "primary-container": "#fd8600",
+                        "on-primary-fixed": "#0f0400",
+                        "surface-container-lowest": "#000000",
+                        "inverse-surface": "#fcf8fb",
+                        "secondary-fixed": "#7ef6ee",
+                        "on-tertiary-fixed": "#3a0100",
+                        "on-primary": "#522700",
+                        "on-primary-container": "#421e00",
+                        "surface-variant": "#262528",
+                        "outline-variant": "#48474a",
+                        "on-error": "#450900",
+                        "on-secondary": "#005c58",
+                        "secondary-container": "#006a66",
+                        "on-tertiary-container": "#000000",
+                        "surface-container-low": "#131315",
+                        "tertiary-dim": "#e81105",
+                        "on-surface-variant": "#adaaad",
+                        "secondary-dim": "#6fe7e0",
+                        "on-error-container": "#ffd2c8",
+                        "primary-dim": "#f17f00",
+                        "tertiary-fixed-dim": "#ff7c68",
+                        "inverse-on-surface": "#565457",
+                        "inverse-primary": "#944c00",
+                        "surface-tint": "#ff9b48",
+                        "on-background": "#f9f5f8",
+                        "tertiary-container": "#f41e10",
+                        "tertiary": "#ff725d",
+                        "surface-container-high": "#1f1f22",
+                        "on-tertiary-fixed-variant": "#790200",
+                        "surface-dim": "#0e0e10",
+                        "primary-fixed-dim": "#e97b00",
+                        "error-dim": "#d53d18",
+                        "tertiary-fixed": "#ff9382",
+                        "error": "#ff7351",
+                        "surface": "#0e0e10",
+                        "on-secondary-fixed-variant": "#006763",
+                        "on-primary-fixed-variant": "#4f2600",
+                        "surface-container-highest": "#262528",
+                        "secondary": "#7ef6ee",
+                        "on-secondary-container": "#dbfffb",
+                        "on-tertiary": "#490100"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .helmet-visor-crop {
+            clip-path: polygon(0% 15%, 85% 0%, 100% 85%, 15% 100%);
+        }
+        .carbon-texture {
+            background-image: radial-gradient(#19191c 0.5px, transparent 0.5px);
+            background-size: 4px 4px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0e0e10]/80 backdrop-blur-xl border-b border-[#48474a]/15 shadow-[0_0_40px_rgba(255,155,72,0.08)]">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-[#ff9b48] tracking-[-0.04em] font-['Space_Grotesk'] uppercase">PADDOCK OS</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[#ff9b48] border-b-2 border-[#ff9b48] font-['Space_Grotesk'] uppercase tracking-tighter py-1 transition-all duration-200" href="#">The Grid</a>
+<a class="text-[#f9f5f8]/60 font-['Space_Grotesk'] uppercase tracking-tighter py-1 hover:bg-[#ff9b48]/10 hover:text-[#ff9b48] transition-all duration-200" href="#">Live Telemetry</a>
+<a class="text-[#f9f5f8]/60 font-['Space_Grotesk'] uppercase tracking-tighter py-1 hover:bg-[#ff9b48]/10 hover:text-[#ff9b48] transition-all duration-200" href="#">Archive</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-container-low border-none border-b border-outline-variant focus:border-secondary focus:ring-0 text-xs font-mono w-64 pl-10" placeholder="SEARCH COMMS..." type="text"/>
+</div>
+<button class="p-2 hover:bg-[#ff9b48]/10 hover:text-[#ff9b48] transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 hover:bg-[#ff9b48]/10 hover:text-[#ff9b48] transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="ml-2 px-4 py-1.5 bg-primary text-on-primary-container font-headline font-bold uppercase tracking-tighter text-sm active:scale-95 duration-100 ease-in-out">
+                Transmit
+            </button>
+</div>
+</header>
+<!-- SideNavBar (Pit Wall) -->
+<aside class="fixed left-0 top-0 h-full z-[60] flex flex-col pt-20 bg-[#000000] w-64 border-r border-[#7ef6ee]/30 font-['JetBrains_Mono'] text-sm tracking-normal">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 p-3 bg-surface-container-high border border-outline-variant/20">
+<div class="w-10 h-10 bg-secondary/20 helmet-visor-crop overflow-hidden">
+<img class="w-full h-full object-cover grayscale opacity-80" data-alt="F1 driver helmet visor close up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqZuUKTkstyiCvTimMKJIL6vLxphQYM4UIkwYQS5UYmvfc006oxEjFCymcngLNjAtIERqO6iQ6EKL2LsFFWvvq8nA0IAZmQkDXwpwuNhniTTgh5Atc-_Xzxu7SycArcZMVRtxgAKScIJPoR3K_mjK8mwVOBHeyz8fYIsaSv9mff53YrD8bXDkwwKxPnCdeksv8wz7hCEP6t2DYstd5S8T2Jugd_70OQ68iwMs6Lti1H8qdK94WXzJUzFLudAPpuuqOslT6qXp6tm0L"/>
+</div>
+<div>
+<div class="text-[10px] text-secondary font-bold tracking-widest uppercase">STRAT-01</div>
+<div class="text-[11px] text-on-surface/40">PIT WALL ACTIVE</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col">
+<a class="flex items-center gap-4 px-6 py-3 text-[#f9f5f8]/40 hover:text-[#7ef6ee] hover:bg-[#131315] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#f9f5f8]/40 hover:text-[#7ef6ee] hover:bg-[#131315] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span>Telemetry</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-4 text-[#7ef6ee] bg-[#7ef6ee]/5 border-l-4 border-[#7ef6ee]" href="#">
+<span class="material-symbols-outlined" data-icon="ads_click">ads_click</span>
+<span>Strategy</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#f9f5f8]/40 hover:text-[#7ef6ee] hover:bg-[#131315] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span>Standings</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#f9f5f8]/40 hover:text-[#7ef6ee] hover:bg-[#131315] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="建設">construction</span>
+<span>Pit Wall</span>
+</a>
+</nav>
+<div class="mt-auto p-6 space-y-4">
+<button class="w-full py-3 bg-secondary/10 border border-secondary text-secondary font-bold tracking-widest hover:bg-secondary hover:text-on-secondary transition-all">
+                GO LIVE
+            </button>
+<div class="flex flex-col gap-2 pt-4 border-t border-outline-variant/20">
+<a class="flex items-center gap-3 text-on-surface/40 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="settings">settings</span>
+<span class="text-xs">Settings</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface/40 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="help">help</span>
+<span class="text-xs">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-20 px-8 flex gap-8">
+<!-- Thread Feed Section -->
+<div class="flex-1 max-w-3xl">
+<header class="mb-10 relative">
+<div class="absolute -left-4 top-0 w-1 h-full bg-primary shadow-[0_0_15px_rgba(255,155,72,0.5)]"></div>
+<h1 class="font-headline text-5xl font-black italic tracking-tighter text-on-surface uppercase leading-none">The Grid: <span class="text-primary">Live Threads</span></h1>
+<p class="font-mono text-xs text-on-surface/40 mt-2 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+                    MONITORING ENCRYPTED RADIO FREQUENCIES...
+                </p>
+</header>
+<div class="space-y-6 pb-20">
+<!-- Radio Transcript Card 1 -->
+<div class="bg-surface-container-low border-l-2 border-primary/30 p-6 relative overflow-hidden group hover:bg-surface-container transition-all duration-300">
+<div class="absolute right-0 top-0 p-2 opacity-5 font-mono text-8xl font-black">44</div>
+<div class="flex gap-5 relative z-10">
+<div class="flex-shrink-0">
+<div class="w-14 h-14 bg-primary/20 helmet-visor-crop overflow-hidden border border-primary/40">
+<img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" data-alt="Professional racing driver portrait in suit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuB09HkrgeKml-eP2QtPERVfkNnsxY91-C2LiVrWg6C946Pk-VZb0D-WcXKfg_KijD5QS9u-fmEvNSX4VpjW4-fdx3bQjj4akEfjKnDclIodrmAzaKaFCaLT6lSmZwIhPeLN_0Hxj8viAtRnTGYZt75PonKnDkv3N1yP7XO0LwQ6nnWdoV7mcjG-v7BzPqFsWv8A7bPZp6MegDKZNQMRJallzMb-3W9trzg4srCWiGxrq98zvdX56B8xmpP0L10kEadKv-FR07AWju"/>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="font-mono font-bold text-primary tracking-tight">L. HAMILTON</span>
+<span class="ml-2 text-[10px] font-mono text-on-surface/40">MERCEDES-AMG PETRONAS</span>
+</div>
+<span class="text-[10px] font-mono text-on-surface/30">14:02:44</span>
+</div>
+<p class="text-on-surface/90 leading-relaxed font-body text-lg font-light italic">
+                                "The rears are gone. I'm struggling with traction out of turn 7. Can we look at the differential settings on the next lap?"
+                            </p>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex gap-4">
+<button class="flex items-center gap-1.5 text-on-surface/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-[10px] font-mono">124</span>
+</button>
+<button class="flex items-center gap-1.5 text-on-surface/40 hover:text-tertiary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span>
+<span class="text-[10px] font-mono">8.2K</span>
+</button>
+<button class="flex items-center gap-1.5 text-on-surface/40 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="share">share</span>
+</button>
+</div>
+<button class="px-4 py-1 text-[10px] font-mono border border-primary/40 text-primary hover:bg-primary hover:text-on-primary transition-all uppercase tracking-widest">
+                                    Transmit
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Radio Transcript Card 2 -->
+<div class="bg-surface-container-low border-l-2 border-tertiary/30 p-6 relative overflow-hidden group hover:bg-surface-container transition-all duration-300">
+<div class="absolute right-0 top-0 p-2 opacity-5 font-mono text-8xl font-black">16</div>
+<div class="flex gap-5 relative z-10">
+<div class="flex-shrink-0">
+<div class="w-14 h-14 bg-tertiary/20 helmet-visor-crop overflow-hidden border border-tertiary/40">
+<img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" data-alt="F1 driver headshot looking intense" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMpYkVdPqcvuvVH-JGDkiy-1rfilbyxX1LLLo5S172J0FuL8kuDpkRUqYPlDX3_a8RMyInHDqXi7O5vDtw2_84iRr3_GxyyfN7LF5bfJLU20SpSALIH20tc-rTyOY09Ol1WqwQeAAIKQ5KPV2a5u0zb29lEhZkKXo7WSa5bSG9wMKlwwpF_TPSvrIM_0yORNyjC6yU_aniCFjBktw7g2mPaO8-qIryVlgVisBc2wnhjHAGOxV3RFhHYE9Z8_hHRSFDoy4n0HU0G7Qt"/>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="font-mono font-bold text-tertiary tracking-tight">C. LECLERC</span>
+<span class="ml-2 text-[10px] font-mono text-on-surface/40">SCUDERIA FERRARI</span>
+</div>
+<span class="text-[10px] font-mono text-on-surface/30">14:04:12</span>
+</div>
+<p class="text-on-surface/90 leading-relaxed font-body text-lg font-light italic">
+                                "Box box box. Switching to softs. We need to undercut the McLaren. Strategy A, confirmed."
+                            </p>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex gap-4">
+<button class="flex items-center gap-1.5 text-on-surface/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-[10px] font-mono">89</span>
+</button>
+<button class="flex items-center gap-1.5 text-on-surface/40 hover:text-tertiary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span>
+<span class="text-[10px] font-mono">12K</span>
+</button>
+<button class="flex items-center gap-1.5 text-on-surface/40 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="share">share</span>
+</button>
+</div>
+<button class="px-4 py-1 text-[10px] font-mono border border-tertiary/40 text-tertiary hover:bg-tertiary hover:text-on-tertiary transition-all uppercase tracking-widest">
+                                    Transmit
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Radio Transcript Card 3 -->
+<div class="bg-surface-container-low border-l-2 border-secondary/30 p-6 relative overflow-hidden group hover:bg-surface-container transition-all duration-300">
+<div class="absolute right-0 top-0 p-2 opacity-5 font-mono text-8xl font-black">04</div>
+<div class="flex gap-5 relative z-10">
+<div class="flex-shrink-0">
+<div class="w-14 h-14 bg-secondary/20 helmet-visor-crop overflow-hidden border border-secondary/40">
+<img class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" data-alt="Professional athlete profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCq1vvjRjt6stejvQ9ReX6T9vLwF-AznVl9412SMywv4C2XWprnVzY8XBWQsBPMyDwx8qP_jvHL8yevrXU-CAwT0UJQ5pErukxJC0H-XgmcdTgQ1c28k2WxpL_PYXl1HpwtJNO2LGTt8AB_25LTfPYFZhsNQvFr4l-qAPdlhwHpLOVYWEHgqh6Dc7TRWKCSwmUuzesnl7Q6P6C174ePntDJudv7g9V_rBcwNI0Inwg0p5AsSRABZquGkdey_YVI0gT5hhpmNcAbLIvy"/>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="font-mono font-bold text-secondary tracking-tight">L. NORRIS</span>
+<span class="ml-2 text-[10px] font-mono text-on-surface/40">MCLAREN FORMULA 1</span>
+</div>
+<span class="text-[10px] font-mono text-on-surface/30">14:05:30</span>
+</div>
+<p class="text-on-surface/90 leading-relaxed font-body text-lg font-light italic">
+                                "The wind is picking up on the main straight. Getting a lot of buffetting in the helmet. Is rain expected in the next 10 laps?"
+                            </p>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex gap-4">
+<button class="flex items-center gap-1.5 text-on-surface/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chat_bubble">chat_bubble</span>
+<span class="text-[10px] font-mono">56</span>
+</button>
+<button class="flex items-center gap-1.5 text-on-surface/40 hover:text-tertiary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span>
+<span class="text-[10px] font-mono">5.4K</span>
+</button>
+<button class="flex items-center gap-1.5 text-on-surface/40 hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="share">share</span>
+</button>
+</div>
+<button class="px-4 py-1 text-[10px] font-mono border border-secondary/40 text-secondary hover:bg-secondary hover:text-on-secondary transition-all uppercase tracking-widest">
+                                    Transmit
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Telemetry Ticker Sidebar -->
+<aside class="w-80 hidden xl:block pb-20">
+<div class="sticky top-24 space-y-6">
+<!-- Standings Module -->
+<div class="bg-surface-container-highest/40 backdrop-blur-xl p-4 border border-outline-variant/10">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline font-bold text-xs tracking-widest uppercase text-on-surface-variant">Live Standings</h3>
+<span class="text-[10px] font-mono text-secondary">LAP 42/57</span>
+</div>
+<div class="space-y-2">
+<!-- Driver Row -->
+<div class="flex items-center justify-between py-2 border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="font-mono text-xs font-bold w-4">1</span>
+<div class="w-1 h-6 bg-primary"></div>
+<span class="font-headline font-bold text-sm tracking-tight">VER</span>
+</div>
+<span class="font-mono text-xs text-on-surface/60">INTERVAL</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="font-mono text-xs font-bold w-4">2</span>
+<div class="w-1 h-6 bg-secondary"></div>
+<span class="font-headline font-bold text-sm tracking-tight">NOR</span>
+</div>
+<span class="font-mono text-xs text-secondary">+3.442</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="font-mono text-xs font-bold w-4">3</span>
+<div class="w-1 h-6 bg-tertiary"></div>
+<span class="font-headline font-bold text-sm tracking-tight">LEC</span>
+</div>
+<span class="font-mono text-xs text-secondary">+1.129</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="font-mono text-xs font-bold w-4">4</span>
+<div class="w-1 h-6 bg-primary"></div>
+<span class="font-headline font-bold text-sm tracking-tight">HAM</span>
+</div>
+<span class="font-mono text-xs text-secondary">+5.801</span>
+</div>
+</div>
+<button class="w-full mt-4 py-2 bg-surface-container border border-outline-variant/20 font-mono text-[10px] uppercase tracking-widest hover:bg-surface-variant transition-colors">
+                        Full Standings [F3]
+                    </button>
+</div>
+<!-- Pit Log Module -->
+<div class="bg-surface-container-highest/40 backdrop-blur-xl p-4 border border-outline-variant/10">
+<h3 class="font-headline font-bold text-xs tracking-widest uppercase text-on-surface-variant mb-4">Pit Log</h3>
+<div class="space-y-4">
+<div class="flex gap-3">
+<div class="w-1 h-full bg-error rounded-full"></div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-mono text-[11px] font-bold text-on-surface">SAI</span>
+<span class="text-[9px] font-mono text-on-surface/40">BOXING</span>
+</div>
+<div class="text-[10px] font-mono text-error">STATIONARY: 2.1s</div>
+</div>
+</div>
+<div class="flex gap-3 opacity-50">
+<div class="w-1 h-full bg-on-surface-variant rounded-full"></div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-mono text-[11px] font-bold text-on-surface">ALB</span>
+<span class="text-[9px] font-mono text-on-surface/40">PIT EXIT</span>
+</div>
+<div class="text-[10px] font-mono">TOTAL: 22.4s</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Track Status -->
+<div class="p-6 carbon-texture border border-outline-variant/20 bg-surface-container-low flex flex-col items-center justify-center gap-3">
+<div class="w-16 h-16 rounded-full border-4 border-secondary/20 flex items-center justify-center relative">
+<div class="absolute inset-0 border-4 border-secondary border-t-transparent animate-spin rounded-full opacity-40"></div>
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="flag">flag</span>
+</div>
+<div class="text-center">
+<div class="font-headline font-black text-secondary uppercase tracking-widest text-lg">Green Flag</div>
+<div class="font-mono text-[10px] text-on-surface/40 uppercase">Track clear for full speed</div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Floating Action Indicator (Contextual FAB) -->
+<div class="fixed bottom-8 right-8 z-[70]">
+<button class="w-16 h-16 bg-primary shadow-[0_0_20px_rgba(255,155,72,0.4)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200">
+<span class="material-symbols-outlined text-on-primary text-3xl" style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+</div>
+<!-- Background Atmospheric Glows -->
+<div class="fixed top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+<div class="fixed bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+</body></html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PADDOCK OS | THE PADDOCK LOUNGE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#131315",
+                        "surface-tint": "#ff9b48",
+                        "error-dim": "#d53d18",
+                        "on-secondary-fixed": "#004845",
+                        "tertiary-fixed": "#ff9382",
+                        "surface-dim": "#0e0e10",
+                        "secondary-dim": "#6fe7e0",
+                        "surface-container-lowest": "#000000",
+                        "surface-container": "#19191c",
+                        "primary-fixed": "#fd8600",
+                        "tertiary-container": "#f41e10",
+                        "surface-variant": "#262528",
+                        "surface-bright": "#2c2c2f",
+                        "on-secondary-fixed-variant": "#006763",
+                        "on-tertiary-fixed-variant": "#790200",
+                        "primary": "#ff9b48",
+                        "on-primary-fixed-variant": "#4f2600",
+                        "on-secondary": "#005c58",
+                        "secondary": "#7ef6ee",
+                        "secondary-fixed-dim": "#6fe7e0",
+                        "tertiary-fixed-dim": "#ff7c68",
+                        "outline": "#767577",
+                        "inverse-on-surface": "#565457",
+                        "surface": "#0e0e10",
+                        "tertiary-dim": "#e81105",
+                        "primary-fixed-dim": "#e97b00",
+                        "primary-container": "#fd8600",
+                        "inverse-surface": "#fcf8fb",
+                        "outline-variant": "#48474a",
+                        "on-tertiary-fixed": "#3a0100",
+                        "on-primary-fixed": "#0f0400",
+                        "on-surface": "#f9f5f8",
+                        "on-surface-variant": "#adaaad",
+                        "on-background": "#f9f5f8",
+                        "primary-dim": "#f17f00",
+                        "surface-container-highest": "#262528",
+                        "on-secondary-container": "#dbfffb",
+                        "on-tertiary": "#490100",
+                        "error-container": "#b92902",
+                        "secondary-container": "#006a66",
+                        "tertiary": "#ff725d",
+                        "on-primary": "#522700",
+                        "on-tertiary-container": "#000000",
+                        "on-error": "#450900",
+                        "secondary-fixed": "#7ef6ee",
+                        "surface-container-high": "#1f1f22",
+                        "on-error-container": "#ffd2c8",
+                        "background": "#0e0e10",
+                        "inverse-primary": "#944c00",
+                        "error": "#ff7351",
+                        "on-primary-container": "#421e00"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .glass-card {
+            background: rgba(38, 37, 40, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(72, 71, 74, 0.15);
+        }
+        .kinetic-glow {
+            box-shadow: 0 0 40px rgba(255, 155, 72, 0.08);
+        }
+        .track-map-glow:hover {
+            filter: drop-shadow(0 0 8px #ff725d);
+            stroke: #ff725d;
+        }
+        .lanyard-cut {
+            clip-path: polygon(0% 0%, 100% 0%, 100% 85%, 90% 100%, 0% 100%);
+        }
+        .paddock-gradient {
+            background: radial-gradient(circle at top right, rgba(255, 155, 72, 0.05), transparent),
+                        radial-gradient(circle at bottom left, rgba(126, 246, 238, 0.05), transparent);
+        }
+    </style>
+</head>
+<body class="bg-[#0e0e10] text-on-surface font-body selection:bg-primary selection:text-on-primary-container overflow-hidden h-screen">
+<!-- Global Background Kinetic Void -->
+<div class="fixed inset-0 z-0 bg-[#0e0e10]">
+<div class="absolute inset-0 opacity-20 overflow-hidden">
+<!-- Cinematic Blurred Background Simulation -->
+<div class="absolute inset-0 bg-cover bg-center scale-110 blur-3xl opacity-30" data-alt="Blurred high-speed racing lights at night" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBTgxn9vdwtOj-ecjHl0nwX3YqRoyjj7U_Kt3m3XkNyE-FzdOgVYqZcugl58gyJFGhVMbi1RGS7kym7cbB9pAzE2eAIzScoJr7arvdYen64SzIIiUvLW22rytbw78tKT9u-4COg8p-61wNSLmkpitvL_vs8cWlvji97eb1u-yR59UHvHtXfMz8GthULxJV8FY11Evs4cOLeWAJ1Hp7GxlkgjRC462uw7z6R9dlZykXNdjtFFvVkAcL-YeHhEXb1MzQvRCr_d8hxI_3Q')"></div>
+</div>
+<div class="absolute inset-0 paddock-gradient"></div>
+</div>
+<!-- SIDE NAV BAR (Predicted Shell) -->
+<aside class="fixed left-0 top-0 h-screen w-20 hover:w-64 transition-all duration-300 border-r border-[#7ef6ee]/20 bg-[#0e0e10] dark:bg-black/95 z-50 flex flex-col group">
+<div class="p-6 mb-8">
+<div class="font-['Space_Grotesk'] font-bold text-[#ff9b48] italic tracking-tighter text-xl group-hover:block hidden">SUPER LICENSE</div>
+<div class="w-8 h-8 bg-primary rounded-sm flex items-center justify-center group-hover:hidden">
+<span class="material-symbols-outlined text-on-primary text-sm">confirmation_number</span>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Dashboard -->
+<a class="flex items-center px-6 py-4 text-gray-500 hover:text-gray-200 hover:bg-white/5 transition-colors group/item" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="ml-4 font-['Space_Grotesk'] tracking-tight opacity-0 group-hover:opacity-100 transition-opacity">Dashboard</span>
+</a>
+<!-- Telemetry -->
+<a class="flex items-center px-6 py-4 text-gray-500 hover:text-gray-200 hover:bg-white/5 transition-colors group/item" href="#">
+<span class="material-symbols-outlined" data-icon="speed">speed</span>
+<span class="ml-4 font-['Space_Grotesk'] tracking-tight opacity-0 group-hover:opacity-100 transition-opacity">Telemetry</span>
+</a>
+<!-- Strategy (Active for Paddock Lounge) -->
+<a class="flex items-center px-6 py-4 text-[#7ef6ee] border-l-2 border-[#7ef6ee] bg-gradient-to-r from-[#7ef6ee]/10 to-transparent group/item" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="ml-4 font-['Space_Grotesk'] tracking-tight opacity-0 group-hover:opacity-100 transition-opacity">Strategy</span>
+</a>
+<!-- Standings -->
+<a class="flex items-center px-6 py-4 text-gray-500 hover:text-gray-200 hover:bg-white/5 transition-colors group/item" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="ml-4 font-['Space_Grotesk'] tracking-tight opacity-0 group-hover:opacity-100 transition-opacity">Standings</span>
+</a>
+<!-- Pit Wall -->
+<a class="flex items-center px-6 py-4 text-gray-500 hover:text-gray-200 hover:bg-white/5 transition-colors group/item" href="#">
+<span class="material-symbols-outlined" data-icon="construction">construction</span>
+<span class="ml-4 font-['Space_Grotesk'] tracking-tight opacity-0 group-hover:opacity-100 transition-opacity">Pit Wall</span>
+</a>
+</nav>
+<div class="p-6 border-t border-outline-variant/20">
+<button class="w-full py-3 bg-primary text-on-primary font-bold text-xs uppercase tracking-widest scale-95 active:scale-90 duration-150 rounded-sm">
+                TRANSMIT
+            </button>
+</div>
+</aside>
+<!-- TOP APP BAR (Predicted Shell) -->
+<header class="fixed top-0 right-0 left-20 h-16 border-b border-[#48474a]/15 bg-[#0e0e10]/80 backdrop-blur-xl flex items-center justify-between px-8 z-40">
+<div class="flex items-center gap-8">
+<span class="text-[#ff9b48] font-black italic tracking-tighter font-headline text-lg">PADDOCK OS</span>
+<div class="hidden lg:flex items-center gap-4 text-gray-400 font-['JetBrains_Mono'] uppercase tracking-widest text-[10px]">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+                LIVE TELEMETRY: LAP 42 - HAM +0.4s - VER
+            </div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-gray-400 hover:text-[#7ef6ee] cursor-pointer" data-icon="notifications_active">notifications_active</span>
+<span class="material-symbols-outlined text-gray-400 hover:text-[#7ef6ee] cursor-pointer" data-icon="settings">settings</span>
+</div>
+<div class="flex items-center gap-3 border-l border-outline-variant/30 pl-6">
+<div class="text-right">
+<div class="text-[10px] font-bold text-primary font-headline italic">#44-VER-2024</div>
+<div class="text-[9px] text-gray-500 font-label">ELITE STATUS</div>
+</div>
+<img alt="Super License Badge" class="w-8 h-8 rounded-lg object-cover border border-primary/30" data-alt="Close up of a driver helmet visor profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeH5S3AtgQm9D6Jdr8fg43cT7j0h8LKFs_kel834UDNFfHbVdaEn4t7HP965cMie1Sp6EIpQbVdu9Q6VAFMagVn3s9Hmgn1YOpKPJZXIO5a2fPz6DzcyKQZFula8-lNI7xMSOAoapMe1w83CLKF3Mw0-OhLHywXFUgJtPIhznC7g-vmIQICu-83ren2VHkrVilLMcG2ViUr1kXoZD-ptVgxw8gqzObVyvkK1yQxf7GgGTQBMngPS4VdVSq3EwmgLZJKM70SwQLi_-m"/>
+</div>
+</div>
+</header>
+<!-- MAIN CONTENT CANVAS -->
+<main class="relative pt-24 pl-28 pr-12 pb-12 z-10 h-screen overflow-y-auto custom-scrollbar">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-12">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="text-tertiary font-label text-[10px] tracking-[0.3em] font-bold uppercase">Exclusive Lounge Access</span>
+<div class="flex gap-1">
+<div class="w-2 h-1 bg-tertiary"></div>
+<div class="w-2 h-1 bg-tertiary/40"></div>
+<div class="w-2 h-1 bg-tertiary/20"></div>
+</div>
+</div>
+<h1 class="text-5xl font-headline font-bold tracking-tighter text-on-surface mb-2">THE PADDOCK <span class="text-secondary italic">LOUNGE</span></h1>
+<p class="text-on-surface-variant font-body max-w-xl text-sm leading-relaxed">Secure your digital seat in the world's most exclusive watch parties. Real-time pit wall audio, multicam feeds, and legendary commentary.</p>
+</div>
+<!-- 5-Light Loading Sequence Graphic -->
+<div class="flex gap-4 p-4 glass-card rounded-lg">
+<div class="flex flex-col gap-1 items-center">
+<div class="w-4 h-4 rounded-full bg-error animate-pulse"></div>
+<div class="w-4 h-4 rounded-full bg-surface-container-highest"></div>
+</div>
+<div class="flex flex-col gap-1 items-center">
+<div class="w-4 h-4 rounded-full bg-error"></div>
+<div class="w-4 h-4 rounded-full bg-surface-container-highest"></div>
+</div>
+<div class="flex flex-col gap-1 items-center">
+<div class="w-4 h-4 rounded-full bg-error opacity-60"></div>
+<div class="w-4 h-4 rounded-full bg-surface-container-highest"></div>
+</div>
+<div class="flex flex-col gap-1 items-center">
+<div class="w-4 h-4 rounded-full bg-error opacity-40"></div>
+<div class="w-4 h-4 rounded-full bg-surface-container-highest"></div>
+</div>
+<div class="flex flex-col gap-1 items-center">
+<div class="w-4 h-4 rounded-full bg-error opacity-20"></div>
+<div class="w-4 h-4 rounded-full bg-surface-container-highest"></div>
+</div>
+</div>
+</div>
+<!-- TICKET STUB / LANYARD CARDS GRID -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+<!-- BAHRAIN GP CARD -->
+<div class="group relative perspective-1000">
+<div class="lanyard-cut glass-card w-full p-8 transition-all duration-500 group-hover:-translate-y-2 group-hover:rotate-1 kinetic-glow border-l-4 border-tertiary">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-['JetBrains_Mono'] text-on-surface-variant uppercase">Round 01 // 2024</span>
+<h2 class="text-3xl font-headline font-bold italic tracking-tight">BAHRAIN GP</h2>
+</div>
+<div class="bg-tertiary/20 px-3 py-1 border border-tertiary/40">
+<span class="text-[10px] font-bold text-tertiary font-label">LIVE SOON</span>
+</div>
+</div>
+<div class="relative h-48 mb-6 overflow-hidden bg-surface-container-lowest/50 flex items-center justify-center group-hover:bg-tertiary/5 transition-colors">
+<!-- Abstract Neon Track Map -->
+<svg class="w-40 h-32 stroke-white/20 fill-none stroke-2 transition-all duration-700 track-map-glow group-hover:scale-110" viewbox="0 0 200 150">
+<path d="M40,50 L160,50 L180,80 L160,110 L40,110 L20,80 Z"></path>
+</svg>
+<div class="absolute bottom-2 right-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[12px] text-tertiary" data-icon="thermostat">thermostat</span>
+<span class="text-[10px] font-['JetBrains_Mono'] text-on-surface-variant">AIR 24°C / TRACK 31°C</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-6 border-t border-dashed border-outline-variant/40">
+<div class="flex -space-x-3">
+<img class="w-8 h-8 rounded-full border-2 border-surface-container object-cover" data-alt="User avatar 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnhrQoNAaRcGsXBitOxROJRN2zC39_mynLRYe1qSGPiaXof1A-gTqaoPWXQhvcsAMiDFePqojdf3SgH8MZnDVpNTJLD06PIoZ1fnTaBcmFLMWiH2OV7z3xgR5gJuEqXWjzw2ywrAGBPxQUorsfWsnV_LHLGvwsoweZSlsLNQryDxGVg09jCU69gwXQ-CpmXZdwbX_N1n3smy8Ek77rLHoIhkOaeYGwSAuy_tB6vEWQ6QJuwmpQCFWyXtErWmUTGNP49i3mq2zOzIKA"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface-container object-cover" data-alt="User avatar 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmpAuAeLGb_SHBvsAwSI-8WWzR9bSgzGsoIMY1hJYgD7Xu6XpT15bQeYRYZVnt455B4ECWNcYF_kZDRueKKr931qQkMoXSKUUCCNf3K7KG5obxG3r8M6MeTdRLMTxzUsGnfhvnvDGl3BeMP5z-Nf1XJh979tIDlBHXBQUO9blKQNvf3j7Cpi3FUmyoBm-FMve_97V_Cglkcq7nYXJMcMhJ5IenAONsTfYSaB_Pdt8PXvamykL1TYXVX0oL-Y7nS3yjt7CfPaTOW6RN"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-surface-container flex items-center justify-center text-[10px] font-bold">+1.2k</div>
+</div>
+<button class="bg-on-surface text-surface py-2 px-6 font-headline font-bold text-xs hover:bg-tertiary hover:text-white transition-all">JOIN LOUNGE</button>
+</div>
+</div>
+</div>
+<!-- SAUDI GP CARD -->
+<div class="group relative">
+<div class="lanyard-cut glass-card w-full p-8 transition-all duration-500 group-hover:-translate-y-2 group-hover:-rotate-1 kinetic-glow border-l-4 border-secondary">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-['JetBrains_Mono'] text-on-surface-variant uppercase">Round 02 // 2024</span>
+<h2 class="text-3xl font-headline font-bold italic tracking-tight">SAUDI GP</h2>
+</div>
+<div class="bg-secondary/20 px-3 py-1 border border-secondary/40">
+<span class="text-[10px] font-bold text-secondary font-label">WATCHING</span>
+</div>
+</div>
+<div class="relative h-48 mb-6 overflow-hidden bg-surface-container-lowest/50 flex items-center justify-center group-hover:bg-secondary/5 transition-colors">
+<!-- Abstract Neon Track Map -->
+<svg class="w-40 h-32 stroke-white/20 fill-none stroke-2 transition-all duration-700 track-map-glow group-hover:scale-110" viewbox="0 0 200 150">
+<path d="M20,130 L40,20 L180,50 L160,130 Z"></path>
+</svg>
+<div class="absolute bottom-2 right-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[12px] text-secondary" data-icon="timer">timer</span>
+<span class="text-[10px] font-['JetBrains_Mono'] text-on-surface-variant">QUALIFYING MODE ON</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-6 border-t border-dashed border-outline-variant/40">
+<div class="flex -space-x-3">
+<img class="w-8 h-8 rounded-full border-2 border-surface-container object-cover" data-alt="User avatar 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlsJ577MF4SY_vq4Q-xS5Wyr9TiZtET42knitAQIGJpCSis8i3XPCa0h7WINg5XagOI1M2rLJzZVDqiywKa5NMiIO76pkF-RzeO5gtHYBTgMEpajLwELVccoK8nOtsxRJwdyH2aBeujtfbMdOHqIRaaXr-CI6daiebM_T1KfBO3tg_q5U2L8cY6Q3VOWYSeRF7Fec5A8fJSGdiAADRxysN2TP9Ha2WYfipWCWy6rHjSqgkK-QZk2rHOgG9MfM5eMDdFyrV89cI_A3s"/>
+<div class="w-8 h-8 rounded-full bg-secondary text-surface border-2 border-surface-container flex items-center justify-center text-[10px] font-bold"><span class="material-symbols-outlined scale-75" style="font-variation-settings: 'FILL' 1;">mic</span></div>
+</div>
+<button class="bg-secondary text-surface py-2 px-6 font-headline font-bold text-xs hover:bg-on-surface transition-all">RE-ENTER</button>
+</div>
+</div>
+</div>
+<!-- AUSTRALIAN GP CARD -->
+<div class="group relative">
+<div class="lanyard-cut glass-card w-full p-8 transition-all duration-500 group-hover:-translate-y-2 group-hover:rotate-1 kinetic-glow border-l-4 border-primary">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-[10px] font-['JetBrains_Mono'] text-on-surface-variant uppercase">Round 03 // 2024</span>
+<h2 class="text-3xl font-headline font-bold italic tracking-tight uppercase">Australian GP</h2>
+</div>
+<div class="bg-primary/20 px-3 py-1 border border-primary/40">
+<span class="text-[10px] font-bold text-primary font-label">UPCOMING</span>
+</div>
+</div>
+<div class="relative h-48 mb-6 overflow-hidden bg-surface-container-lowest/50 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
+<!-- Abstract Neon Track Map -->
+<svg class="w-40 h-32 stroke-white/20 fill-none stroke-2 transition-all duration-700 track-map-glow group-hover:scale-110" viewbox="0 0 200 150">
+<path d="M50,120 C20,100 20,40 50,20 L150,20 C180,40 180,100 150,120 Z"></path>
+</svg>
+<div class="absolute bottom-2 right-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[12px] text-primary" data-icon="distance">distance</span>
+<span class="text-[10px] font-['JetBrains_Mono'] text-on-surface-variant">5.278 KM LAP</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-6 border-t border-dashed border-outline-variant/40">
+<div class="flex -space-x-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-surface-container flex items-center justify-center text-[10px] font-bold"><span class="material-symbols-outlined scale-75" data-icon="lock">lock</span></div>
+</div>
+<button class="bg-outline-variant/20 text-on-surface-variant py-2 px-6 font-headline font-bold text-xs cursor-not-allowed">RSVP EARLY</button>
+</div>
+</div>
+</div>
+</div>
+<!-- BENTO LAYOUT FOR LOUNGE PERKS -->
+<div class="mt-16 grid grid-cols-12 gap-6 h-80">
+<div class="col-span-8 glass-card p-8 flex flex-col justify-between group overflow-hidden relative">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+<div>
+<h3 class="text-2xl font-headline font-bold mb-4 tracking-tight">ENGINEER'S CHANNEL</h3>
+<p class="text-on-surface-variant max-w-lg text-sm leading-relaxed">Hear what the public broadcast misses. Direct access to pit-to-car radio with live AI-translation and predictive strategy mapping.</p>
+</div>
+<div class="flex gap-6 mt-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-variant flex items-center justify-center rounded-sm border border-outline-variant/20 group-hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-primary" data-icon="radio">radio</span>
+</div>
+<div>
+<div class="text-[10px] font-bold text-on-surface">DIRECT FEED</div>
+<div class="text-[9px] text-gray-500">LOW LATENCY</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-variant flex items-center justify-center rounded-sm border border-outline-variant/20 group-hover:border-secondary transition-colors">
+<span class="material-symbols-outlined text-secondary" data-icon="psychology">psychology</span>
+</div>
+<div>
+<div class="text-[10px] font-bold text-on-surface">AI STRATEGY</div>
+<div class="text-[9px] text-gray-500">PREDICTIVE ANALYTICS</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-4 bg-tertiary p-8 flex flex-col justify-between group relative overflow-hidden">
+<div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-4xl text-on-tertiary mb-4" data-icon="workspace_premium" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<h3 class="text-2xl font-headline font-extrabold text-on-tertiary tracking-tighter uppercase leading-tight">Elite Guest<br/>Pass</h3>
+</div>
+<div class="relative z-10">
+<div class="text-[10px] font-bold text-on-tertiary opacity-70 mb-2 font-['JetBrains_Mono']">UNLOCK GUEST ROOMS</div>
+<button class="w-full bg-on-tertiary text-tertiary font-bold py-3 text-xs tracking-widest uppercase hover:invert transition-all">UPGRADE NOW</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>
