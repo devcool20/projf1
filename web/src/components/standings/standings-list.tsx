@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { ApiDriverStanding } from "@/lib/types";
 import { getTeamColor, getNationalityFlag } from "@/lib/team-colors";
 
@@ -8,16 +9,63 @@ type Props = {
   drivers: ApiDriverStanding[];
   selectedCode: string;
   onSelect: (code: string) => void;
+  leaderPoints?: number;
 };
 
-export function StandingsList({ drivers, selectedCode, onSelect }: Props) {
-  const maxPoints = drivers[0]?.points ?? 1;
+function getAvatarSrc(driverName: string): string {
+  const firstName = driverName.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, "") ?? "";
+  return `/api/avatar/${firstName}`;
+}
+
+export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }: Props) {
+  const maxPoints = leaderPoints ?? drivers[0]?.points ?? 1;
+  const [hoveredCode, setHoveredCode] = useState<string | null>(null);
+  const [popupY, setPopupY] = useState(0);
+  const listRef = useRef<HTMLDivElement>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handlePointerEnter = useCallback((code: string, e: React.PointerEvent) => {
+    if (e.pointerType === "mouse") {
+      const rect = listRef.current?.getBoundingClientRect();
+      const rowRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      setPopupY(rowRect.top - (rect?.top ?? 0));
+      setHoveredCode(code);
+    }
+  }, []);
+
+  const handlePointerLeave = useCallback(() => {
+    setHoveredCode(null);
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleTouchStart = useCallback((code: string, e: React.TouchEvent) => {
+    const rect = listRef.current?.getBoundingClientRect();
+    const rowRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setPopupY(rowRect.top - (rect?.top ?? 0));
+    longPressTimer.current = setTimeout(() => {
+      setHoveredCode(code);
+    }, 300);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    setHoveredCode(null);
+  }, []);
+
+  const hoveredDriver = hoveredCode ? drivers.find((d) => d.driverCode === hoveredCode) : null;
+  const hoveredTc = hoveredDriver ? getTeamColor(hoveredDriver.teamName) : null;
 
   return (
-    <section className="dashboard-panel mt-4 overflow-hidden">
-      <div className="grid grid-cols-[3rem_1fr_10rem_5rem_6rem] gap-x-2 border-b border-outline-variant/20 px-4 py-2">
+    <section className="dashboard-panel relative mt-5 overflow-hidden" ref={listRef}>
+      <div className="grid grid-cols-[2.8rem_minmax(0,1fr)_9.5rem_4.4rem_4.6rem] gap-x-2 border-b border-outline-variant/20 px-4 py-2">
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">POS</span>
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">DRIVER</span>
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant min-w-0">DRIVER</span>
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">TEAM</span>
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant text-right">NAT</span>
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant text-right">PTS</span>
@@ -36,7 +84,11 @@ export function StandingsList({ drivers, selectedCode, onSelect }: Props) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.02, duration: 0.3 }}
               onClick={() => onSelect(driver.driverCode)}
-              className={`group relative grid w-full grid-cols-[3rem_1fr_10rem_5rem_6rem] items-center gap-x-2 px-4 py-2.5 text-left transition-colors ${
+              onPointerEnter={(e) => handlePointerEnter(driver.driverCode, e)}
+              onPointerLeave={handlePointerLeave}
+              onTouchStart={(e) => handleTouchStart(driver.driverCode, e)}
+              onTouchEnd={handleTouchEnd}
+              className={`group relative grid w-full grid-cols-[2.8rem_minmax(0,1fr)_9.5rem_4.4rem_4.6rem] items-center gap-x-2 px-4 py-2.5 text-left transition-colors ${
                 isSelected
                   ? "bg-secondary/8 border-l-2 border-l-secondary"
                   : "border-l-2 border-l-transparent hover:bg-surface-container-high/60"
@@ -51,12 +103,18 @@ export function StandingsList({ drivers, selectedCode, onSelect }: Props) {
                 {String(driver.position).padStart(2, "0")}
               </span>
 
-              <span className="relative z-10">
-                <span className="font-headline text-sm font-semibold">{driver.driverName}</span>
-                <span className="ml-2 font-mono text-[10px] text-on-surface-variant">{driver.driverCode}</span>
-              </span>
+              <div className="relative z-10 min-w-0">
+                <div className="flex min-w-0 items-baseline gap-2">
+                  <span className="font-headline text-sm font-semibold truncate">{driver.driverName}</span>
+                  <span className="font-mono text-[10px] text-on-surface-variant whitespace-nowrap">{driver.driverCode}</span>
+                </div>
+              </div>
 
-              <span className="relative z-10 font-mono text-[11px]" style={{ color: tc.accent }}>
+              <span
+                className="relative z-10 truncate font-mono text-[11px] whitespace-nowrap overflow-hidden"
+                style={{ color: tc.accent }}
+                title={driver.teamName}
+              >
                 {driver.teamName}
               </span>
 
@@ -71,6 +129,45 @@ export function StandingsList({ drivers, selectedCode, onSelect }: Props) {
           );
         })}
       </div>
+
+      {/* Chibi video popup — floats beside the hovered row */}
+      <AnimatePresence>
+        {hoveredDriver && hoveredTc && (
+          <motion.div
+            key={hoveredDriver.driverCode}
+            initial={{ opacity: 0, scale: 0.8, x: 10 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.85, x: 10 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="pointer-events-none absolute right-3 z-50 w-36 overflow-hidden rounded-lg border shadow-2xl shadow-black/50"
+            style={{
+              top: Math.max(8, popupY - 40),
+              borderColor: `${hoveredTc.accent}50`,
+              background: "#0e0e10",
+            }}
+          >
+            <video
+              key={getAvatarSrc(hoveredDriver.driverName)}
+              src={getAvatarSrc(hoveredDriver.driverName)}
+              className="aspect-square w-full scale-110 object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="none"
+            />
+            <div
+              className="px-2.5 py-1.5"
+              style={{ background: hoveredTc.bg }}
+            >
+              <p className="font-headline text-xs font-bold text-white/95">{hoveredDriver.driverName}</p>
+              <p className="font-mono text-[9px]" style={{ color: hoveredTc.accent }}>
+                {hoveredDriver.teamName} — P{hoveredDriver.position}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

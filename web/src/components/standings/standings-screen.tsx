@@ -12,14 +12,24 @@ import { ConstructorsView } from "./constructors-view";
 
 type Tab = "drivers" | "constructors";
 
-export function StandingsScreen() {
+export type StandingsScreenProps = {
+  initialDrivers?: ApiDriverStanding[];
+  initialTeams?: ApiTeamStanding[];
+  initialFetchedAt?: string;
+};
+
+export function StandingsScreen({
+  initialDrivers,
+  initialTeams,
+  initialFetchedAt,
+}: StandingsScreenProps) {
   const [tab, setTab] = useState<Tab>("drivers");
-  const [drivers, setDrivers] = useState<ApiDriverStanding[]>([]);
-  const [teams, setTeams] = useState<ApiTeamStanding[]>([]);
-  const [fetchedAt, setFetchedAt] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [drivers, setDrivers] = useState<ApiDriverStanding[]>(initialDrivers ?? []);
+  const [teams, setTeams] = useState<ApiTeamStanding[]>(initialTeams ?? []);
+  const [fetchedAt, setFetchedAt] = useState<string | null>(initialFetchedAt ?? null);
+  const [loading, setLoading] = useState(!(initialDrivers && initialTeams));
   const [error, setError] = useState<string | null>(null);
-  const [selectedCode, setSelectedCode] = useState("");
+  const [selectedCode, setSelectedCode] = useState(initialDrivers?.[0]?.driverCode ?? "");
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = async () => {
@@ -44,7 +54,8 @@ export function StandingsScreen() {
   };
 
   useEffect(() => {
-    loadData();
+    // If the server already gave us initial data, skip the initial client wait.
+    if (!initialDrivers || !initialTeams) loadData();
   }, []);
 
   const handleRefresh = () => {
@@ -167,9 +178,10 @@ export function StandingsScreen() {
                 onSelect={setSelectedCode}
               />
               <StandingsList
-                drivers={drivers}
+                drivers={drivers.slice(3)}
                 selectedCode={selectedCode}
                 onSelect={setSelectedCode}
+                leaderPoints={drivers[0]?.points ?? 1}
               />
             </div>
             <aside className="col-span-12 xl:col-span-4">
