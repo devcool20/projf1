@@ -87,6 +87,7 @@ export const transcripts: Transcript[] = [
 export const commThreads: CommThread[] = [
   {
     id: "ct1",
+    profileId: "p-ananya-rao",
     username: "@racecraft_44",
     fullName: "Ananya Rao",
     message: "I think Lewis is gonna have a good year at Ferrari. The adaptation curve looks much sharper than expected.",
@@ -98,6 +99,7 @@ export const commThreads: CommThread[] = [
     replies: [
       {
         id: "r1",
+        profileId: "p-kabir-menon",
         username: "@downforce_lab",
         fullName: "Kabir Menon",
         message: "Agreed. His long-run management is still elite, and Ferrari's race pace is finally stable.",
@@ -106,6 +108,7 @@ export const commThreads: CommThread[] = [
         replies: [
           {
             id: "r1_1",
+            profileId: "p-aditi-singh",
             username: "@apex_ana",
             fullName: "Aditi Singh",
             message: "Tire wear discipline will decide everything, especially in hotter tracks.",
@@ -119,6 +122,7 @@ export const commThreads: CommThread[] = [
   },
   {
     id: "ct2",
+    profileId: "p-rohan-verma",
     username: "@telemetry_nerd",
     fullName: "Rohan Verma",
     message: "Mercedes finally found straight-line speed. If they keep this development pace, title fight gets very real.",
@@ -128,6 +132,7 @@ export const commThreads: CommThread[] = [
     replies: [
       {
         id: "r2",
+        profileId: "p-isha-kapoor",
         username: "@sector3queen",
         fullName: "Isha Kapoor",
         message: "Their qualifying ceiling is still inconsistent, but race trim is very strong.",
@@ -139,6 +144,7 @@ export const commThreads: CommThread[] = [
   },
   {
     id: "ct3",
+    profileId: "p-neel-khanna",
     username: "@f1_weekend_ops",
     fullName: "Neel Khanna",
     message: "McLaren pit wall calls look cleaner this season. Feels like they finally trust one unified strategy model.",
@@ -149,6 +155,7 @@ export const commThreads: CommThread[] = [
   },
   {
     id: "ct4",
+    profileId: "p-sara-bansal",
     username: "@gridwatch",
     fullName: "Sara Bansal",
     message: "Could be a three-team fight by mid-season if upgrades land on schedule. This might be the best year in a decade.",

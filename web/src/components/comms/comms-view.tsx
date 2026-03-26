@@ -37,7 +37,7 @@ type RawReply = {
   image_url: string | null;
   likes_count: number;
   created_at: string;
-  profiles: RawProfile;
+  profiles: RawProfile | RawProfile[] | null;
 };
 
 type RawThread = {
@@ -48,9 +48,15 @@ type RawThread = {
   likes_count: number;
   comments_count: number;
   created_at: string;
-  profiles: RawProfile;
+  profiles: RawProfile | RawProfile[] | null;
   comms_replies: RawReply[] | null;
 };
+
+function pickProfile(profile: RawProfile | RawProfile[] | null): RawProfile {
+  if (Array.isArray(profile)) return profile[0] ?? { id: "", username: "unknown", full_name: "Unknown", fav_driver: null };
+  if (profile) return profile;
+  return { id: "", username: "unknown", full_name: "Unknown", fav_driver: null };
+}
 
 function countReplies(replies: CommReply[]): number {
   if (!replies) return 0;
@@ -244,28 +250,33 @@ export function CommsView({ query }: Props) {
         const buildTree = (parentId: string | null): CommReply[] => {
           return replies
             .filter(r => r.parent_id === parentId)
-            .map(r => ({
+            .map(r => {
+              const replyProfile = pickProfile(r.profiles);
+              return ({
               id: r.id,
-              profileId: r.profiles.id,
-              username: r.profiles.username,
-              fullName: r.profiles.full_name,
-              favDriver: r.profiles.fav_driver,
+              profileId: replyProfile.id,
+              username: replyProfile.username,
+              fullName: replyProfile.full_name,
+              favDriver: replyProfile.fav_driver,
               message: r.message,
               imageUrl: r.image_url?.startsWith('blob:') ? undefined : (r.image_url ?? undefined),
               likes: r.likes_count,
               createdAt: r.created_at,
               replies: buildTree(r.id)
-            }));
+              });
+            });
         };
         return buildTree(null);
       };
 
-      const formatted: CommThread[] = (data as RawThread[]).map(t => ({
+      const formatted: CommThread[] = ((data ?? []) as RawThread[]).map(t => {
+        const threadProfile = pickProfile(t.profiles);
+        return ({
         id: t.id,
         profileId: t.profile_id,
-        username: t.profiles.username,
-        fullName: t.profiles.full_name,
-        favDriver: t.profiles.fav_driver,
+        username: threadProfile.username,
+        fullName: threadProfile.full_name,
+        favDriver: threadProfile.fav_driver,
         message: t.message,
         imageUrl: t.image_url?.startsWith('blob:') ? undefined : (t.image_url ?? undefined),
         likes: t.likes_count,
@@ -273,7 +284,8 @@ export function CommsView({ query }: Props) {
         comments: countReplies(formatReplies(t.comms_replies || [])),
         createdAt: t.created_at,
         replies: formatReplies(t.comms_replies || [])
-      }));
+        });
+      });
 
       setThreads(formatted);
     } catch (err) {
