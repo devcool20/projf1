@@ -1,9 +1,10 @@
 "use client";
 
-import { predictionConfig, predictionDriverPool, racePredictions as seededPredictions } from "@/lib/mock-data";
+import { predictionDriverPool } from "@/lib/mock-data";
 import { RacePrediction } from "@/lib/types";
-import { Clock3, Heart, MessageSquarePlus, Trophy } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { Clock3, Heart, MessageSquarePlus, Trophy, Loader2 } from "lucide-react";
+import { FormEvent, useEffect, useMemo, useState, useCallback } from "react";
 
 type PredictionForm = {
   first: string;
@@ -13,13 +14,19 @@ type PredictionForm = {
   dotd: string;
 };
 
+type PredictionConfig = {
+  id: string;
+  event_name: string;
+  qualifying_at: string;
+  lat: string;
+};
+
 function formatCountdown(ms: number) {
   const safe = Math.max(0, ms);
   const totalSeconds = Math.floor(safe / 1000);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
@@ -28,11 +35,10 @@ function relativeNowLabel() {
 }
 
 export function PredictionsScreen() {
-  const [predictions, setPredictions] = useState<RacePrediction[]>(seededPredictions);
-  const [msUntilQualifying, setMsUntilQualifying] = useState(() => {
-    const qualifyingMs = new Date(predictionConfig.qualifyingAtIso).getTime();
-    return qualifyingMs - Date.now();
-  });
+  const [predictions, setPredictions] = useState<RacePrediction[]>([]);
+  const [activeConfig, setActiveConfig] = useState<PredictionConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [msUntilQualifying, setMsUntilQualifying] = useState(0);
   const [form, setForm] = useState<PredictionForm>({
     first: predictionDriverPool[0],
     second: predictionDriverPool[1],
@@ -42,66 +48,143 @@ export function PredictionsScreen() {
   });
   const [submitError, setSubmitError] = useState("");
 
+  // --- FETCHING ---
+
+  const fetchPredictionsData = useCallback(async () => {
+    try {
+      // 1. Get active config
+      const { data: configData, error: configError } = await supabase
+        .from('prediction_config')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (configError) throw configError;
+      setActiveConfig(configData);
+
+      // 2. Fetch predictions for this event
+      const { data, error } = await supabase
+        .from('race_predictions')
+        .select(`
+          id, top3, pole_position, driver_of_the_day, likes_count, created_at,
+          profiles (username, full_name)
+        `)
+        .eq('event_id', configData.id)
+        .order('likes_count', { ascending: false });
+
+      if (error) throw error;
+
+      const formatted: RacePrediction[] = (data as any).map((p: any) => ({
+        id: p.id,
+        username: p.profiles.username,
+        fullName: p.profiles.full_name,
+        createdAt: new Date(p.created_at).toLocaleDateString("en-GB"),
+        top3: p.top3 as [string, string, string],
+        polePosition: p.pole_position,
+        driverOfTheDay: p.driver_of_the_day,
+        likes: p.likes_count,
+      }));
+
+      setPredictions(formatted);
+    } catch (err) {
+      console.error("Error syncing strategy data:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
+    fetchPredictionsData();
+
+    // 📡 Real-time Subscription
+    const channel = supabase
+      .channel('paddock-predictions')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'race_predictions' }, 
+        () => fetchPredictionsData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchPredictionsData]);
+
+  // Handle countdown
+  useEffect(() => {
+    if (!activeConfig) return;
+
     const timer = setInterval(() => {
-      const qualifyingMs = new Date(predictionConfig.qualifyingAtIso).getTime();
+      const qualifyingMs = new Date(activeConfig.qualifying_at).getTime();
       setMsUntilQualifying(qualifyingMs - Date.now());
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [activeConfig]);
 
   const postLocked = msUntilQualifying <= 60 * 60 * 1000;
   const lockText = postLocked ? "LOCKED" : "ACTIVE";
   const countdown = formatCountdown(msUntilQualifying);
 
-  const sortedPredictions = useMemo(
-    () => [...predictions].sort((a, b) => b.likes - a.likes),
-    [predictions],
-  );
-
   const updateField = (field: keyof PredictionForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const likePrediction = (id: string) => {
-    setPredictions((prev) =>
-      prev.map((prediction) =>
-        prediction.id === id ? { ...prediction, likes: prediction.likes + 1 } : prediction,
-      ),
-    );
+  const likePrediction = async (id: string) => {
+    setPredictions(prev => prev.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p));
+    await supabase.rpc('increment_prediction_likes', { target_id: id });
   };
 
-  const submitPrediction = (event: FormEvent) => {
+  const submitPrediction = async (event: FormEvent) => {
     event.preventDefault();
     setSubmitError("");
 
     if (postLocked) {
-      setSubmitError("Transmission window closed. Predictions are locked in the final hour before qualifying.");
+      setSubmitError("Uplink failed: window locked 1h before qualifying.");
       return;
     }
 
     const podium = [form.first, form.second, form.third];
     const distinct = new Set(podium);
-
     if (distinct.size !== 3) {
-      setSubmitError("Podium selection must contain three different drivers.");
+      setSubmitError("Podium error: Drivers must be distinct.");
       return;
     }
 
-    const newPrediction: RacePrediction = {
-      id: `pred-${Date.now()}`,
-      username: "@you",
-      fullName: "You",
-      createdAt: "just now",
-      top3: [form.first, form.second, form.third],
-      polePosition: form.pole,
-      driverOfTheDay: form.dotd,
-      likes: 0,
-    };
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      alert("Encryption Error: Please link your Super License first.");
+      return;
+    }
 
-    setPredictions((prev) => [newPrediction, ...prev]);
+    const { error } = await supabase
+      .from('race_predictions')
+      .insert({
+        profile_id: userData.user.id,
+        event_id: activeConfig?.id,
+        top3: podium,
+        pole_position: form.pole,
+        driver_of_the_day: form.dotd
+      });
+
+    if (error) {
+       console.error("Insertion error:", error);
+       setSubmitError("Strategy deployment failed. You might have already submitted.");
+    } else {
+       fetchPredictionsData();
+    }
   };
+
+  if (loading || !activeConfig) {
+    return (
+      <div className="flex h-[60vh] flex-col items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="mt-4 font-mono text-xs uppercase tracking-[0.3em] text-on-surface-variant">Syncing Strat Simulations...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-12 gap-4">
@@ -116,7 +199,7 @@ export function PredictionsScreen() {
                 Strategy Room: <span className="text-primary">Predictions</span>
               </h2>
               <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
-                Global Simulation Consensus: {predictionConfig.eventName}
+                Global Simulation Consensus: {activeConfig.event_name}
               </p>
             </div>
             <div className="dashboard-panel min-w-40 px-4 py-3">
@@ -129,11 +212,11 @@ export function PredictionsScreen() {
         </div>
 
         <div className="space-y-4">
-          {sortedPredictions.map((prediction) => (
+          {predictions.map((prediction) => (
             <article key={prediction.id} className="dashboard-panel p-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-sm bg-surface-container-high" />
+                  <div className="h-10 w-10 rounded-sm bg-surface-container-high border border-outline-variant/10" />
                   <div>
                     <p className="font-headline text-base">{prediction.fullName}</p>
                     <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
@@ -143,7 +226,7 @@ export function PredictionsScreen() {
                 </div>
                 <button
                   onClick={() => likePrediction(prediction.id)}
-                  className="flex items-center gap-1 border border-outline-variant/30 px-2 py-1 text-xs text-on-surface-variant hover:border-primary/40 hover:text-primary"
+                  className="flex items-center gap-1 border border-outline-variant/30 px-2 py-1 text-xs text-on-surface-variant hover:border-primary/40 hover:text-primary transition-colors"
                 >
                   <Heart className="h-3.5 w-3.5" />
                   {prediction.likes}
@@ -195,7 +278,7 @@ export function PredictionsScreen() {
             <span className="font-mono text-sm text-on-surface">{countdown}</span>
           </div>
           <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-            Lat: {predictionConfig.lat}
+            Lat: {activeConfig.lat}
           </p>
 
           <form onSubmit={submitPrediction} className="mt-4 space-y-3">
@@ -270,7 +353,7 @@ export function PredictionsScreen() {
             <button
               disabled={postLocked}
               type="submit"
-              className="mt-2 flex w-full items-center justify-center gap-2 bg-primary px-4 py-3 font-headline text-sm font-bold tracking-[0.2em] text-black uppercase disabled:cursor-not-allowed disabled:bg-outline-variant disabled:text-on-surface-variant"
+              className="mt-2 flex w-full items-center justify-center gap-2 bg-primary px-4 py-3 font-headline text-sm font-bold tracking-[0.2em] text-black uppercase disabled:cursor-not-allowed disabled:bg-outline-variant disabled:text-on-surface-variant transition-transform hover:scale-[1.01] active:scale-[0.99]"
             >
               <MessageSquarePlus className="h-4 w-4" />
               {postLocked ? "Prediction Locked" : "Deploy Prediction"}

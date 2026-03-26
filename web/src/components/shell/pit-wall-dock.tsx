@@ -9,11 +9,18 @@ export function PitWallDock() {
   const pathname = usePathname();
 
   return (
-    <aside className="group fixed inset-y-0 left-0 z-50 flex w-20 flex-col overflow-hidden border-r border-secondary/20 bg-black/95 shadow-[0_0_18px_rgba(126,246,238,0.12)] transition-all duration-300 hover:w-64">
+    <aside className="group fixed inset-y-0 left-0 z-50 flex w-20 flex-col overflow-hidden border-r border-secondary/20 bg-black/95 shadow-[0_0_18_px_rgba(126,246,238,0.12)] transition-all duration-300 hover:w-64">
       <div className="p-3">
-        <p className="font-headline text-lg font-bold italic tracking-tight text-primary whitespace-nowrap">
-          projf1
-        </p>
+        <Link href="/" className="block">
+          <video
+            src="/f1logo.mp4"
+            className="h-8 w-14 object-contain"
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+        </Link>
         <p className="mt-1 font-mono text-[10px] text-on-surface-variant opacity-0 transition-opacity group-hover:opacity-100">
           ID: #44-VER-2024
         </p>

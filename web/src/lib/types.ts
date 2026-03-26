@@ -28,10 +28,12 @@ export type CommReply = {
   id: string;
   username: string;
   fullName: string;
+  favDriver?: string | null;
   message: string;
   imageUrl?: string;
   likes: number;
   createdAt: string;
+  profileId: string;
   replies: CommReply[];
 };
 
@@ -39,11 +41,13 @@ export type CommThread = {
   id: string;
   username: string;
   fullName: string;
+  favDriver?: string | null;
   message: string;
   imageUrl?: string;
   likes: number;
   comments: number;
   createdAt: string;
+  profileId: string;
   replies: CommReply[];
 };
 
