@@ -10,6 +10,7 @@ type Props = {
   topThree: ApiDriverStanding[];
   selectedCode: string;
   onSelect: (code: string) => void;
+  onOpenDriver?: (code: string) => void;
 };
 
 const podiumOrder = [1, 0, 2] as const;
@@ -21,7 +22,7 @@ function getAvatarSrc(driverName: string): string {
   return `/api/avatar/${firstName}`;
 }
 
-export function Podium({ topThree, selectedCode, onSelect }: Props) {
+export function Podium({ topThree, selectedCode, onSelect, onOpenDriver }: Props) {
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const [popupPos, setPopupPos] = useState({ x: 0, y: 0 });
@@ -50,7 +51,7 @@ export function Podium({ topThree, selectedCode, onSelect }: Props) {
   const hoveredTc = hoveredDriver ? getTeamColor(hoveredDriver.teamName) : null;
 
   return (
-    <section className="relative flex items-end justify-center gap-3 pb-2 pt-4" ref={sectionRef}>
+    <section className="relative flex items-end justify-center gap-2 overflow-x-clip pb-2 pt-4 sm:gap-3" ref={sectionRef}>
       {ordered.map((driver, visualIdx) => {
         const tc = getTeamColor(driver.teamName);
         const isSelected = selectedCode === driver.driverCode;
@@ -63,10 +64,13 @@ export function Podium({ topThree, selectedCode, onSelect }: Props) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: delays[visualIdx], duration: 0.45, ease: "easeOut" }}
               whileHover={{ scale: 1.03, y: -4 }}
-              onClick={() => onSelect(driver.driverCode)}
+              onClick={() => {
+                onSelect(driver.driverCode);
+                onOpenDriver?.(driver.driverCode);
+              }}
               onPointerEnter={(e) => handlePointerEnter(driver.driverCode, e)}
               onPointerLeave={handlePointerLeave}
-              className={`relative flex ${podiumHeights[visualIdx]} w-44 flex-col rounded-t-lg border px-3 pb-4 pt-3 transition-all ${
+              className={`relative flex ${podiumHeights[visualIdx]} w-[31vw] min-w-[104px] max-w-[176px] flex-col rounded-t-lg border px-2.5 pb-3 pt-3 transition-all sm:px-3 sm:pb-4 ${
                 isSelected
                   ? "border-secondary/60 shadow-[0_0_24px_rgba(126,246,238,0.2)]"
                   : "border-outline-variant/25 hover:border-outline-variant/50"
@@ -81,8 +85,10 @@ export function Podium({ topThree, selectedCode, onSelect }: Props) {
               )}
 
               <div className="flex min-h-0 flex-1 flex-col items-center justify-end text-center">
-                <p className="font-headline text-lg font-bold leading-tight">{driver.driverName}</p>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-on-surface-variant">
+                <p className="line-clamp-2 font-headline text-base font-bold leading-tight text-slate-900 sm:text-lg">
+                  {driver.driverName}
+                </p>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-slate-700">
                   {getNationalityFlag(driver.nationality)} {driver.driverCode}
                 </p>
                 <p className="mt-1 font-mono text-xs" style={{ color: tc.accent }}>
@@ -95,7 +101,7 @@ export function Podium({ topThree, selectedCode, onSelect }: Props) {
               </div>
             </motion.button>
 
-            <div className="mt-2 flex h-6 w-44 items-center justify-center">
+            <div className="mt-2 flex h-6 w-[31vw] min-w-[104px] max-w-[176px] items-center justify-center">
               <div
                 className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold"
                 style={{ background: tc.accent, color: "#0e0e10" }}

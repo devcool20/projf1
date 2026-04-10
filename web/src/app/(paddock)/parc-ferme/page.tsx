@@ -14,7 +14,7 @@ export default function ParcFermePage() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+    <motion.div initial={false} animate={{ opacity: 1, y: 0 }}>
       <div className="mb-4 flex items-end justify-between border-b border-primary/20 pb-3">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">Parc Ferme</p>

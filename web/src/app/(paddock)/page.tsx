@@ -106,7 +106,7 @@ export default function DashboardPage() {
   const topThreadSignal = getSignalLabel(topThreadScore);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+    <motion.div initial={false} animate={{ opacity: 1, y: 0 }} className="space-y-5">
       <div className="max-w-full">
         <TelemetryTicker />
       </div>

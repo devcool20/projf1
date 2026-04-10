@@ -9,6 +9,7 @@ type Props = {
   drivers: ApiDriverStanding[];
   selectedCode: string;
   onSelect: (code: string) => void;
+  onOpenDriver?: (code: string) => void;
   leaderPoints?: number;
 };
 
@@ -17,12 +18,11 @@ function getAvatarSrc(driverName: string): string {
   return `/api/avatar/${firstName}`;
 }
 
-export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }: Props) {
+export function StandingsList({ drivers, selectedCode, onSelect, onOpenDriver, leaderPoints }: Props) {
   const maxPoints = leaderPoints ?? drivers[0]?.points ?? 1;
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
   const [popupY, setPopupY] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
-  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handlePointerEnter = useCallback((code: string, e: React.PointerEvent) => {
     if (e.pointerType === "mouse") {
@@ -35,27 +35,6 @@ export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }:
 
   const handlePointerLeave = useCallback(() => {
     setHoveredCode(null);
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-  }, []);
-
-  const handleTouchStart = useCallback((code: string, e: React.TouchEvent) => {
-    const rect = listRef.current?.getBoundingClientRect();
-    const rowRect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setPopupY(rowRect.top - (rect?.top ?? 0));
-    longPressTimer.current = setTimeout(() => {
-      setHoveredCode(code);
-    }, 300);
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-    setHoveredCode(null);
   }, []);
 
   const hoveredDriver = hoveredCode ? drivers.find((d) => d.driverCode === hoveredCode) : null;
@@ -63,12 +42,13 @@ export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }:
 
   return (
     <section className="dashboard-panel relative mt-5 overflow-hidden rounded-[24px]" ref={listRef}>
-      <div className="grid grid-cols-[2.8rem_minmax(0,1fr)_9.5rem_4.4rem_4.6rem] gap-x-2 border-b border-white/15 px-4 py-2">
+      <div className="grid grid-cols-[2.4rem_minmax(0,1fr)_3.8rem] gap-x-2 border-b border-white/15 px-3 py-2 sm:grid-cols-[2.8rem_minmax(0,1fr)_9.5rem_4.4rem_4.6rem] sm:px-4">
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">POS</span>
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant min-w-0">DRIVER</span>
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">TEAM</span>
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant text-right">NAT</span>
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant text-right">PTS</span>
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant text-right sm:hidden">PTS</span>
+        <span className="hidden font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant sm:block">TEAM</span>
+        <span className="hidden font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant text-right sm:block">NAT</span>
+        <span className="hidden font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant text-right sm:block">PTS</span>
       </div>
 
       <div className="thin-scrollbar max-h-[420px] overflow-y-auto">
@@ -84,12 +64,13 @@ export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }:
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.02, duration: 0.3 }}
               whileHover={{ scale: 1.01 }}
-              onClick={() => onSelect(driver.driverCode)}
+              onClick={() => {
+                onSelect(driver.driverCode);
+                onOpenDriver?.(driver.driverCode);
+              }}
               onPointerEnter={(e) => handlePointerEnter(driver.driverCode, e)}
               onPointerLeave={handlePointerLeave}
-              onTouchStart={(e) => handleTouchStart(driver.driverCode, e)}
-              onTouchEnd={handleTouchEnd}
-              className={`group relative grid w-full grid-cols-[2.8rem_minmax(0,1fr)_9.5rem_4.4rem_4.6rem] items-center gap-x-2 px-4 py-2.5 text-left transition-all ${
+              className={`group relative grid w-full grid-cols-[2.4rem_minmax(0,1fr)_3.8rem] items-center gap-x-2 px-3 py-2.5 text-left transition-all sm:grid-cols-[2.8rem_minmax(0,1fr)_9.5rem_4.4rem_4.6rem] sm:px-4 ${
                 isSelected
                   ? "border-l-2 border-l-secondary bg-white/10"
                   : "border-l-2 border-l-transparent hover:bg-white/8"
@@ -110,17 +91,20 @@ export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }:
                   <span className="font-headline text-sm font-semibold truncate">{driver.driverName}</span>
                   <span className="font-mono text-[10px] text-on-surface-variant whitespace-nowrap">{driver.driverCode}</span>
                 </div>
+                <p className="mt-0.5 truncate font-mono text-[10px] sm:hidden" style={{ color: tc.accent }}>
+                  {driver.teamName} · {getNationalityFlag(driver.nationality)}
+                </p>
               </div>
 
               <span
-                className="relative z-10 truncate font-mono text-[11px] whitespace-nowrap overflow-hidden"
+                className="relative z-10 hidden truncate font-mono text-[11px] whitespace-nowrap overflow-hidden sm:block"
                 style={{ color: tc.accent }}
                 title={driver.teamName}
               >
                 {driver.teamName}
               </span>
 
-              <span className="relative z-10 text-right font-mono text-[11px] text-on-surface-variant">
+              <span className="relative z-10 hidden text-right font-mono text-[11px] text-on-surface-variant sm:block">
                 {getNationalityFlag(driver.nationality)}
               </span>
 
@@ -140,7 +124,7 @@ export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }:
                     loop
                     muted
                     playsInline
-                    className="pointer-events-none absolute right-1 top-1 h-[calc(100%-8px)] rounded-md object-cover"
+                    className="pointer-events-none absolute right-1 top-1 hidden h-[calc(100%-8px)] rounded-md object-cover md:block"
                   />
                 )}
               </AnimatePresence>
@@ -158,7 +142,7 @@ export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }:
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.85, x: 10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="pointer-events-none absolute right-3 z-50 w-36 overflow-hidden rounded-lg border shadow-2xl shadow-black/50"
+            className="pointer-events-none absolute right-3 z-50 hidden w-36 overflow-hidden rounded-lg border shadow-2xl shadow-black/50 md:block"
             style={{
               top: Math.max(8, popupY - 40),
               borderColor: `${hoveredTc.accent}50`,

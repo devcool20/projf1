@@ -8,9 +8,10 @@ import { getTeamColor } from "@/lib/team-colors";
 type Props = {
   teams: ApiTeamStanding[];
   drivers: ApiDriverStanding[];
+  onOpenTeam?: (teamName: string) => void;
 };
 
-export function ConstructorsView({ teams, drivers }: Props) {
+export function ConstructorsView({ teams, drivers, onOpenTeam }: Props) {
   const maxPoints = teams[0]?.points ?? 1;
 
   return (
@@ -23,12 +24,13 @@ export function ConstructorsView({ teams, drivers }: Props) {
           const teamDrivers = drivers.filter((d) => d.teamName === team.teamName);
 
           return (
-            <motion.div
+            <motion.button
               key={team.teamName}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04, duration: 0.35 }}
-              className="dashboard-panel group relative overflow-hidden p-4 transition-all hover:scale-[1.005]"
+              onClick={() => onOpenTeam?.(team.teamName)}
+              className="dashboard-panel group relative w-full overflow-hidden p-4 text-left transition-all hover:scale-[1.005]"
             >
               <div
                 className="absolute inset-y-0 left-0 opacity-[0.08]"
@@ -92,7 +94,7 @@ export function ConstructorsView({ teams, drivers }: Props) {
                   />
                 </div>
               </div>
-            </motion.div>
+            </motion.button>
           );
         })}
       </div>

@@ -9,7 +9,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CreateThreadPanel } from "./create-thread-panel";
 import { UserDetailPanel } from "./user-detail-panel";
 import { Heart, MessageCircle, Share2, Signal, ChevronLeft, Plus, Trash2, X } from "lucide-react";
-import { DriverVideo } from "@/components/ui/driver-video";
 import { applyTeamAccent, resetTeamAccent } from "@/lib/team-accent";
 
 type Props = {
@@ -648,7 +647,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-12 gap-3 sm:gap-4">
+    <motion.div initial={false} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-12 gap-3 sm:gap-4">
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -828,10 +827,13 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   </div>
                </div>
                
-               <DriverVideo driverName={selectedThread.favDriver || null} className="w-12 h-12 shrink-0 border-outline-variant/30" />
+               <div className="h-7 min-w-20 rounded-full border border-outline-variant/30 bg-surface-container-low px-2.5 py-1" />
             </div>
 
-            <p className="mt-3 leading-relaxed text-sm sm:text-base text-on-surface">{selectedThread.message}</p>
+            <div className="mt-3 rounded-xl border border-outline-variant/25 bg-linear-to-br from-white/80 via-white to-surface-container-low p-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-primary">Transmission</p>
+              <p className="mt-2 leading-relaxed text-sm sm:text-base text-on-surface">{selectedThread.message}</p>
+            </div>
 
             {/* Signal Score Detail */}
             {(() => {
@@ -864,12 +866,15 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
             })()}
 
             {selectedThread.imageUrl && (
-              <div className="relative mt-4 overflow-hidden rounded-sm border border-outline-variant/30 bg-surface-dim">
+              <div className="relative mt-4 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-dim shadow-[0_10px_30px_rgba(15,23,42,0.12)]">
                  <img 
                    src={selectedThread.imageUrl} 
                    alt="Thread attachment" 
                    className="w-full h-auto object-contain"
                  />
+                 <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-black/25 to-transparent px-3 py-2">
+                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/90">Visual Feed</p>
+                 </div>
               </div>
             )}
 

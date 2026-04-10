@@ -7,8 +7,8 @@ import type { ApiDriverStanding, ApiTeamStanding } from "@/lib/types";
 import { fetchDriverStandings, fetchTeamStandings } from "@/lib/api";
 import { Podium } from "./podium";
 import { StandingsList } from "./standings-list";
-import { DriverDetailPanel } from "./driver-detail-panel";
 import { ConstructorsView } from "./constructors-view";
+import { getNationalityFlag, getTeamColor } from "@/lib/team-colors";
 
 type Tab = "drivers" | "constructors";
 
@@ -31,6 +31,8 @@ export function StandingsScreen({
   const [error, setError] = useState<string | null>(null);
   const [selectedCode, setSelectedCode] = useState(initialDrivers?.[0]?.driverCode ?? "");
   const [refreshing, setRefreshing] = useState(false);
+  const [modalDriverCode, setModalDriverCode] = useState("");
+  const [modalTeamName, setModalTeamName] = useState("");
 
   const loadData = async () => {
     try {
@@ -63,10 +65,22 @@ export function StandingsScreen({
     loadData();
   };
 
-  const selectedDriver = useMemo(
-    () => drivers.find((d) => d.driverCode === selectedCode) ?? null,
-    [drivers, selectedCode],
+  const modalDriver = useMemo(
+    () => drivers.find((d) => d.driverCode === modalDriverCode) ?? null,
+    [drivers, modalDriverCode],
   );
+  const modalTeam = useMemo(
+    () => teams.find((t) => t.teamName === modalTeamName) ?? null,
+    [teams, modalTeamName],
+  );
+  const modalTeamDrivers = useMemo(
+    () => (modalTeam ? drivers.filter((d) => d.teamName === modalTeam.teamName) : []),
+    [drivers, modalTeam],
+  );
+  const closeModal = () => {
+    setModalDriverCode("");
+    setModalTeamName("");
+  };
 
   const totalDriverPoints = useMemo(
     () => drivers.reduce((sum, d) => sum + d.points, 0),
@@ -103,7 +117,7 @@ export function StandingsScreen({
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+    <motion.div initial={false} animate={{ opacity: 1, y: 0 }}>
       {/* Header */}
       <div className="mb-5 flex items-end justify-between border-b border-white/15 pb-3">
         <div>
@@ -173,17 +187,24 @@ export function StandingsScreen({
                 topThree={drivers.slice(0, 3)}
                 selectedCode={selectedCode}
                 onSelect={setSelectedCode}
+                onOpenDriver={(code) => {
+                  setSelectedCode(code);
+                  setModalDriverCode(code);
+                  setModalTeamName("");
+                }}
               />
               <StandingsList
                 drivers={drivers.slice(3)}
                 selectedCode={selectedCode}
                 onSelect={setSelectedCode}
+                onOpenDriver={(code) => {
+                  setSelectedCode(code);
+                  setModalDriverCode(code);
+                  setModalTeamName("");
+                }}
                 leaderPoints={drivers[0]?.points ?? 1}
               />
             </div>
-            <aside className="col-span-12 xl:col-span-4">
-              <DriverDetailPanel driver={selectedDriver} allDrivers={drivers} />
-            </aside>
           </motion.div>
         ) : (
           <motion.div
@@ -193,7 +214,134 @@ export function StandingsScreen({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
           >
-            <ConstructorsView teams={teams} drivers={drivers} />
+            <ConstructorsView
+              teams={teams}
+              drivers={drivers}
+              onOpenTeam={(teamName) => {
+                setModalTeamName(teamName);
+                setModalDriverCode("");
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {(modalDriver || modalTeam) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-90 bg-slate-900/30 p-3 pb-24 backdrop-blur-[2px]"
+            onClick={closeModal}
+          >
+            <motion.div
+              initial={{ x: 42, opacity: 0.65 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 42, opacity: 0.65 }}
+              transition={{
+                x: { type: "spring", stiffness: 360, damping: 34, mass: 0.75 },
+                opacity: { duration: 0.16, ease: "easeOut" },
+              }}
+              className="dashboard-panel mx-auto h-[calc(100dvh-8rem)] w-full max-w-2xl overflow-y-auto rounded-card p-5"
+              onClick={(event) => event.stopPropagation()}
+            >
+              {modalDriver ? (
+                <>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">Driver Detail</p>
+                  <h3 className="mt-1 font-headline text-2xl">{modalDriver.driverName}</h3>
+                  <p className="mt-0.5 font-mono text-[11px] text-on-surface-variant">
+                    {modalDriver.driverCode} · {getNationalityFlag(modalDriver.nationality)} {modalDriver.nationality}
+                  </p>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <div className="rounded border border-outline-variant/25 bg-surface-container-low p-3">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Position</p>
+                      <p className="mt-1 font-mono text-2xl font-bold" style={{ color: getTeamColor(modalDriver.teamName).accent }}>
+                        P{modalDriver.position}
+                      </p>
+                    </div>
+                    <div className="rounded border border-outline-variant/25 bg-surface-container-low p-3">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Points</p>
+                      <p className="mt-1 font-mono text-2xl font-bold" style={{ color: getTeamColor(modalDriver.teamName).accent }}>
+                        {modalDriver.points}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-3 rounded border border-outline-variant/25 bg-surface-container-low p-3">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Team</p>
+                    <p className="mt-1 font-headline text-lg" style={{ color: getTeamColor(modalDriver.teamName).accent }}>
+                      {modalDriver.teamName}
+                    </p>
+                  </div>
+                  <div className="mt-3 rounded border border-outline-variant/25 bg-surface-container-low p-3">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Gap To Leader</p>
+                    <p className="mt-1 font-mono text-lg font-bold text-on-surface">
+                      {drivers[0]?.driverCode === modalDriver.driverCode
+                        ? "Leader"
+                        : `${Math.max((drivers[0]?.points ?? modalDriver.points) - modalDriver.points, 0)} pts`}
+                    </p>
+                  </div>
+                  <div className="mt-3 rounded border border-outline-variant/25 bg-surface-container-low p-3">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Nearby Rivals</p>
+                    <div className="mt-2 space-y-2">
+                      {drivers
+                        .filter((d) => Math.abs(d.position - modalDriver.position) <= 1 && d.driverCode !== modalDriver.driverCode)
+                        .slice(0, 2)
+                        .map((rival) => (
+                          <div key={rival.driverCode} className="flex items-center justify-between">
+                            <p className="font-headline text-sm">{rival.driverName}</p>
+                            <p className="font-mono text-[11px] text-on-surface-variant">
+                              P{rival.position} · {rival.points} pts
+                            </p>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </>
+              ) : modalTeam ? (
+                <>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">Team Detail</p>
+                  <h3 className="mt-1 font-headline text-2xl">{modalTeam.teamName}</h3>
+                  <p className="mt-0.5 font-mono text-[11px] text-on-surface-variant">Constructor Championship</p>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <div className="rounded border border-outline-variant/25 bg-surface-container-low p-3">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Position</p>
+                      <p className="mt-1 font-mono text-2xl font-bold" style={{ color: getTeamColor(modalTeam.teamName).accent }}>
+                        P{modalTeam.position}
+                      </p>
+                    </div>
+                    <div className="rounded border border-outline-variant/25 bg-surface-container-low p-3">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Points</p>
+                      <p className="mt-1 font-mono text-2xl font-bold" style={{ color: getTeamColor(modalTeam.teamName).accent }}>
+                        {modalTeam.points}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {modalTeamDrivers.map((driver) => (
+                      <div key={driver.driverCode} className="rounded border border-outline-variant/25 bg-surface-container-low px-3 py-2">
+                        <p className="font-headline text-sm">{driver.driverName}</p>
+                        <p className="font-mono text-[10px] text-on-surface-variant">
+                          {driver.driverCode} · P{driver.position} · {driver.points} pts
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="rounded border border-outline-variant/25 bg-surface-container-low p-3">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Share Of Leader</p>
+                      <p className="mt-1 font-mono text-lg font-bold text-on-surface">
+                        {teams[0]?.points ? `${Math.round((modalTeam.points / teams[0].points) * 100)}%` : "0%"}
+                      </p>
+                    </div>
+                    <div className="rounded border border-outline-variant/25 bg-surface-container-low p-3">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Drivers</p>
+                      <p className="mt-1 font-mono text-lg font-bold text-on-surface">{modalTeamDrivers.length}</p>
+                    </div>
+                  </div>
+                </>
+              ) : null}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
