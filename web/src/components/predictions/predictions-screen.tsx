@@ -29,11 +29,38 @@ type RawPredictionRow = {
   driver_of_the_day: string;
   likes_count: number;
   created_at: string;
-  profiles: {
-    username: string;
-    full_name: string;
-  };
+  profiles:
+    | {
+        username: string;
+        full_name: string;
+      }
+    | {
+        username: string;
+        full_name: string;
+      }[];
 };
+
+function pickProfile(
+  profile:
+    | {
+        username: string;
+        full_name: string;
+      }
+    | {
+        username: string;
+        full_name: string;
+      }[]
+    | null
+    | undefined,
+) {
+  if (!profile) {
+    return { username: "unknown", full_name: "Unknown Driver" };
+  }
+  if (Array.isArray(profile)) {
+    return profile[0] ?? { username: "unknown", full_name: "Unknown Driver" };
+  }
+  return profile;
+}
 
 function formatCountdown(ms: number) {
   const safe = Math.max(0, ms);
@@ -96,16 +123,19 @@ export function PredictionsScreen() {
 
       if (error) throw error;
 
-      const formatted: RacePrediction[] = ((data ?? []) as RawPredictionRow[]).map((p) => ({
-        id: p.id,
-        username: p.profiles.username,
-        fullName: p.profiles.full_name,
-        createdAt: new Date(p.created_at).toLocaleDateString("en-GB"),
-        top3: p.top3 as [string, string, string],
-        polePosition: p.pole_position,
-        driverOfTheDay: p.driver_of_the_day,
-        likes: p.likes_count,
-      }));
+      const formatted: RacePrediction[] = ((data ?? []) as RawPredictionRow[]).map((p) => {
+        const profile = pickProfile(p.profiles);
+        return {
+          id: p.id,
+          username: profile.username,
+          fullName: profile.full_name,
+          createdAt: new Date(p.created_at).toLocaleDateString("en-GB"),
+          top3: p.top3 as [string, string, string],
+          polePosition: p.pole_position,
+          driverOfTheDay: p.driver_of_the_day,
+          likes: p.likes_count,
+        };
+      });
 
       setPredictions(formatted);
     } catch (err) {

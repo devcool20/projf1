@@ -50,10 +50,20 @@ type ProfilePrediction = {
   driver_of_the_day: string;
   likes_count: number;
   created_at: string;
-  prediction_config?: {
-    event_name?: string;
-  };
+  prediction_config?: { event_name?: string };
 };
+
+type RawProfilePrediction = Omit<ProfilePrediction, "prediction_config"> & {
+  prediction_config?: { event_name?: string } | { event_name?: string }[];
+};
+
+function pickPredictionConfig(
+  config: { event_name?: string } | { event_name?: string }[] | null | undefined,
+) {
+  if (!config) return {};
+  if (Array.isArray(config)) return config[0] ?? {};
+  return config;
+}
 
 export function ProfileScreen() {
   const [user, setUser] = useState<MinimalUser | null>(null);
@@ -98,7 +108,13 @@ export function ProfileScreen() {
         .eq("profile_id", userId)
         .order("created_at", { ascending: false });
       
-      if (predsData) setPredictions(predsData);
+      if (predsData) {
+        const formatted: ProfilePrediction[] = (predsData as RawProfilePrediction[]).map((prediction) => ({
+          ...prediction,
+          prediction_config: pickPredictionConfig(prediction.prediction_config),
+        }));
+        setPredictions(formatted);
+      }
 
     } catch (err) {
       console.error(err);
