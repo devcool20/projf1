@@ -29,7 +29,7 @@ export function TransmitInput({ onTransmit }: Props) {
         />
         <button
           type="submit"
-          className="paddock-glow-orange px-5 py-3 font-headline text-xs font-bold tracking-[0.22em] text-black uppercase hover:scale-[1.02]"
+          className="paddock-glow-orange px-5 py-3 font-headline text-xs font-bold tracking-[0.22em] text-white uppercase hover:scale-[1.02]"
           style={{ background: "#ff9b48" }}
         >
           TRANSMIT

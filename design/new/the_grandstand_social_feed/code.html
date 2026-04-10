@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>F1 Kinetic | The Grandstand</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#f5f6f7",
+                    "on-secondary-container": "#802b00",
+                    "surface": "#f5f6f7",
+                    "primary-dim": "#8300b0",
+                    "tertiary-dim": "#005c39",
+                    "inverse-primary": "#d05bff",
+                    "secondary-fixed-dim": "#ffb193",
+                    "primary": "#9500c8",
+                    "tertiary-fixed-dim": "#00ec9a",
+                    "surface-variant": "#dadddf",
+                    "primary-container": "#d978ff",
+                    "on-surface": "#2c2f30",
+                    "surface-container-low": "#eff1f2",
+                    "on-tertiary": "#caffdc",
+                    "inverse-surface": "#0c0f10",
+                    "outline-variant": "#abadae",
+                    "on-tertiary-fixed-variant": "#00653f",
+                    "on-tertiary-container": "#005a38",
+                    "on-error": "#ffefef",
+                    "surface-tint": "#9500c8",
+                    "on-secondary": "#ffefeb",
+                    "inverse-on-surface": "#9b9d9e",
+                    "secondary": "#a23900",
+                    "background": "#f5f6f7",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#3d0055",
+                    "on-secondary-fixed-variant": "#903100",
+                    "primary-fixed": "#d978ff",
+                    "surface-container-high": "#e0e3e4",
+                    "error": "#b41340",
+                    "on-secondary-fixed": "#601e00",
+                    "surface-container-highest": "#dadddf",
+                    "on-primary": "#ffedff",
+                    "surface-dim": "#d1d5d7",
+                    "on-error-container": "#510017",
+                    "on-background": "#2c2f30",
+                    "on-primary-fixed-variant": "#4c0068",
+                    "tertiary-container": "#1dfba5",
+                    "on-tertiary-fixed": "#00452a",
+                    "error-container": "#f74b6d",
+                    "secondary-container": "#ffc5af",
+                    "on-primary-fixed": "#000000",
+                    "primary-fixed-dim": "#d160ff",
+                    "surface-container": "#e6e8ea",
+                    "outline": "#757778",
+                    "tertiary": "#006942",
+                    "tertiary-fixed": "#1dfba5",
+                    "error-dim": "#a70138",
+                    "secondary-fixed": "#ffc5af",
+                    "on-surface-variant": "#595c5d",
+                    "secondary-dim": "#8e3100"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+        .aura-purple {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: #9500c8;
+            filter: blur(64px);
+            opacity: 0.08;
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center px-6 py-4 w-full bg-transparent docked full-width top-0 z-50">
+<div class="text-2xl font-bold italic text-slate-900 dark:text-slate-50 font-['Plus_Jakarta_Sans']">F1 Kinetic</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full surface-container-low hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-slate-500" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden ring-2 ring-primary/10">
+<img alt="User Profile" data-alt="Close up portrait of a young man with a confident expression, urban lighting, high-end editorial photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqJFm-TjCtkcFXHmBNLw4v5uJgPwC5undb4IxRCogAFAhdsZ969K4sscxcif2cxHOrbQsr41e00WADUCbswfiV95n0PSCuewW_8ohOQxMqnKam2C33_CCp66IygxRgYnXl8olnGwdltt-6fWKfflivs1XlWTNkXZkfgTdOURAKrGsFQjPMSSkqDu1oiFwAZ3w4jf4t5IkkAZLxyRFkwSEBhJwIkcIs9hHsO4IlKla6u8fCEXMWHWDqyxuF_bvJ4PXvBGo2N281BmfG"/>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 pt-8">
+<!-- Editorial Header Section -->
+<div class="mb-12 relative">
+<div class="aura-purple -top-12 -left-12"></div>
+<label class="font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs text-primary font-bold mb-2 block">The Grandstand</label>
+<h1 class="text-5xl font-extrabold tracking-tight mb-4 text-on-surface">Community Pulse</h1>
+<p class="text-on-surface-variant max-w-xl text-lg leading-relaxed">Where velocity meets culture. Explore the latest insights, captures, and debates from the global paddock.</p>
+</div>
+<!-- Bento Feed Grid -->
+<div class="bento-grid">
+<!-- Large Hero Card -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-lg p-1 overflow-hidden shadow-[0_20px_40px_rgba(44,47,48,0.06)] group relative">
+<div class="aspect-[16/10] w-full rounded-[1.8rem] overflow-hidden relative">
+<img alt="Monaco Grand Prix Action" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A high-speed formula 1 car racing through the streets of Monaco, glowing brake discs, blurred background, cinematic evening lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwG_Gm_EgijUyeFPpl4LWIH2vKdFcbZz2mGHab6pfeoPB3J4iDWPpL-2ZtE5V1gVWaoMSO8cflhoYMdV6zhLN8LfpanjkdXCDupS2q1xSbIivJOkTMsIDnWvpVbBzUt8wqhwgXBIziAmSLKvRV8CLToakO0UnTZK-WMkUeSX7-uNIT4UzERCjxQnqiVNgNbjFx2AlmoYTrXW7_ytKozi_yErlxftmF7EXxIr0m9UGPAVskURtz8focfqkzT5H-J4j1aYjLGzGfkVcA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+<div>
+<span class="bg-primary/20 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3 inline-block">Trending Hub</span>
+<h2 class="text-2xl font-bold text-white mb-1">Twilight in Monaco: The Perfect Lap</h2>
+<p class="text-white/80 text-sm font-medium">@leclerc_fanatic • 12m ago</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-white/20 backdrop-blur-md p-3 rounded-full text-white hover:bg-white/40 transition-all">
+<span class="material-symbols-outlined" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Bento Column -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+<!-- Stats Bento -->
+<div class="bg-surface-container-lowest rounded-lg p-6 shadow-[0_20px_40px_rgba(44,47,48,0.06)] relative overflow-hidden">
+<div class="aura-purple -right-10 -bottom-10"></div>
+<h3 class="font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-[10px] text-outline mb-4 font-bold">Race Center Live</h3>
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="timer">timer</span>
+</div>
+<div>
+<p class="text-xs text-on-surface-variant font-medium">Session Start</p>
+<p class="text-lg font-bold">02:14:45</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-tertiary" data-icon="sensors">sensors</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-low">
+<span class="text-sm font-semibold">Boutique Drops</span>
+<span class="text-xs font-bold text-primary">NEW</span>
+</div>
+</div>
+</div>
+<!-- Video Thumbnail Bento -->
+<div class="bg-surface-container-lowest rounded-lg p-4 shadow-[0_20px_40px_rgba(44,47,48,0.06)] group cursor-pointer">
+<div class="aspect-square rounded-xl overflow-hidden relative mb-4">
+<img alt="Garage POV" class="w-full h-full object-cover" data-alt="POV shot of a formula one driver inside a dark garage, steering wheel glowing with neon data, high contrast lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUqB5w0Gf7U4WSg4FsVCSx0dSRZff_mhNdbB0NKWG-5BKJGdqi1MlpHCz1y2oxxep49csMhA6BCyjRiG1fMfghuGo-_LLZh6u6kzDi28trvxP4euK5pTltMq0VrUIXakDl0yor7vVyoWk5lo2W5zkEI1YueMCjEnAITaM34WkrtDXp4BtrZhXFTtGtIS72Mb2_x3CN5g-K4kladTASIv_gP4Au7PF4hxo0pICwPb3SKPimtIMYRMw_sIB2QTXTlfzaV6ZlZ2CWiC6W"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-white text-3xl" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+</div>
+<p class="font-bold text-sm">Inside the Garage: Aero Secrets</p>
+<p class="text-xs text-on-surface-variant mt-1">4.2k watching now</p>
+</div>
+</div>
+<!-- Small Square Post -->
+<div class="col-span-12 md:col-span-4 bg-surface-container-lowest rounded-lg p-6 shadow-[0_20px_40px_rgba(44,47,48,0.06)]">
+<div class="flex items-center gap-3 mb-4">
+<img alt="User" class="w-8 h-8 rounded-full" data-alt="Portrait of a creative professional woman, minimalist studio lighting, clean aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKvaYHx90sAqn_wENnBNQNwS6bSTyDBG4GuVw1Kma9BYyT6kHiqb1cqH8RBOESb1VUsPjl7AcnZMdXMFoqfFQxMP5wngcij3gliLMFfQo5ZLW70YQsRQxqLvD_pPfMZTeAju1IlUnxm_2w0CyKPnB2pw2TGatgfrqMST9I4IRDtHscQxsHja7YQBzv-9xxoIalzUOu-7k4yLUusks52iD95ENRKIVbvUbaSP4dyksSnbtYku2hB3EVY_2AOBDyBWS3c-aPzZ0bAtbF"/>
+<div>
+<p class="text-sm font-bold">Sara Paddock</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Encyclopedia Editor</p>
+</div>
+</div>
+<p class="text-sm text-on-surface-variant mb-6 leading-relaxed">The evolution of the front wing this season is nothing short of artistic. Check out my latest deep dive into the RB20's new endplate design.</p>
+<div class="flex items-center justify-between border-t border-surface-container pt-4">
+<div class="flex gap-4">
+<button class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="mode_comment">mode_comment</span>
+<span class="text-xs font-bold">24</span>
+</button>
+<button class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="share">share</span>
+</button>
+</div>
+<span class="material-symbols-outlined text-primary/40" data-icon="bookmark">bookmark</span>
+</div>
+</div>
+<!-- Tall Image Card -->
+<div class="col-span-12 md:col-span-4 bg-surface-container-lowest rounded-lg overflow-hidden shadow-[0_20px_40px_rgba(44,47,48,0.06)] relative group">
+<img alt="Helmet Design" class="w-full h-full object-cover aspect-[3/4]" data-alt="Close up of a stylized formula one helmet with neon purple accents, reflection of the racetrack in the visor, high definition studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC15ggyOfpkkVSqLq-081hbnMAPx1ymfn6X6bKCrpmKVKEGcUpIZBJuENNtvZ5pIbT7EZ3ox5ARgzbUuSvzaLDIvrKA9TTYs9PnhZi9qRaXmlLhqg8AbJ4zpslWkBQUll7z5ucH5V3hiXSO6KS9bd-YFrRzUysf4J1OGfjzX_hDQVJjw603av_9ZBhf7pAgWChvnixPYe0xJwyqEScnYLEbmjVoQQDLEQR7UpkCQiP_XRvTiaFx3qI3bZT1t7Jtemy97hiCeYKAzbkE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+<h4 class="text-white font-bold text-lg">Custom Lid Concepts</h4>
+<p class="text-white/80 text-xs">Explore the boutique designs</p>
+<button class="mt-4 bg-white text-primary px-4 py-2 rounded-full text-xs font-bold w-max">View Gear</button>
+</div>
+</div>
+<!-- Interaction Bento -->
+<div class="col-span-12 md:col-span-4 bg-primary text-on-primary rounded-lg p-8 shadow-[0_20px_40px_rgba(149,0,200,0.2)] flex flex-col justify-between">
+<div>
+<span class="material-symbols-outlined text-4xl mb-4" data-icon="workspace_premium" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<h3 class="text-2xl font-bold mb-2">Claim Your Podium Spot</h3>
+<p class="text-white/70 text-sm">Top contributors this week earn a digital garage expansion pack.</p>
+</div>
+<button class="mt-8 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full py-3 font-bold text-sm hover:bg-white hover:text-primary transition-all active:scale-95">Start a Thread</button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-6 left-0 right-0 z-50 flex justify-around items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-[24px] fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-full px-6 py-3 shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-purple-600 dark:text-purple-400 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-purple-600 after:rounded-full hover:scale-110 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider mt-1">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="workspace_premium">workspace_premium</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider mt-1">Podium</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

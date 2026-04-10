@@ -75,13 +75,10 @@ export function StandingsScreen({
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        >
-          <RefreshCw className="h-8 w-8 text-secondary" />
-        </motion.div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="skeleton-shimmer h-56 rounded-[24px]" />
+        <div className="skeleton-shimmer h-56 rounded-[24px]" />
+        <div className="skeleton-shimmer h-64 rounded-[24px] md:col-span-2" />
       </div>
     );
   }
@@ -106,9 +103,9 @@ export function StandingsScreen({
   }
 
   return (
-    <div>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
       {/* Header */}
-      <div className="mb-5 flex items-end justify-between border-b border-outline-variant/20 pb-3">
+      <div className="mb-5 flex items-end justify-between border-b border-white/15 pb-3">
         <div>
           <div className="flex items-center gap-2">
             <Wifi className="h-3 w-3 text-secondary" />
@@ -140,7 +137,7 @@ export function StandingsScreen({
       </div>
 
       {/* Tabs */}
-      <div className="mb-5 flex gap-1">
+      <div className="mb-5 flex gap-1 rounded-full border border-white/15 bg-white/5 p-1 backdrop-blur-md w-fit">
         {([
           { key: "drivers" as Tab, label: "Drivers", icon: <Trophy className="h-3.5 w-3.5" /> },
           { key: "constructors" as Tab, label: "Constructors", icon: <Users className="h-3.5 w-3.5" /> },
@@ -148,10 +145,10 @@ export function StandingsScreen({
           <button
             key={key}
             onClick={() => setTab(key)}
-            className={`flex items-center gap-2 px-5 py-2.5 font-mono text-xs uppercase tracking-wider transition ${
+            className={`haptic-pill flex items-center gap-2 px-5 py-2.5 font-mono text-xs uppercase tracking-wider transition ${
               tab === key
-                ? "border-b-2 border-secondary bg-secondary/8 text-secondary"
-                : "border-b-2 border-transparent text-on-surface-variant hover:bg-surface-container-high/40 hover:text-on-surface"
+                ? "team-accent-bg team-accent-text"
+                : "text-on-surface-variant hover:bg-white/10 hover:text-on-surface"
             }`}
           >
             {icon}
@@ -200,6 +197,6 @@ export function StandingsScreen({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

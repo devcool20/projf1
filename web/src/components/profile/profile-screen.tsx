@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Loader2, Plus, Flag, Trophy, ShieldAlert, LogOut } from "lucide-react";
-import { CommThread, RacePrediction } from "@/lib/types";
+import { Loader2, ShieldAlert, LogOut } from "lucide-react";
 import { predictionDriverPool } from "@/lib/mock-data";
-import { motion } from "framer-motion";
 import { DriverVideo } from "@/components/ui/driver-video";
+import { getTeamAccent } from "@/lib/team-colors";
+import { applyTeamAccent, resetTeamAccent } from "@/lib/team-accent";
 
 // Team pool for selection
 const teamPool = [
@@ -31,11 +31,35 @@ type Profile = {
   points: number;
 };
 
+type MinimalUser = {
+  id: string;
+};
+
+type ProfileComm = {
+  id: string;
+  message: string;
+  likes_count: number;
+  comments_count: number;
+  created_at: string;
+};
+
+type ProfilePrediction = {
+  id: string;
+  top3: string[];
+  pole_position: string;
+  driver_of_the_day: string;
+  likes_count: number;
+  created_at: string;
+  prediction_config?: {
+    event_name?: string;
+  };
+};
+
 export function ProfileScreen() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<MinimalUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [comms, setComms] = useState<any[]>([]);
-  const [predictions, setPredictions] = useState<any[]>([]);
+  const [comms, setComms] = useState<ProfileComm[]>([]);
+  const [predictions, setPredictions] = useState<ProfilePrediction[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Auth State
@@ -45,11 +69,12 @@ export function ProfileScreen() {
   const [fullName, setFullName] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [authError, setAuthError] = useState("");
+  const teamAccent = getTeamAccent(profile?.fav_team);
 
   const fetchProfileData = async (userId: string) => {
     try {
       // Fetch Profile
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
@@ -106,6 +131,11 @@ export function ProfileScreen() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    applyTeamAccent(profile?.fav_team);
+    return () => resetTeamAccent();
+  }, [profile?.fav_team]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -244,7 +274,7 @@ export function ProfileScreen() {
 
             <button
               type="submit"
-              className="mt-4 w-full bg-primary py-3 font-headline text-sm font-bold tracking-[0.2em] text-black uppercase hover:opacity-90 transition-opacity"
+              className="mt-4 w-full bg-primary py-3 font-headline text-sm font-bold tracking-[0.2em] text-white uppercase hover:opacity-90 transition-opacity"
             >
               {isSignUp ? "Register" : "Authenticate"}
             </button>
@@ -265,14 +295,19 @@ export function ProfileScreen() {
 
   return (
     <div className="space-y-6">
-      <section className="dashboard-panel relative overflow-hidden p-6">
-        <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
+      <section
+        className="dashboard-panel relative overflow-hidden p-6"
+        style={{
+          background: `linear-gradient(135deg, ${teamAccent}30 0%, rgba(255,255,255,0.08) 42%, rgba(255,255,255,0.03) 100%)`,
+        }}
+      >
+        <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-white/15 to-transparent pointer-events-none" />
         
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-5 z-10">
             <DriverVideo driverName={profile?.fav_driver || null} className="w-20 h-20 shrink-0 border-primary/20" />
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-primary">Super License</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: teamAccent }}>Super License</p>
               <h2 className="mt-1 font-headline text-4xl font-bold">{profile?.full_name || "Driver"}</h2>
               <p className="font-mono text-sm text-on-surface-variant">{profile?.username || "@driver"}</p>
             </div>
@@ -284,7 +319,7 @@ export function ProfileScreen() {
              >
                <LogOut className="h-3 w-3" /> Terminate Link
              </button>
-             <span className="border border-secondary/40 bg-secondary/10 px-3 py-1 font-mono text-[10px] tracking-[0.2em] text-secondary uppercase">
+             <span className="px-3 py-1 font-mono text-[10px] tracking-[0.2em] uppercase" style={{ border: `1px solid ${teamAccent}88`, background: `${teamAccent}22`, color: teamAccent }}>
                 Verified
              </span>
           </div>

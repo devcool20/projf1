@@ -23,7 +23,6 @@ export const navItems: NavItem[] = [
   { label: "Predictions", href: "/predictions", icon: "gauge" },
   { label: "Paddock Premieres", href: "/paddock-premieres", icon: "clapperboard" },
   { label: "Standings", href: "/standings", icon: "trophy" },
-  { label: "Pit Wall", href: "/pit-wall", icon: "wrench" },
   { label: "Parc Ferme", href: "/parc-ferme", icon: "shopping-bag" },
   { label: "Profile", href: "/profile", icon: "id-card" },
 ];

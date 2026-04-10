@@ -20,6 +20,7 @@ import {
   Wifi,
   Zap,
 } from "lucide-react";
+import { TelemetryTicker } from "@/components/shell/telemetry-ticker";
 import {
   commThreads,
   racePredictions,
@@ -80,6 +81,21 @@ const fadeUp = {
   animate: { opacity: 1, y: 0 },
 };
 
+const gridStagger = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const gridItem = {
+  hidden: { opacity: 0, y: 20, scale: 0.96 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.36 } },
+};
+
 export default function DashboardPage() {
   const topThread = getTopThread(commThreads);
   const topPrediction = getTopPrediction(racePredictions);
@@ -90,7 +106,10 @@ export default function DashboardPage() {
   const topThreadSignal = getSignalLabel(topThreadScore);
 
   return (
-    <div className="space-y-4">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+      <div className="max-w-full">
+        <TelemetryTicker />
+      </div>
       {/* Hero header */}
       <motion.section
         {...fadeUp}
@@ -114,9 +133,14 @@ export default function DashboardPage() {
       </motion.section>
 
       {/* Bento Grid */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <motion.div
+        variants={gridStagger}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
+      >
         {/* 1. Top Thread of the Hour */}
-        <motion.div {...fadeUp} transition={{ delay: 0.05, duration: 0.4 }}>
+        <motion.div variants={gridItem} className="xl:col-span-1">
           <Link href="/comms" className="group block h-full">
             <div className="dashboard-panel flex h-full flex-col p-5 transition hover:border-primary/40 hover:scale-[1.005]">
               <div className="flex items-center justify-between">
@@ -161,12 +185,12 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* 2. Next Race / Race Weekend */}
-        <motion.div {...fadeUp} transition={{ delay: 0.1, duration: 0.4 }}>
+        <motion.div variants={gridItem} className="xl:col-span-2">
           <NextRaceCard data={nextRaceData} />
         </motion.div>
 
         {/* 3. Upcoming Screening */}
-        <motion.div {...fadeUp} transition={{ delay: 0.15, duration: 0.4 }}>
+        <motion.div variants={gridItem} className="xl:col-span-1">
           <Link href="/paddock-premieres" className="group block h-full">
             <div className="dashboard-panel flex h-full flex-col p-5 transition hover:border-tertiary/40 hover:scale-[1.005]">
               <div className="flex items-center gap-2">
@@ -210,7 +234,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* 4. Top Prediction of the Hour */}
-        <motion.div {...fadeUp} transition={{ delay: 0.2, duration: 0.4 }}>
+        <motion.div variants={gridItem} className="xl:col-span-2">
           <Link href="/predictions" className="group block h-full">
             <div className="dashboard-panel flex h-full flex-col p-5 transition hover:border-secondary/40 hover:scale-[1.005]">
               <div className="flex items-center justify-between">
@@ -271,25 +295,27 @@ export default function DashboardPage() {
             </div>
           </Link>
         </motion.div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
 function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: boolean } | null }) {
+  const fallbackIso = "2099-01-01T00:00:00.000Z";
+  const countdown = useCountdown(data?.race.raceIso ?? fallbackIso);
   if (!data) return null;
   const { race, isRaceWeekend } = data;
-  const countdown = useCountdown(race.raceIso);
   const isLive = countdown === "LIVE NOW";
 
   return (
-    <div className="dashboard-panel flex h-full flex-col p-5 transition hover:scale-[1.005]">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-[24px] border border-white/15 bg-gradient-to-br from-primary/80 via-primary/55 to-secondary/65 p-5 text-white shadow-[0_22px_45px_rgba(124,58,237,0.35)] transition hover:scale-[1.005]">
+      <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-white/20 blur-3xl" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={`flex h-7 w-7 items-center justify-center rounded ${isRaceWeekend ? "bg-alert-red/20" : "bg-primary/15"}`}>
             <Flag className={`h-3.5 w-3.5 ${isRaceWeekend ? "text-alert-red" : "text-primary"}`} />
           </div>
-          <p className={`font-mono text-[10px] uppercase tracking-[0.25em] ${isRaceWeekend ? "text-alert-red" : "text-primary"}`}>
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/85">
             {isRaceWeekend ? "Race Weekend Live" : "Next Race"}
           </p>
         </div>
@@ -317,11 +343,11 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
         </div>
 
         {/* Countdown */}
-        <div className="mt-4 dashboard-panel px-4 py-3">
-          <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">
+        <div className="mt-4 rounded-[20px] border border-white/20 bg-black/25 px-4 py-3 backdrop-blur-md">
+          <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/70">
             {isLive ? "Race Status" : "Lights Out In"}
           </p>
-          <p className={`mt-1 font-mono text-3xl font-bold ${isLive ? "text-alert-red" : "text-on-surface"}`}>
+          <p className={`mt-1 font-mono text-3xl font-bold ${isLive ? "text-white" : "text-white"}`}>
             {countdown}
           </p>
         </div>
@@ -339,7 +365,7 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
 
 function SessionTile({ label, iso }: { label: string; iso: string }) {
   const date = new Date(iso);
-  const isPast = Date.now() > date.getTime();
+  const isPast = false;
 
   return (
     <div className={`rounded border px-2 py-1.5 text-center ${isPast ? "border-secondary/30 bg-secondary/5" : "border-outline-variant/20"}`}>

@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { Loader2, ChevronLeft, MapPin, Trophy, Signal, Clock, Heart, MessageCircle } from "lucide-react";
+import { Loader2, ChevronLeft, Trophy, Signal, Clock, Heart, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { DriverVideo } from "@/components/ui/driver-video";
+import { applyTeamAccent } from "@/lib/team-accent";
 
 type Profile = {
   id: string;
@@ -15,14 +16,24 @@ type Profile = {
   points: number;
 };
 
+type ProfileComm = {
+  id: string;
+  message: string;
+  likes_count: number;
+  comments_count: number;
+  created_at: string;
+  image_url: string | null;
+};
+
 type Props = {
   profileId: string;
   onBack: () => void;
+  onTeamAccent?: (teamName: string | null) => void;
 };
 
-export function UserDetailPanel({ profileId, onBack }: Props) {
+export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [comms, setComms] = useState<any[]>([]);
+  const [comms, setComms] = useState<ProfileComm[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchUserData = useCallback(async () => {
@@ -54,6 +65,12 @@ export function UserDetailPanel({ profileId, onBack }: Props) {
     fetchUserData();
   }, [fetchUserData]);
 
+  useEffect(() => {
+    if (!profile) return;
+    applyTeamAccent(profile.fav_team);
+    onTeamAccent?.(profile.fav_team);
+  }, [profile, onTeamAccent]);
+
   if (loading) {
     return (
       <div className="flex h-60 flex-col items-center justify-center">
@@ -67,9 +84,10 @@ export function UserDetailPanel({ profileId, onBack }: Props) {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, x: 20 }}
+      initial={{ opacity: 0, x: 36 }}
       animate={{ opacity: 1, x: 0 }}
-      className="dashboard-panel p-5"
+      exit={{ opacity: 0, x: 36 }}
+      className="dashboard-panel rounded-[24px] p-5 shadow-[0_24px_44px_rgba(2,6,23,0.38)]"
     >
       <div className="flex items-center gap-3 border-b border-primary/20 pb-4 mb-5">
         <button 

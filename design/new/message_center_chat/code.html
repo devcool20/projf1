@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Message Center | F1 Kinetic</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f5f6f7",
+                        "on-secondary-container": "#802b00",
+                        "surface": "#f5f6f7",
+                        "primary-dim": "#8300b0",
+                        "tertiary-dim": "#005c39",
+                        "inverse-primary": "#d05bff",
+                        "secondary-fixed-dim": "#ffb193",
+                        "primary": "#9500c8",
+                        "tertiary-fixed-dim": "#00ec9a",
+                        "surface-variant": "#dadddf",
+                        "primary-container": "#d978ff",
+                        "on-surface": "#2c2f30",
+                        "surface-container-low": "#eff1f2",
+                        "on-tertiary": "#caffdc",
+                        "inverse-surface": "#0c0f10",
+                        "outline-variant": "#abadae",
+                        "on-tertiary-fixed-variant": "#00653f",
+                        "on-tertiary-container": "#005a38",
+                        "on-error": "#ffefef",
+                        "surface-tint": "#9500c8",
+                        "on-secondary": "#ffefeb",
+                        "inverse-on-surface": "#9b9d9e",
+                        "secondary": "#a23900",
+                        "background": "#f5f6f7",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#3d0055",
+                        "on-secondary-fixed-variant": "#903100",
+                        "primary-fixed": "#d978ff",
+                        "surface-container-high": "#e0e3e4",
+                        "error": "#b41340",
+                        "on-secondary-fixed": "#601e00",
+                        "surface-container-highest": "#dadddf",
+                        "on-primary": "#ffedff",
+                        "surface-dim": "#d1d5d7",
+                        "on-error-container": "#510017",
+                        "on-background": "#2c2f30",
+                        "on-primary-fixed-variant": "#4c0068",
+                        "tertiary-container": "#1dfba5",
+                        "on-tertiary-fixed": "#00452a",
+                        "error-container": "#f74b6d",
+                        "secondary-container": "#ffc5af",
+                        "on-primary-fixed": "#000000",
+                        "primary-fixed-dim": "#d160ff",
+                        "surface-container": "#e6e8ea",
+                        "outline": "#757778",
+                        "tertiary": "#006942",
+                        "tertiary-fixed": "#1dfba5",
+                        "error-dim": "#a70138",
+                        "secondary-fixed": "#ffc5af",
+                        "on-surface-variant": "#595c5d",
+                        "secondary-dim": "#8e3100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .message-bubble-in {
+            border-bottom-left-radius: 4px;
+        }
+        .message-bubble-out {
+            border-bottom-right-radius: 4px;
+        }
+        .aura-purple {
+            background: radial-gradient(circle at center, rgba(149, 0, 200, 0.15) 0%, transparent 70%);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col md:flex-row">
+<!-- Top Navigation (Mobile/Web Sync) -->
+<header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-6 py-4 w-full bg-transparent font-['Plus_Jakarta_Sans'] text-sm tracking-tight">
+<div class="text-2xl font-bold italic text-slate-900 dark:text-slate-50">F1 Kinetic</div>
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-on-surface">notifications</span>
+</button>
+<img alt="User Profile" class="w-8 h-8 rounded-full border-2 border-primary-container object-cover" data-alt="Close up portrait of a stylish young man with a confident expression in a high-end urban setting with soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbdkhEasDlr1bDqvwDuT6clpzmIcSDghd9sq_yYc3u7gslhyxOuWH9Yg90_mW9Z_UiMPK5sBdI6ESTNFchw2VrRo4Xx8my83b9awDWPotLlViZojYY6hC7tE7d7PUk5FP3CNIJbpoimuomcukzIEdqd24hbpCXlfBqLWP62srgVkyXr1RB7gyIePwa19NBPf8x-vshnkRd6LIM5e3OIrBIre416m68z1d8MhWkMWZB_l_u7ArtYE6XTBAfoy3Zgf5Q-VvplA7uCOgm"/>
+</div>
+</header>
+<!-- Sidebar Navigation (Desktop) -->
+<aside class="hidden md:flex flex-col w-64 h-screen py-8 px-4 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-r-[32px] shadow-2xl shadow-purple-500/10 sticky top-0">
+<div class="mb-10 px-4">
+<div class="text-xl font-black text-purple-600 uppercase tracking-widest mb-1">F1 Kinetic</div>
+<div class="flex items-center gap-3 mt-6">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<div>
+<p class="font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-[10px] text-slate-400">Driver's License</p>
+<p class="font-bold text-sm">P1 Status</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-100 transition-all ease-out font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs" href="#">
+<span class="material-symbols-outlined">grid_view</span> Paddock Hub
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-purple-600 dark:text-purple-400 font-extrabold hover:bg-slate-100 transition-all ease-out font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">speed</span> Race Center
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-100 transition-all ease-out font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs" href="#">
+<span class="material-symbols-outlined">shopping_bag</span> Boutique
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-100 transition-all ease-out font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs" href="#">
+<span class="material-symbols-outlined">menu_book</span> Encyclopedia
+            </a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-100 transition-all ease-out font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs" href="#">
+<span class="material-symbols-outlined">group_work</span> Team Garages
+            </a>
+</nav>
+</aside>
+<!-- Main Content: Message Center -->
+<main class="flex-1 flex flex-col pt-20 pb-28 md:pb-8 md:pt-4 px-4 md:px-8 max-w-7xl mx-auto w-full relative">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full min-h-[819px]">
+<!-- Conversations List (Bento Sidebar) -->
+<div class="lg:col-span-4 flex flex-col gap-4 overflow-y-auto">
+<div class="bg-surface-container-lowest rounded-lg p-6 shadow-sm">
+<h1 class="text-2xl font-extrabold text-on-surface mb-6 tracking-tight">Messages</h1>
+<div class="relative mb-6">
+<input class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary-dim transition-all" placeholder="Search drivers..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+</div>
+<div class="space-y-4">
+<!-- Active Conversation -->
+<div class="flex items-center gap-4 p-4 rounded-xl bg-primary-container/10 border-l-4 border-primary transition-all">
+<div class="relative">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a male racing driver in team gear with sharp focus and bright studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_A26Oj5zuxdjlikxCe-YWfVOudo0W59paJkYBV-DwljlPAUz95i8x_2ad_oj57ShjavUzZR0Ro1Bd_SVPfSNSrsRQbwPY0aMSiIscbITNGg1HYntA3tkR_w96zqL3KN-gimP25sPkk9F-wESAkVNWt0MCcZrxZCKdNOmnYY2yLCb2V3r_txSh7oV2KDreK_nKOxypBZW6l9qrlVyN9c6iS5FzsC9w0CDePjeLrAo1QrDYz9K2lYYUnVc2J9_r4eniInNrGkh9hkCc"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-tertiary rounded-full border-2 border-white"></span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h4 class="font-bold text-sm truncate">Lando Norris</h4>
+<span class="text-[10px] font-bold text-primary uppercase">Now</span>
+</div>
+<p class="text-xs text-on-surface-variant truncate font-medium">The data for Sector 3 looks insane...</p>
+</div>
+</div>
+<!-- Other Conversations -->
+<div class="flex items-center gap-4 p-4 rounded-xl hover:bg-surface-container-low transition-all cursor-pointer">
+<div class="relative">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Portrait of a young woman with sunglasses on her head with soft outdoor daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBy9L5rZFAOmlqG17zL-eNN4oeYEmfP1BlKyB4ZHMhyDVm8xW4wXcwWMDXqlNCqpMYtMkNMUF5HgQxZSwU_mo2L9X2hiNxNTeCHUQf5aTGx2YWBBf1lE1bsoTz-ZqPLNGAvyF0f-V-f90_oi1FBPi4sVFIHbyj_8QZOKj8tItsZ44ZSBwAzFZTVDM7D4dLvh_JOM_PlCvoG8zdI3shGUKyPpbepOdnPlWUqZALkz_Y5dOeGSHw8sxpr_Vpw58xf83QbXscV43iwrxZ0"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-outline-variant rounded-full border-2 border-white"></span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h4 class="font-bold text-sm truncate">Max Verstappen</h4>
+<span class="text-[10px] text-outline uppercase">2m</span>
+</div>
+<p class="text-xs text-on-surface-variant truncate">Copy that, focusing on turn 4.</p>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 rounded-xl hover:bg-surface-container-low transition-all cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold text-xs">RT</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h4 class="font-bold text-sm truncate">Red Bull Strategy</h4>
+<span class="text-[10px] text-outline uppercase">1h</span>
+</div>
+<p class="text-xs text-on-surface-variant truncate">Box this lap, box box box.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Chat Window (Large Bento Card) -->
+<div class="lg:col-span-8 flex flex-col bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden relative">
+<div class="aura-purple absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+<!-- Chat Header -->
+<div class="px-6 py-4 flex items-center justify-between border-b border-surface-container-low relative z-10">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Close up professional portrait of a man in racing attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkhkxEk8gR31NHsaCxVAsK7c5UbGwSJIxyOpm9C7De66_2ruu-JmJlmyfIxpW5U0cKxi2sNAqzEQFLL-NsbIqns6D-2CqHg2t5ymVn6ljpRwe8xJmRhRXS5bIXDNu2uJ8VICLn5qDUEDO9G_6LsM8ptLmyhGcwIhP_Z_h5gzs7ljHV6oQ2YsvZxVVL5_E6Q7HazYtTtboBiJf7VkTdf9A2mbzud4n4liAJM1Ie7ultYrR5hNQoVo7E4BLAco9ZvfNRxHFTM9pNIxYy"/>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-tertiary rounded-full border-2 border-white"></span>
+</div>
+<div>
+<h3 class="font-bold text-base leading-tight">Lando Norris</h3>
+<p class="text-[10px] font-bold text-tertiary uppercase tracking-wider">Telemetry Live</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant">
+<span class="material-symbols-outlined">videocam</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant">
+<span class="material-symbols-outlined">info</span>
+</button>
+</div>
+</div>
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6 relative z-10">
+<!-- Incoming Message -->
+<div class="flex gap-3 max-w-[80%]">
+<img class="w-8 h-8 rounded-full object-cover self-end" data-alt="Small avatar of a male racing driver" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs6C0V9ceFpnv0xx2hUe5KjE8aDfB8fPMHfK69l6-Uga_5qQfEVX8RZiJTmRRpLdNskeBdi-3cQWG2byiY0zH8gf5_U0PfyA_j4ISTOuUs5ofVYQp1_6VRj609D4YRbdCIbID3U9vtJw86PktJjuUK3yiwyBaDmechVItLJrGPcv08P2utWeza_IoJicDCsYVoIV67kZhrbekRu6JZA1LYfpyff1kmt7GaCg-egxiR6MsWlHtCoEvheNb462hyeBL-FM9HRh6GNDKD"/>
+<div class="space-y-1">
+<div class="bg-surface-container p-4 rounded-2xl message-bubble-in text-sm leading-relaxed text-on-surface">
+                                Hey, just checked the wind speed data for the back straight. We might need to adjust the wing angle by 0.5 degrees.
+                            </div>
+<span class="text-[10px] text-outline font-medium px-1">10:42 AM</span>
+</div>
+</div>
+<!-- Outgoing Message -->
+<div class="flex flex-row-reverse gap-3 max-w-[80%] ml-auto">
+<div class="space-y-1 items-end flex flex-col">
+<div class="bg-primary text-on-primary p-4 rounded-2xl message-bubble-out text-sm shadow-lg shadow-primary/20 leading-relaxed">
+                                Copy that. I'm seeing the same in the telemetry. Let's confirm with the aero team before FP1.
+                            </div>
+<span class="text-[10px] text-outline font-medium px-1">10:45 AM</span>
+</div>
+</div>
+<!-- System Message (Editorial Style) -->
+<div class="flex justify-center py-2">
+<span class="bg-surface-container-low text-[10px] font-bold uppercase tracking-widest text-on-surface-variant px-4 py-1.5 rounded-full">
+                            Session Started: Practice 1
+                        </span>
+</div>
+<!-- Incoming Message with Image -->
+<div class="flex gap-3 max-w-[80%]">
+<img class="w-8 h-8 rounded-full object-cover self-end" data-alt="Small avatar of a male racing driver" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8hph94T3uEz3GZXE9-0CFAZVeCCsHlFTVpsMugWKLty3cq8am78glAxaauCNVvttjDUVij0dwbptQ9cylCItbXf4P2yQiS2wPIXpNq2jhWNOWli8xN0VGH7TfZ8R2HNPsnpdAtn1B5helAuo0sypm4sEjEUUcl4fOKCkER0fGPCYzV6QVD-cHjC6UgX0DZvLcKkFjwM8sU3Hf-X40bvevVWitIqG4nwE-xxXwNnM2iYVtVF5RKa8ECVOyPAA8OBXv0yDuYobJVWPl"/>
+<div class="space-y-2">
+<div class="bg-surface-container p-1 rounded-2xl overflow-hidden shadow-sm">
+<img class="rounded-xl w-full h-48 object-cover" data-alt="High-tech telemetry graph showing colorful speed and engine data lines on a dark interface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCR99XT9guVzwB-KGNzVn6sTQF56P5xv3qgX5c642-gautAQ9aZjcHPQ4neNdL8BO_V0waH7HgwkIoTDMAwJWbgA0pKTDamlvU8j-D5KgZiDHiYpid9T2pIQEzwzE3-wWc1BYoMXVB1p10MW714lkiddhNvOOWwjFRuRymjOx6o5vIxLBsDAjcBw2L_wVs4RSJkcX7WXXtPh6CtZqZp10Ugf3d0bnAUkuPFWi0cRb1lsvsGigJ_6iYanMxtchOKZutxLDTd-ARvlM2Q"/>
+</div>
+<div class="bg-surface-container p-4 rounded-2xl message-bubble-in text-sm leading-relaxed text-on-surface">
+                                Check the braking point on turn 9. I'm losing 0.2s there compared to last year.
+                            </div>
+<span class="text-[10px] text-outline font-medium px-1">10:48 AM</span>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-6 bg-surface-container-lowest relative z-10">
+<div class="flex items-end gap-3 bg-surface-container-low rounded-xl p-2 focus-within:ring-2 focus-within:ring-primary-dim transition-all">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 resize-none" placeholder="Type a message..." rows="1"></textarea>
+<button class="bg-primary text-on-primary p-2.5 rounded-full shadow-lg shadow-primary/30 active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Floating Pill Dock) -->
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white/80 dark:bg-slate-900/80 backdrop-blur-[24px] rounded-full px-6 py-3 shadow-[0_20px_40px_rgba(0,0,0,0.08)] z-50 flex justify-around items-center md:hidden">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center text-purple-600 dark:text-purple-400 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-purple-600 after:rounded-full hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider">Podium</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+</body></html>

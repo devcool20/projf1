@@ -3,8 +3,9 @@
 import { predictionDriverPool } from "@/lib/mock-data";
 import { RacePrediction } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
-import { Clock3, Heart, MessageSquarePlus, Trophy, Loader2 } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState, useCallback } from "react";
+import { Clock3, Heart, MessageSquarePlus, Trophy } from "lucide-react";
+import { motion } from "framer-motion";
+import { FormEvent, useEffect, useState, useCallback, useRef } from "react";
 
 type PredictionForm = {
   first: string;
@@ -19,6 +20,19 @@ type PredictionConfig = {
   event_name: string;
   qualifying_at: string;
   lat: string;
+};
+
+type RawPredictionRow = {
+  id: string;
+  top3: [string, string, string];
+  pole_position: string;
+  driver_of_the_day: string;
+  likes_count: number;
+  created_at: string;
+  profiles: {
+    username: string;
+    full_name: string;
+  };
 };
 
 function formatCountdown(ms: number) {
@@ -47,6 +61,12 @@ export function PredictionsScreen() {
     dotd: predictionDriverPool[3],
   });
   const [submitError, setSubmitError] = useState("");
+  const [draggingDriver, setDraggingDriver] = useState<string | null>(null);
+  const zoneRefs = {
+    first: useRef<HTMLDivElement | null>(null),
+    second: useRef<HTMLDivElement | null>(null),
+    third: useRef<HTMLDivElement | null>(null),
+  };
 
   // --- FETCHING ---
 
@@ -76,7 +96,7 @@ export function PredictionsScreen() {
 
       if (error) throw error;
 
-      const formatted: RacePrediction[] = (data as any).map((p: any) => ({
+      const formatted: RacePrediction[] = ((data ?? []) as RawPredictionRow[]).map((p) => ({
         id: p.id,
         username: p.profiles.username,
         fullName: p.profiles.full_name,
@@ -132,6 +152,26 @@ export function PredictionsScreen() {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const assignPodiumFromDrop = (driver: string, x: number, y: number) => {
+    const zones: Array<keyof Pick<PredictionForm, "first" | "second" | "third">> = ["first", "second", "third"];
+    let selected: (typeof zones)[number] = "first";
+    let minDist = Number.POSITIVE_INFINITY;
+
+    for (const zone of zones) {
+      const rect = zoneRefs[zone].current?.getBoundingClientRect();
+      if (!rect) continue;
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dist = Math.hypot(cx - x, cy - y);
+      if (dist < minDist) {
+        minDist = dist;
+        selected = zone;
+      }
+    }
+
+    updateField(selected, driver);
+  };
+
   const likePrediction = async (id: string) => {
     setPredictions(prev => prev.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p));
     await supabase.rpc('increment_prediction_likes', { target_id: id });
@@ -179,9 +219,10 @@ export function PredictionsScreen() {
 
   if (loading || !activeConfig) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="mt-4 font-mono text-xs uppercase tracking-[0.3em] text-on-surface-variant">Syncing Strat Simulations...</p>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="skeleton-shimmer h-56 rounded-[24px] md:col-span-2" />
+        <div className="skeleton-shimmer h-40 rounded-[24px]" />
+        <div className="skeleton-shimmer h-40 rounded-[24px]" />
       </div>
     );
   }
@@ -282,12 +323,56 @@ export function PredictionsScreen() {
           </p>
 
           <form onSubmit={submitPrediction} className="mt-4 space-y-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Podium Selection</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Podium Drag Zone</p>
+
+            <div className={`grid grid-cols-3 gap-2 ${postLocked ? "opacity-70 saturate-50" : ""}`}>
+              {([
+                { key: "second", label: "P2", accent: "text-tertiary", ring: "border-tertiary/35", value: form.second },
+                { key: "first", label: "P1", accent: "text-primary", ring: "border-primary/45", value: form.first },
+                { key: "third", label: "P3", accent: "text-secondary", ring: "border-secondary/35", value: form.third },
+              ] as const).map((slot) => (
+                <div
+                  key={slot.key}
+                  ref={zoneRefs[slot.key]}
+                  className={`rounded-[18px] border ${slot.ring} bg-surface-container-low p-3 text-center`}
+                >
+                  <p className={`font-mono text-[10px] uppercase tracking-[0.2em] ${slot.accent}`}>{slot.label}</p>
+                  <p className="mt-2 font-headline text-xs">{slot.value.split(" ").pop()}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-[18px] border border-white/10 bg-surface-container-low p-2">
+              <p className="mb-2 px-1 font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">
+                Drag driver chips onto P1/P2/P3
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {predictionDriverPool.map((driver) => (
+                  <motion.button
+                    key={`chip-${driver}`}
+                    type="button"
+                    drag={!postLocked}
+                    dragSnapToOrigin
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onDragStart={() => setDraggingDriver(driver)}
+                    onDragEnd={(_, info) => {
+                      assignPodiumFromDrop(driver, info.point.x, info.point.y);
+                      setDraggingDriver(null);
+                    }}
+                    onClick={() => !postLocked && updateField("first", driver)}
+                    className={`haptic-pill rounded-full border border-white/15 px-3 py-2 text-left text-xs ${draggingDriver === driver ? "text-primary" : "text-on-surface"}`}
+                  >
+                    {driver}
+                  </motion.button>
+                ))}
+              </div>
+            </div>
 
             <select
               value={form.first}
               onChange={(event) => updateField("first", event.target.value)}
-              className="w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-primary"
+              className="hidden w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-primary"
             >
               {predictionDriverPool.map((driver) => (
                 <option key={`p1-${driver}`} value={driver}>
@@ -299,7 +384,7 @@ export function PredictionsScreen() {
             <select
               value={form.second}
               onChange={(event) => updateField("second", event.target.value)}
-              className="w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-secondary"
+              className="hidden w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-secondary"
             >
               {predictionDriverPool.map((driver) => (
                 <option key={`p2-${driver}`} value={driver}>
@@ -311,7 +396,7 @@ export function PredictionsScreen() {
             <select
               value={form.third}
               onChange={(event) => updateField("third", event.target.value)}
-              className="w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-tertiary"
+              className="hidden w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-tertiary"
             >
               {predictionDriverPool.map((driver) => (
                 <option key={`p3-${driver}`} value={driver}>
@@ -353,17 +438,17 @@ export function PredictionsScreen() {
             <button
               disabled={postLocked}
               type="submit"
-              className="mt-2 flex w-full items-center justify-center gap-2 bg-primary px-4 py-3 font-headline text-sm font-bold tracking-[0.2em] text-black uppercase disabled:cursor-not-allowed disabled:bg-outline-variant disabled:text-on-surface-variant transition-transform hover:scale-[1.01] active:scale-[0.99]"
+              className="mt-2 flex w-full items-center justify-center gap-2 bg-primary px-4 py-3 font-headline text-sm font-bold tracking-[0.2em] text-white uppercase disabled:cursor-not-allowed disabled:bg-outline-variant disabled:text-on-surface-variant transition-transform hover:scale-[1.01] active:scale-[0.99]"
             >
               <MessageSquarePlus className="h-4 w-4" />
               {postLocked ? "Prediction Locked" : "Deploy Prediction"}
             </button>
           </form>
 
-          <div className="mt-4 border border-alert-red/20 bg-alert-red/10 px-3 py-2">
+          <div className={`mt-4 border px-3 py-2 ${postLocked ? "border-tertiary/40 bg-[linear-gradient(130deg,rgba(0,229,255,0.12),rgba(124,58,237,0.2),rgba(255,255,255,0.06))]" : "border-alert-red/20 bg-alert-red/10"}`}>
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-alert-red">
               {postLocked
-                ? "Transmission window closed. Last hour before qualifying."
+                ? "Predictions frozen in holographic lock state."
                 : "Predictions auto-lock exactly 1 hour before qualifying."}
             </p>
             {submitError && (

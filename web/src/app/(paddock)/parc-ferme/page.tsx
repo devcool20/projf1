@@ -3,6 +3,7 @@
 import { ProductCard } from "@/components/shop/product-card";
 import { products } from "@/lib/mock-data";
 import { Product } from "@/lib/types";
+import { motion } from "framer-motion";
 import { useState } from "react";
 
 export default function ParcFermePage() {
@@ -13,7 +14,7 @@ export default function ParcFermePage() {
   };
 
   return (
-    <div>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
       <div className="mb-4 flex items-end justify-between border-b border-primary/20 pb-3">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">Parc Ferme</p>
@@ -24,7 +25,7 @@ export default function ParcFermePage() {
         </p>
       </div>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <section className="grid auto-rows-fr gap-4 md:grid-cols-2 xl:grid-cols-3">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} onEquip={onEquip} />
         ))}
@@ -45,6 +46,6 @@ export default function ParcFermePage() {
           </ul>
         )}
       </section>
-    </div>
+    </motion.div>
   );
 }

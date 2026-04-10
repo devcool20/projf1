@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>F1 Kinetic | The Podium</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#f5f6f7",
+                    "on-secondary-container": "#802b00",
+                    "surface": "#f5f6f7",
+                    "primary-dim": "#8300b0",
+                    "tertiary-dim": "#005c39",
+                    "inverse-primary": "#d05bff",
+                    "secondary-fixed-dim": "#ffb193",
+                    "primary": "#9500c8",
+                    "tertiary-fixed-dim": "#00ec9a",
+                    "surface-variant": "#dadddf",
+                    "primary-container": "#d978ff",
+                    "on-surface": "#2c2f30",
+                    "surface-container-low": "#eff1f2",
+                    "on-tertiary": "#caffdc",
+                    "inverse-surface": "#0c0f10",
+                    "outline-variant": "#abadae",
+                    "on-tertiary-fixed-variant": "#00653f",
+                    "on-tertiary-container": "#005a38",
+                    "on-error": "#ffefef",
+                    "surface-tint": "#9500c8",
+                    "on-secondary": "#ffefeb",
+                    "inverse-on-surface": "#9b9d9e",
+                    "secondary": "#a23900",
+                    "background": "#f5f6f7",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#3d0055",
+                    "on-secondary-fixed-variant": "#903100",
+                    "primary-fixed": "#d978ff",
+                    "surface-container-high": "#e0e3e4",
+                    "error": "#b41340",
+                    "on-secondary-fixed": "#601e00",
+                    "surface-container-highest": "#dadddf",
+                    "on-primary": "#ffedff",
+                    "surface-dim": "#d1d5d7",
+                    "on-error-container": "#510017",
+                    "on-background": "#2c2f30",
+                    "on-primary-fixed-variant": "#4c0068",
+                    "tertiary-container": "#1dfba5",
+                    "on-tertiary-fixed": "#00452a",
+                    "error-container": "#f74b6d",
+                    "secondary-container": "#ffc5af",
+                    "on-primary-fixed": "#000000",
+                    "primary-fixed-dim": "#d160ff",
+                    "surface-container": "#e6e8ea",
+                    "outline": "#757778",
+                    "tertiary": "#006942",
+                    "tertiary-fixed": "#1dfba5",
+                    "error-dim": "#a70138",
+                    "secondary-fixed": "#ffc5af",
+                    "on-surface-variant": "#595c5d",
+                    "secondary-dim": "#8e3100"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .aura-purple {
+            background: radial-gradient(circle, rgba(149, 0, 200, 0.15) 0%, rgba(149, 0, 200, 0) 70%);
+        }
+        .aura-orange {
+            background: radial-gradient(circle, rgba(162, 57, 0, 0.12) 0%, rgba(162, 57, 0, 0) 70%);
+        }
+        .aura-mint {
+            background: radial-gradient(circle, rgba(0, 105, 66, 0.1) 0%, rgba(0, 105, 66, 0) 70%);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Top Navigation Bar -->
+<header class="docked full-width top-0 z-40 bg-transparent flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-2">
+<span class="text-2xl font-bold italic text-slate-900 font-headline">F1 Kinetic</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full surface-container-low hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-on-surface" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="User Profile" data-alt="close-up portrait of a confident young woman with a modern hairstyle in professional lighting against a clean studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAn2E0g_e298BXEUYqd6DUU-0PNM_DcxNwQ92rDIIYYwOXZw0UPTqYbQi_q0b2XYtESPrJ5eMBhKFkrapYg1ZQc1GsAo8U9hql86IOWkMGBeXWCJOfAnXmqEc0J_Xdk40VoI1_v3mxLtfk7m3HwFBjgl5oNhkuo_m8WW59_x2XoaxjN2KJHjcpydeOwKfWmJDog7FhYqcwFGHsqEAO4HlZXSD2M9zsGrJyP2KwdpxnEm-Bo-mWgEN5PZ1uNvbF7NAuHB27cfQtBhLLS"/>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 pt-8 pb-32">
+<!-- Page Header -->
+<div class="mb-12">
+<h1 class="text-5xl font-extrabold tracking-tight mb-2 font-headline">The Podium</h1>
+<p class="text-on-surface-variant font-medium">Predict the top 3 finishers for the Monaco Grand Prix.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Podium Selection (Bento Style Asymmetry) -->
+<div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Drop Zones -->
+<div class="md:order-2 md:col-span-1 flex flex-col items-center">
+<div class="w-full aspect-[4/5] bg-surface-container-lowest rounded-lg p-6 relative flex flex-col items-center justify-center shadow-sm aura-purple">
+<div class="absolute top-4 left-4">
+<span class="text-label-md font-bold text-primary uppercase tracking-widest text-xs">P1 Position</span>
+</div>
+<div class="w-32 h-32 rounded-full border-4 border-dashed border-primary-container flex items-center justify-center bg-surface-container-low">
+<span class="material-symbols-outlined text-primary-dim opacity-30 text-5xl" data-icon="add_circle">add_circle</span>
+</div>
+<div class="mt-6 text-center">
+<h3 class="font-bold text-lg">Winner</h3>
+<p class="text-sm text-on-surface-variant">Drop helmet here</p>
+</div>
+</div>
+</div>
+<div class="md:order-1 md:col-span-1 flex flex-col items-center justify-end">
+<div class="w-full aspect-[4/5] bg-surface-container-lowest rounded-lg p-6 relative flex flex-col items-center justify-center shadow-sm aura-mint">
+<div class="absolute top-4 left-4">
+<span class="text-label-md font-bold text-tertiary uppercase tracking-widest text-xs">P2 Position</span>
+</div>
+<div class="w-24 h-24 rounded-full border-4 border-dashed border-outline-variant flex items-center justify-center bg-surface-container-low">
+<span class="material-symbols-outlined text-tertiary-dim opacity-30 text-4xl" data-icon="add_circle">add_circle</span>
+</div>
+<div class="mt-6 text-center">
+<h3 class="font-bold text-lg">Runner Up</h3>
+<p class="text-sm text-on-surface-variant">Drop helmet here</p>
+</div>
+</div>
+</div>
+<div class="md:order-3 md:col-span-1 flex flex-col items-center justify-end">
+<div class="w-full aspect-[4/5] bg-surface-container-lowest rounded-lg p-6 relative flex flex-col items-center justify-center shadow-sm aura-orange">
+<div class="absolute top-4 left-4">
+<span class="text-label-md font-bold text-secondary uppercase tracking-widest text-xs">P3 Position</span>
+</div>
+<div class="w-24 h-24 rounded-full border-4 border-dashed border-outline-variant flex items-center justify-center bg-surface-container-low">
+<span class="material-symbols-outlined text-secondary-dim opacity-30 text-4xl" data-icon="add_circle">add_circle</span>
+</div>
+<div class="mt-6 text-center">
+<h3 class="font-bold text-lg">Third Step</h3>
+<p class="text-sm text-on-surface-variant">Drop helmet here</p>
+</div>
+</div>
+</div>
+<!-- Helmet Inventory -->
+<div class="md:col-span-3 mt-8">
+<div class="bg-surface-container-low rounded-lg p-8">
+<div class="flex justify-between items-end mb-6">
+<h2 class="text-2xl font-bold font-headline">Available Drivers</h2>
+<span class="text-sm font-bold uppercase tracking-widest text-primary">20 Drivers Ready</span>
+</div>
+<div class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-4">
+<!-- Helmet Item -->
+<div class="flex flex-col items-center group cursor-grab active:cursor-grabbing">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center p-2 mb-2 group-hover:scale-110 transition-transform">
+<img alt="LEC Helmet" class="w-full h-full object-contain" data-alt="professional formula 1 driver racing helmet with vibrant red and white decals, aerodynamic carbon fiber texture, studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfdLdXFiH77qTWibrnLZR-HtEmfIkTCPfGlSIs3_p6z1PQrmWJGrFDKaZBaeSj1Tco4t5QCe8NrejeFMLQdNn8Nn-qAQnk5LY9Xdm4GhG3TnO-mA4nAsduDIzuONyITumMB6CMatNR6X2Nc3puV1X2pZ_cUywsVJAAbD5_q-18_zDNkWsvO84Wmfnd9fv8oDWb5BHC36mvfGtOekkYG39lzLgYpMOmLiyNol0qAktWSqAIr_GI_bEyiP4kne_VWUaXhB18PbnKtqNI"/>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-wider">LEC</span>
+</div>
+<div class="flex flex-col items-center group cursor-grab active:cursor-grabbing">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center p-2 mb-2 group-hover:scale-110 transition-transform">
+<img alt="VER Helmet" class="w-full h-full object-contain" data-alt="high-tech navy blue racing helmet with golden bull logo, glossy finish, intricate aerodynamic design, isolated on white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCM26xhkF370-9ov-2nBUBT4gceNc168gRWu_MboAWC0-gQw0McERDCE-A8fiJCOrhvmTqVJpJpn0F3DXUeg63RomOSJi-GUh085E7TRJcf1Ea_9_QW6UJqQd0L_Cxup1Kt0P-TFS_Yw-KgoyXHmT4DOMjnJvDge55WyO4LpbRmF3LZBYdkXmrFDhlT7b6dK7Fcs23R_NzsGnEJuaRSR9jPNuU-Zf6csO_yWhChioNCOHnlDYm6Mn0fm2VWiAhxLB9_ayxxLhRV2cII"/>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-wider">VER</span>
+</div>
+<div class="flex flex-col items-center group cursor-grab active:cursor-grabbing">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center p-2 mb-2 group-hover:scale-110 transition-transform">
+<img alt="HAM Helmet" class="w-full h-full object-contain" data-alt="sleek purple and black formula 1 helmet with fluorescent yellow accents, modern aerodynamic shell, premium studio setup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAscaLbPghQlPI-igMYFfNuGqQ5fEi8L8AAi6RwIHDmLTpHeJEG68eKWH0j1hacDnUV6yUsGm6Krj06eD5eaAH8gB1s3heoQT1MPeVEaSkNW7NiTymXFcNcAOPvhvBcSXcY2EF6rVbouCU52HGefnUPKDMxyrWHBzeampaPqJY4e94jiDYOdBfvwjLqrS8do6C8D0KmRpEnSzcnI9tO9gHU3Wdf-KFVVSSG0Y6hX2ct13VmuAW1YfVNIpIsgxrKVkf36_PBnE7GHyi"/>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-wider">HAM</span>
+</div>
+<div class="flex flex-col items-center group cursor-grab active:cursor-grabbing">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center p-2 mb-2 group-hover:scale-110 transition-transform">
+<img alt="NOR Helmet" class="w-full h-full object-contain" data-alt="bright neon orange racing helmet with chrome accents and carbon fiber vents, futuristic racing gear aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGZjnIWCbuGy5UOY9aaZSrqR4AVEq35PvfzAnBr9P4uIAWHi_8uyczDlrd7Jx8X1Aq-Ncs_GDlXUUlLSs_V6XVwQu7mN4I6bAZjCtWR6LhaBCC82tLYmZQGIhbcd2xF4urDunKDisEWvbqwSXR_FYfgYgEq2ITPGXDTTSMv-J89kGIiphar-DetMhUIzhaqGBXINQn-DPul2Vtel5bTCxE-DKmBAD8qZldjsMDLCa9q_Xl2fPbuLb4RP2PmiSHNRXOIl99yS_EQ_SY"/>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-wider">NOR</span>
+</div>
+<!-- More helmets simplified for layout -->
+<div class="flex flex-col items-center group opacity-60">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center p-2 mb-2">
+<span class="material-symbols-outlined text-outline-variant" data-icon="sports_motorsports">sports_motorsports</span>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-wider">SAI</span>
+</div>
+<div class="flex flex-col items-center group opacity-60">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center p-2 mb-2">
+<span class="material-symbols-outlined text-outline-variant" data-icon="sports_motorsports">sports_motorsports</span>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-wider">RUS</span>
+</div>
+<div class="flex flex-col items-center group opacity-60">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center p-2 mb-2">
+<span class="material-symbols-outlined text-outline-variant" data-icon="sports_motorsports">sports_motorsports</span>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-wider">PIA</span>
+</div>
+<div class="flex flex-col items-center group opacity-60">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center p-2 mb-2">
+<span class="material-symbols-outlined text-outline-variant" data-icon="sports_motorsports">sports_motorsports</span>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-wider">ALO</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Leaderboard & Social -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Mini Leaderboard -->
+<div class="bg-surface-container-lowest rounded-lg p-6 shadow-sm">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary" data-icon="leaderboard">leaderboard</span>
+<h2 class="text-xl font-bold">World Ranking</h2>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-md">
+<div class="flex items-center gap-3">
+<span class="font-black italic text-primary w-4">1</span>
+<div class="w-8 h-8 rounded-full bg-slate-300 overflow-hidden">
+<img alt="Avatar" data-alt="headshot of a middle-aged man with kind eyes and short grey hair in soft outdoor light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUXmXgt2mMw3i9933RqC_u-dUVPLi1Ltbt8NQ6ibrAFC0301-Hi0K9tYzp4e5ak5S4k2jkgLvr6rBw-s1AdHOhcsOvrEiSmyfJVemZrFWJjp2KmaQf-9SOFiYQGatDI74Er9cT5UYPlI1D95Tw-kQCxPs-uOqeBn9RevCqU2z1Rp75hmb13kLx22doOoxbJj1Z0Xm6swvsG2z-JHFbfKlNbdbB35560wHMUs7NT5xiyACrKnkv_ipf1s1g0Tj3_oi2mZVMSzXHH_K0"/>
+</div>
+<span class="text-sm font-bold">MaxPower_88</span>
+</div>
+<span class="text-sm font-black">2,450 pts</span>
+</div>
+<div class="flex items-center justify-between p-3">
+<div class="flex items-center gap-3">
+<span class="font-black italic text-on-surface-variant w-4">2</span>
+<div class="w-8 h-8 rounded-full bg-slate-300 overflow-hidden">
+<img alt="Avatar" data-alt="portrait of a young smiling man with athletic build in warm afternoon sun" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1nLDxm18nMFEBJsTyvPXUnE1XnLsJ9oNlMHzviR4Va1VDna6gcY84on4sXmN5WFi_BhQWss3ezhSfswsHkZYavGALxN9cZkNwG6fSZqnGHeL9kkafel7f47tz8bhgpnh9cNWETXbiY1pIwI7YaBvy5biCIDV0pTRGL-jD3bfXEd6hbFhii3WQITQAerf5B1COSzMOkZsVXHhWWV3NtHHA3N4iS87e-s6JggZ4N2w6yuoSA_4m8v-BrbZRqBuZwDPA0D-vTr3_QgT_"/>
+</div>
+<span class="text-sm font-medium">KineticSoul</span>
+</div>
+<span class="text-sm font-bold">2,390 pts</span>
+</div>
+<div class="flex items-center justify-between p-3">
+<div class="flex items-center gap-3">
+<span class="font-black italic text-on-surface-variant w-4">3</span>
+<div class="w-8 h-8 rounded-full bg-slate-300 overflow-hidden">
+<img alt="Avatar" data-alt="professional headshot of a woman with long dark hair and neutral expression, studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-M4wV2KGPSXAMdX24kNIEsr6XB0JLrulG4EC6r2qxd-8AlVk5oa9Ta3unOCFqZsXGqCqXH4Io2xE2CRTd5-1ooQDDzZYP7Zz9DqW_71nEjPHIIZZgMIpBo_mlGz774bOuR8JvwEWnwCsTwW3OFvXjbg7d5xP9p-ovkz031szulCNHfr5Nkep8LnsCXGeCwSVzL33zyje9hen6v1IBHIT9BPWoHbzTH9twUjLAXfKeg-mpBgO3A1XdZSu8Ubnf0-ane3K5CcPc1EYC"/>
+</div>
+<span class="text-sm font-medium">RacingQueen</span>
+</div>
+<span class="text-sm font-bold">2,110 pts</span>
+</div>
+</div>
+<button class="w-full mt-6 py-3 rounded-full bg-primary text-on-primary font-bold text-sm hover:opacity-90 transition-opacity">
+                        View Full Standings
+                    </button>
+</div>
+<!-- Community Insight Card -->
+<div class="bg-primary-container rounded-lg p-6 text-on-primary-container relative overflow-hidden">
+<div class="relative z-10">
+<span class="text-[10px] font-black uppercase tracking-widest block mb-2">P1 Consensus</span>
+<h3 class="text-2xl font-bold leading-tight mb-4">64% of Kinetic drivers predict Charles Leclerc for the win.</h3>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-primary-container bg-slate-200 overflow-hidden">
+<img alt="User" data-alt="young man with short dark hair and cheerful expression, natural daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnJsDBr7L3MDdssQQWZajqeTujHlkZe4EaHlXILCT0D1Dok-yMHUcPt8VlB-nje7yJ09ayVn9Vho6OUgLQXqXArcqhuPFy2AbdmAjopE8H5V4ghh_REiIb6-NwIRAljmaHq65mLpfC3FOtzLdA5N_5rltPp_WU_BqT0a6lhNwQml1nW7eBn0Zcj7urK042vLRxhnwEgNTbMSU2SkgInYBAfcpuN0PZVtRVvauZmB3JXr1X0cKWKMrzdUF0UD5b1QoIlZm19YL4R-uo"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-primary-container bg-slate-200 overflow-hidden">
+<img alt="User" data-alt="candid portrait of a young woman with curly hair looking off camera in soft focus background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_Tthz03Nj2krSuiPHkeQoK08jJKow1i9zqkHaOhhNOHbuqjKUdvlJqiqt3DtmNoTJ0DoT63cvOD3dVR3KTOdnIV8oP-h1Fzmq-jqeLDdn0J7f0BU4Qq31evqtTkO6SUHQIu0nsI2ndVPYi9rypKaENd-zMuYFn7AbZeHtOcrKrBkOJIDm6bNSTSKhOLt_5W1ZR4D4OWxmWSCBT7CTZTFVTbENCxkhDs5MpbtI0oMPi6vRMCpDCY2jmQjas9C7bs9y83XqGRTPVOE8"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-primary-container bg-slate-200 overflow-hidden flex items-center justify-center bg-primary text-[10px] font-bold text-on-primary">
+                                +12k
+                            </div>
+</div>
+</div>
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-9xl opacity-10 rotate-12" data-icon="trending_up">trending_up</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Dock (Pill Dock) -->
+<nav class="fixed bottom-6 left-0 right-0 z-50 flex justify-around items-center">
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-full px-6 py-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-[24px] shadow-[0_20px_40px_rgba(0,0,0,0.08)] flex justify-around items-center">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider mt-1">Home</span>
+</a>
+<!-- Community -->
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider mt-1">Community</span>
+</a>
+<!-- Podium (Active) -->
+<a class="flex flex-col items-center justify-center text-purple-600 dark:text-purple-400 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-purple-600 after:rounded-full hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="workspace_premium" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider mt-1">Podium</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider mt-1">Profile</span>
+</a>
+</div>
+</nav>
+<!-- Floating Action Button Contextual Check: Hidden for Podium screen as per suppression rules -->
+</body></html>

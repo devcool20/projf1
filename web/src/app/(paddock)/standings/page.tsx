@@ -5,21 +5,18 @@ import {
 } from "@/lib/pda-standings-server";
 
 export default async function StandingsPage() {
-  try {
-    const [dRes, tRes] = await Promise.all([
-      fetchDriverStandingsServer(),
-      fetchTeamStandingsServer(),
-    ]);
+  const [dRes, tRes] = await Promise.allSettled([
+    fetchDriverStandingsServer(),
+    fetchTeamStandingsServer(),
+  ]);
 
-    return (
-      <StandingsScreen
-        initialDrivers={dRes.data}
-        initialTeams={tRes.data}
-        initialFetchedAt={dRes.meta.fetchedAt}
-      />
-    );
-  } catch {
-    // If server fetch fails (agent down), let the client component handle retry.
-    return <StandingsScreen />;
-  }
+  const hasData = dRes.status === "fulfilled" && tRes.status === "fulfilled";
+
+  return (
+    <StandingsScreen
+      initialDrivers={hasData ? dRes.value.data : undefined}
+      initialTeams={hasData ? tRes.value.data : undefined}
+      initialFetchedAt={hasData ? dRes.value.meta.fetchedAt : undefined}
+    />
+  );
 }

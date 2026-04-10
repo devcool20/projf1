@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>F1 Kinetic - Fan Screenings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f5f6f7",
+                        "on-secondary-container": "#802b00",
+                        "surface": "#f5f6f7",
+                        "primary-dim": "#8300b0",
+                        "tertiary-dim": "#005c39",
+                        "inverse-primary": "#d05bff",
+                        "secondary-fixed-dim": "#ffb193",
+                        "primary": "#9500c8",
+                        "tertiary-fixed-dim": "#00ec9a",
+                        "surface-variant": "#dadddf",
+                        "primary-container": "#d978ff",
+                        "on-surface": "#2c2f30",
+                        "surface-container-low": "#eff1f2",
+                        "on-tertiary": "#caffdc",
+                        "inverse-surface": "#0c0f10",
+                        "outline-variant": "#abadae",
+                        "on-tertiary-fixed-variant": "#00653f",
+                        "on-tertiary-container": "#005a38",
+                        "on-error": "#ffefef",
+                        "surface-tint": "#9500c8",
+                        "on-secondary": "#ffefeb",
+                        "inverse-on-surface": "#9b9d9e",
+                        "secondary": "#a23900",
+                        "background": "#f5f6f7",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#3d0055",
+                        "on-secondary-fixed-variant": "#903100",
+                        "primary-fixed": "#d978ff",
+                        "surface-container-high": "#e0e3e4",
+                        "error": "#b41340",
+                        "on-secondary-fixed": "#601e00",
+                        "surface-container-highest": "#dadddf",
+                        "on-primary": "#ffedff",
+                        "surface-dim": "#d1d5d7",
+                        "on-error-container": "#510017",
+                        "on-background": "#2c2f30",
+                        "on-primary-fixed-variant": "#4c0068",
+                        "tertiary-container": "#1dfba5",
+                        "on-tertiary-fixed": "#00452a",
+                        "error-container": "#f74b6d",
+                        "secondary-container": "#ffc5af",
+                        "on-primary-fixed": "#000000",
+                        "primary-fixed-dim": "#d160ff",
+                        "surface-container": "#e6e8ea",
+                        "outline": "#757778",
+                        "tertiary": "#006942",
+                        "tertiary-fixed": "#1dfba5",
+                        "error-dim": "#a70138",
+                        "secondary-fixed": "#ffc5af",
+                        "on-surface-variant": "#595c5d",
+                        "secondary-dim": "#8e3100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f5f6f7; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .aura-purple { background: radial-gradient(circle at center, rgba(149, 0, 200, 0.15) 0%, transparent 70%); filter: blur(64px); }
+        .aura-orange { background: radial-gradient(circle at center, rgba(162, 57, 0, 0.1) 0%, transparent 70%); filter: blur(64px); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-transparent text-purple-600 dark:text-purple-400 font-['Plus_Jakarta_Sans'] text-sm tracking-tight fixed top-0 w-full z-50">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="text-2xl font-bold italic text-slate-900 dark:text-slate-50">F1 Kinetic</div>
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity p-2 rounded-full surface-container-low">
+<span class="material-symbols-outlined text-on-surface">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional woman with a confident expression, soft natural lighting in a modern workspace" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA25avcqGCM9Z0fcjY7BKRuAU8Xlnlwh2HhEfL1fEJaTMgWlWsTTZvFKaREt-NJCwg88O6AyFPDpeSCmvAP35wvoPn7IHoK7kOvGhCoeDmU79NNCTmWmeQ9Gbj0fO3-MOyrXTpFh_Dv3vNJdL--zrKHZ9LvympYlenzhOu-qOr1ZfMSi9grJP1Z2WO2Oj6sCTCuJs40yp0nuHBm9958rwlsimS1AKCbSqLNIlmO4Q8Nq41FpklRw78MXF1H_HWfpGOLZInTBcTij57F"/>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-32 px-4 md:px-8 relative max-w-lg mx-auto w-full">
+<!-- Aura effects behind the main card stack -->
+<div class="absolute top-1/4 left-0 w-64 h-64 aura-purple -z-10"></div>
+<div class="absolute bottom-1/4 right-0 w-64 h-64 aura-orange -z-10"></div>
+<!-- Header Section -->
+<div class="mb-8 text-center px-4">
+<span class="label-md uppercase tracking-widest text-[10px] font-bold text-primary mb-2 block">Exclusive Access</span>
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface mb-2">Grand Prix Screenings</h1>
+<p class="text-on-surface-variant text-sm">Swipe right to RSVP, left to pass. Join the local community.</p>
+</div>
+<!-- Tinder-style Card Stack -->
+<div class="relative h-[560px] w-full">
+<!-- Active Card (Top) -->
+<div class="absolute inset-0 bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(44,47,48,0.06)] transform rotate-1 z-30 flex flex-col overflow-hidden">
+<div class="h-3/5 w-full relative">
+<img alt="Mumbai Venue" class="w-full h-full object-cover" data-alt="Modern high-end rooftop sports lounge in Mumbai at night with neon purple lights and large cinematic screen showing a race" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIPZ4Oo3dlAvfhuPlDAS-yVbWzl_7u_YV1Ub6F0e1jJkxGJD9XyNoIhstJCxKGkmXFPgJqVxbn3VwQwx7xBemIM-pCiIjQ4RpPu5t3nL-07gt8H1brhdaw261gFBWH3v7fsqS_rKtnRSuakzJZAqkD4z61hgG_atBMzftuPwkRjSHHGPOB7sjbaoeX8UcfJoF07HGv1oRRmDwkDh-aNlh5euk9YNCoZvif47x19kX3Grnbiiy9-fbcz-Sm8Jtxz7BwM0C-1tQ45Rye"/>
+<div class="absolute top-4 left-4 flex gap-2">
+<span class="bg-black/40 backdrop-blur-md text-white text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider">Live in Mumbai</span>
+</div>
+</div>
+<div class="p-6 flex-grow flex flex-col justify-between">
+<div>
+<h2 class="text-2xl font-bold text-on-surface mb-1">AER Rooftop Lounge</h2>
+<div class="flex items-center gap-2 text-on-surface-variant mb-4">
+<span class="material-symbols-outlined text-lg">location_on</span>
+<span class="text-sm">Worli, Mumbai</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-3 rounded-md">
+<span class="block label-md text-[10px] text-primary font-bold uppercase mb-1">Race Time</span>
+<span class="text-sm font-semibold">18:30 IST</span>
+</div>
+<div class="bg-surface-container-low p-3 rounded-md">
+<span class="block label-md text-[10px] text-tertiary font-bold uppercase mb-1">Status</span>
+<span class="text-sm font-semibold">Filling Fast</span>
+</div>
+</div>
+</div>
+<div class="flex justify-between items-center mt-6">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200"><img class="w-full h-full rounded-full object-cover" data-alt="Male portrait, blurred background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxodUzK1oo145foJVrdyK9mIGZbtvN-AfL5phLr7okSgnNk2dRDD_ptSmWIMVL49tI9UBPINmNI9OSaUfepAfRlX3SzoDG9_rw72JrjCsZyD_7-zJ1d0BuOdWUv4VPcMHZbWmCcY2koVUUnKDFaOXdpqo9sRo98YRgpeDDneoHzmA8wgKvpWerphmt229I-CPwlpqHhoA0SGWdW9pLggZbrj9oLAq7xRALkd3QhzY4U5ahuSAXCG1-NHN5l4ojeaVTJ8xdY6l43aak"/></div>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200"><img class="w-full h-full rounded-full object-cover" data-alt="Female portrait, blurred background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJUKIcEAOV55EglI_D-jZRWMSCdbADw2_CKhsUR1zaKOlnm88QEs2MCbdN2DQbACwh5d2iqSpVtcZUGYsini4nye06tcHRA9-s7GA3f0sVGIsQMdS8IQrG_7t65OFo0S387KizL5UkyC6Q9THhLr5ymWg98CU7mOWvumPYMCuD-VE2nRJimqNCyS0fCJTUi7Vq10YaWN8Bj_zU7KLjioXTAJrC_0A8b0C56AIm_J9qiG0Bxlb_dnta2ty1Pr_FEg0m474fDJmPeTdF"/></div>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center bg-primary-container text-[10px] font-bold text-on-primary-container">+42</div>
+</div>
+<span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-tighter">RSVP'd Fans</span>
+</div>
+</div>
+</div>
+<!-- Second Card (Visual Hierarchy) -->
+<div class="absolute inset-0 bg-surface-container-high rounded-lg transform -rotate-2 -translate-y-2 z-20 overflow-hidden opacity-90 scale-[0.98]">
+<div class="h-3/5 w-full relative bg-slate-300">
+<img alt="Delhi Venue" class="w-full h-full object-cover grayscale opacity-60" data-alt="Interior of a luxury sports bar in Delhi with plush leather seating and multiple high-definition TV screens" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4M1LWh7AgPKuBdTnUZhaQuFhO2wUd6AP_wxlW3HFWp-Gx6aoRkWha3PqZW8V42P6vB3XgpvJlet5KuEv3hapfzWOubfX_G9zXlA2Fn7PLa1HP7hMMrrhA8mxT_Xu3xKWwOR6m9HMEkKlSuo0Kw2AyJ4FcomVSIy8RKVQvKAoRzw2MmwktMnIXuYcGIzbYQL-UuXWOmYv9S9SCHkC9xmls91M87mRW6GnX-_XaIOre7_Heeji_xR0T6mQQefarmrgU8DCePSmDxWF4"/>
+</div>
+<div class="p-6">
+<h2 class="text-2xl font-bold text-on-surface-variant mb-1">The Game Palacio</h2>
+<span class="text-sm text-on-surface-variant">Chanakyapuri, New Delhi</span>
+</div>
+</div>
+<!-- Third Card (Visual Hierarchy) -->
+<div class="absolute inset-0 bg-surface-variant rounded-lg transform rotate-0 -translate-y-4 z-10 opacity-50 scale-[0.96]"></div>
+</div>
+<!-- Interaction Buttons -->
+<div class="mt-10 flex justify-center items-center gap-8">
+<button class="w-16 h-16 rounded-full bg-surface-container-lowest shadow-xl flex items-center justify-center text-error border-none active:scale-90 transition-all duration-300 hover:bg-on-error hover:text-error">
+<span class="material-symbols-outlined text-3xl font-bold">close</span>
+</button>
+<button class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-container shadow-2xl flex items-center justify-center text-on-primary border-none active:scale-90 transition-all duration-300">
+<span class="material-symbols-outlined text-4xl font-bold" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<button class="w-16 h-16 rounded-full bg-surface-container-lowest shadow-xl flex items-center justify-center text-tertiary border-none active:scale-90 transition-all duration-300 hover:bg-on-tertiary hover:text-tertiary">
+<span class="material-symbols-outlined text-3xl font-bold">star</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar (Floating Pill Dock) -->
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-full px-6 py-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-[24px] z-50 shadow-[0_20px_40px_rgba(0,0,0,0.08)] flex justify-around items-center">
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider hover:scale-110 transition-transform active:scale-90 transition-all duration-300 cursor-pointer">
+<span class="material-symbols-outlined mb-1">home</span>
+            Home
+        </div>
+<div class="flex flex-col items-center justify-center text-purple-600 dark:text-purple-400 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-purple-600 after:rounded-full font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider hover:scale-110 transition-transform active:scale-90 transition-all duration-300 cursor-pointer">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">groups</span>
+            Community
+        </div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider hover:scale-110 transition-transform active:scale-90 transition-all duration-300 cursor-pointer">
+<span class="material-symbols-outlined mb-1">workspace_premium</span>
+            Podium
+        </div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider hover:scale-110 transition-transform active:scale-90 transition-all duration-300 cursor-pointer">
+<span class="material-symbols-outlined mb-1">account_circle</span>
+            Profile
+        </div>
+</nav>
+</body></html>

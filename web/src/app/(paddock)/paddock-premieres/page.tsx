@@ -3,7 +3,15 @@
 import { screeningEvents as seededEvents } from "@/lib/mock-data";
 import { ScreeningEvent } from "@/lib/types";
 import { CalendarDays, MapPin, Ticket, UtensilsCrossed } from "lucide-react";
+import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
+
+const cityPositions: Record<string, { x: string; y: string }> = {
+  Mumbai: { x: "36%", y: "58%" },
+  Bengaluru: { x: "44%", y: "70%" },
+  Delhi: { x: "40%", y: "38%" },
+  Pune: { x: "34%", y: "64%" },
+};
 
 export default function PaddockPremieresPage() {
   const [events, setEvents] = useState<ScreeningEvent[]>(seededEvents);
@@ -34,7 +42,7 @@ export default function PaddockPremieresPage() {
   };
 
   return (
-    <div className="grid grid-cols-12 gap-4">
+    <div className="grid grid-cols-12 gap-4 pb-20">
       <section className="col-span-12 xl:col-span-7">
         <div className="mb-4 border-b border-primary/20 pb-3">
           <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-primary">
@@ -97,7 +105,12 @@ export default function PaddockPremieresPage() {
             <p className="font-headline text-xl">No screening selected</p>
           </div>
         ) : (
-          <div className="dashboard-panel p-4">
+          <motion.div
+            key={selectedEvent.id}
+            initial={{ opacity: 0.6, scale: 0.98, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="dashboard-panel p-4"
+          >
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
               Screening Detail
             </p>
@@ -147,13 +160,37 @@ export default function PaddockPremieresPage() {
             <button
               onClick={onBook}
               disabled={bookedIds.has(selectedEvent.id) || selectedEvent.bookedSeats >= selectedEvent.totalSeats}
-              className="mt-5 w-full bg-primary px-4 py-3 font-headline text-sm font-bold tracking-[0.2em] text-black uppercase disabled:cursor-not-allowed disabled:bg-outline-variant disabled:text-on-surface-variant"
+              className="mt-5 w-full bg-primary px-4 py-3 font-headline text-sm font-bold tracking-[0.2em] text-white uppercase disabled:cursor-not-allowed disabled:bg-outline-variant disabled:text-on-surface-variant"
             >
               {bookedIds.has(selectedEvent.id) ? "Place Booked" : "Book a Place"}
             </button>
-          </div>
+          </motion.div>
         )}
       </aside>
+
+      <section className="col-span-12">
+        <div className="dashboard-panel relative h-52 sm:h-64 overflow-hidden rounded-[20px] border border-outline-variant/40 bg-[linear-gradient(140deg,rgba(124,58,237,0.14),rgba(0,229,255,0.12),rgba(255,77,109,0.1))] p-4">
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-variant">Event Map</p>
+          <div className="relative mt-2 h-[calc(100%-1.6rem)] rounded-[16px] border border-outline-variant/40 bg-surface-container">
+            {events.map((event) => {
+              const pos = cityPositions[event.city] ?? { x: "50%", y: "50%" };
+              const selected = selectedId === event.id;
+              return (
+                <button
+                  key={`pin-${event.id}`}
+                  onClick={() => setSelectedId(event.id)}
+                  className="absolute -translate-x-1/2 -translate-y-1/2"
+                  style={{ left: pos.x, top: pos.y }}
+                >
+                  <span className={`relative flex h-3.5 w-3.5 items-center justify-center rounded-full ${selected ? "bg-secondary" : "bg-primary"}`}>
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-60" />
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

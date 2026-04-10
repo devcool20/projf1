@@ -62,8 +62,8 @@ export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }:
   const hoveredTc = hoveredDriver ? getTeamColor(hoveredDriver.teamName) : null;
 
   return (
-    <section className="dashboard-panel relative mt-5 overflow-hidden" ref={listRef}>
-      <div className="grid grid-cols-[2.8rem_minmax(0,1fr)_9.5rem_4.4rem_4.6rem] gap-x-2 border-b border-outline-variant/20 px-4 py-2">
+    <section className="dashboard-panel relative mt-5 overflow-hidden rounded-[24px]" ref={listRef}>
+      <div className="grid grid-cols-[2.8rem_minmax(0,1fr)_9.5rem_4.4rem_4.6rem] gap-x-2 border-b border-white/15 px-4 py-2">
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">POS</span>
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant min-w-0">DRIVER</span>
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">TEAM</span>
@@ -83,16 +83,18 @@ export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }:
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.02, duration: 0.3 }}
+              whileHover={{ scale: 1.01 }}
               onClick={() => onSelect(driver.driverCode)}
               onPointerEnter={(e) => handlePointerEnter(driver.driverCode, e)}
               onPointerLeave={handlePointerLeave}
               onTouchStart={(e) => handleTouchStart(driver.driverCode, e)}
               onTouchEnd={handleTouchEnd}
-              className={`group relative grid w-full grid-cols-[2.8rem_minmax(0,1fr)_9.5rem_4.4rem_4.6rem] items-center gap-x-2 px-4 py-2.5 text-left transition-colors ${
+              className={`group relative grid w-full grid-cols-[2.8rem_minmax(0,1fr)_9.5rem_4.4rem_4.6rem] items-center gap-x-2 px-4 py-2.5 text-left transition-all ${
                 isSelected
-                  ? "bg-secondary/8 border-l-2 border-l-secondary"
-                  : "border-l-2 border-l-transparent hover:bg-surface-container-high/60"
+                  ? "border-l-2 border-l-secondary bg-white/10"
+                  : "border-l-2 border-l-transparent hover:bg-white/8"
               }`}
+              style={{ boxShadow: hoveredCode === driver.driverCode ? `inset 0 0 0 1px ${tc.accent}30` : undefined }}
             >
               <div
                 className="absolute inset-y-0 left-0 opacity-[0.06] transition-all"
@@ -125,6 +127,23 @@ export function StandingsList({ drivers, selectedCode, onSelect, leaderPoints }:
               <span className="relative z-10 text-right font-mono text-sm font-bold">
                 {driver.points}
               </span>
+
+              <AnimatePresence>
+                {hoveredCode === driver.driverCode && (
+                  <motion.video
+                    key={`row-cutout-${driver.driverCode}`}
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 0.9, width: 68 }}
+                    exit={{ opacity: 0, width: 0 }}
+                    src={getAvatarSrc(driver.driverName)}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="pointer-events-none absolute right-1 top-1 h-[calc(100%-8px)] rounded-md object-cover"
+                  />
+                )}
+              </AnimatePresence>
             </motion.button>
           );
         })}

@@ -7,13 +7,15 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Props = {
-  profile: any;
+  profile: {
+    id: string;
+    username: string;
+  };
   onSuccess: () => void;
 };
 
 export function CreateThreadPanel({ profile, onSuccess }: Props) {
   const [message, setMessage] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -155,7 +157,7 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
           <button
             type="submit"
             disabled={!message.trim() || isSubmitting}
-            className="group flex items-center gap-2 bg-primary px-6 py-2.5 font-headline text-sm font-bold tracking-[0.2em] text-black uppercase hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 transition-all"
+            className="group flex items-center gap-2 bg-primary px-6 py-2.5 font-headline text-sm font-bold tracking-[0.2em] text-white uppercase hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 transition-all"
           >
             {isSubmitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />

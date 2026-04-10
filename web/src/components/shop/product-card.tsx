@@ -12,8 +12,10 @@ type Props = {
 export function ProductCard({ product, onEquip }: Props) {
   return (
     <motion.article
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.02, rotateX: 4, rotateY: -4 }}
+      transition={{ type: "spring", stiffness: 220, damping: 18 }}
       className="dashboard-panel group relative overflow-hidden p-3"
+      style={{ transformStyle: "preserve-3d", perspective: 1000 }}
     >
       <div className="relative h-52">
         <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />

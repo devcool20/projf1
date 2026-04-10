@@ -1,0 +1,14 @@
+import { getTeamAccent } from "@/lib/team-colors";
+
+const ROOT = "--team-accent";
+
+export function applyTeamAccent(teamName?: string | null) {
+  if (typeof document === "undefined") return;
+  const accent = getTeamAccent(teamName);
+  document.documentElement.style.setProperty(ROOT, accent);
+}
+
+export function resetTeamAccent() {
+  if (typeof document === "undefined") return;
+  document.documentElement.style.removeProperty(ROOT);
+}

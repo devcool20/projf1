@@ -3,16 +3,18 @@
 import { CommReply, CommThread } from "@/lib/types";
 import { computeSignalScore, getSignalLabel } from "@/lib/signal-score";
 import { supabase } from "@/lib/supabase";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { FormEvent, useEffect, useMemo, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CreateThreadPanel } from "./create-thread-panel";
 import { UserDetailPanel } from "./user-detail-panel";
-import { Heart, MessageCircle, Share2, Signal, Loader2, ChevronLeft, Trash2 } from "lucide-react";
+import { Heart, MessageCircle, Share2, Signal, ChevronLeft, Plus, Trash2, X } from "lucide-react";
 import { DriverVideo } from "@/components/ui/driver-video";
+import { applyTeamAccent, resetTeamAccent } from "@/lib/team-accent";
 
 type Props = {
   query: string;
+  initialThreadId?: string;
 };
 
 type UserProfile = {
@@ -88,10 +90,30 @@ type ReplyNodeProps = {
   onUserClick: (profileId: string) => void;
 };
 
+function LikeBurst({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <span className="pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2">
+      {Array.from({ length: 7 }).map((_, i) => (
+        <span
+          key={i}
+          className="absolute text-primary animate-[ping_450ms_ease-out_forwards]"
+          style={{
+            transform: `translate(${Math.cos((i / 7) * Math.PI * 2) * 22}px, ${Math.sin((i / 7) * Math.PI * 2) * 18}px)`,
+          }}
+        >
+          ❤
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onUserClick }: ReplyNodeProps) {
   const [isReplying, setIsReplying] = useState(false);
   const [replyMessage, setReplyMessage] = useState("");
   const [replyImage, setReplyImage] = useState("");
+  const [showBurst, setShowBurst] = useState(false);
 
   const submitReply = (event: FormEvent) => {
     event.preventDefault();
@@ -104,7 +126,10 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onUserClick }: Re
   };
 
   return (
-    <article className="mt-3 border-l border-outline-variant/40 pl-3" style={{ marginLeft: `${Math.min(depth, 6) * 14}px` }}>
+    <article className="relative mt-3 pl-4" style={{ marginLeft: `${Math.min(depth, 6) * 14}px` }}>
+      {depth > 0 && (
+        <span className="pointer-events-none absolute -left-2 top-0 h-7 w-5 rounded-bl-2xl border-b-2 border-l-2 border-primary/30" />
+      )}
       <div className="dashboard-panel p-3 animate-in fade-in slide-in-from-left-2 duration-300">
         <div className="flex items-center justify-between gap-2">
           <div>
@@ -134,9 +159,14 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onUserClick }: Re
 
         <div className="mt-3 flex items-center gap-4">
           <button
-            onClick={() => onReplyLike(reply.id)}
-            className="flex items-center gap-1 text-xs text-on-surface-variant hover:text-primary"
+            onClick={() => {
+              onReplyLike(reply.id);
+              setShowBurst(true);
+              setTimeout(() => setShowBurst(false), 420);
+            }}
+            className="relative flex items-center gap-1 text-xs text-on-surface-variant hover:text-primary"
           >
+            <LikeBurst show={showBurst} />
             <Heart className="h-3.5 w-3.5" />
             {reply.likes}
           </button>
@@ -165,7 +195,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onUserClick }: Re
             placeholder="Optional image URL"
             className="w-full border border-outline-variant/30 bg-surface-container-low p-2 text-xs outline-none focus:border-secondary"
           />
-          <button type="submit" className="bg-primary px-3 py-1.5 font-headline text-xs font-bold tracking-[0.18em] text-black uppercase">
+          <button type="submit" className="bg-primary px-3 py-1.5 font-headline text-xs font-bold tracking-[0.18em] text-white uppercase">
             Reply
           </button>
         </form>
@@ -185,12 +215,15 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onUserClick }: Re
   );
 }
 
-export function CommsView({ query }: Props) {
+export function CommsView({ query, initialThreadId = "" }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [threads, setThreads] = useState<CommThread[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedThreadId, setSelectedThreadId] = useState("");
-  const [rightPanelMode, setRightPanelMode] = useState<"create" | "detail" | "profile">("create");
+  const [selectedThreadId, setSelectedThreadId] = useState(initialThreadId);
+  const [rightPanelMode, setRightPanelMode] = useState<"detail" | "profile">("detail");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState("");
   const [replyMessage, setReplyMessage] = useState("");
   const [replyImage, setReplyImage] = useState("");
@@ -198,6 +231,10 @@ export function CommsView({ query }: Props) {
   const [userLikedThreads, setUserLikedThreads] = useState<string[]>([]);
   const [userLikedReplies, setUserLikedReplies] = useState<string[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [likeBurstThread, setLikeBurstThread] = useState<string | null>(null);
+  const [transmitPulse, setTransmitPulse] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [prevThreadCount, setPrevThreadCount] = useState(0);
   const inFlightLikesRef = useState(() => new Set<string>())[0];
 
   // --- FETCHING ---
@@ -216,12 +253,12 @@ export function CommsView({ query }: Props) {
       try {
         const { data: threadLikes } = await supabase.from('comms_thread_likes').select('thread_id').eq('profile_id', user.id);
         if (threadLikes) setUserLikedThreads(Array.from(new Set(threadLikes.map(l => l.thread_id))));
-      } catch (e) { /* Table missing, skip */ }
+      } catch { /* Table missing, skip */ }
 
       try {
         const { data: replyLikes } = await supabase.from('comms_reply_likes').select('reply_id').eq('profile_id', user.id);
         if (replyLikes) setUserLikedReplies(Array.from(new Set(replyLikes.map(l => l.reply_id))));
-      } catch (e) { /* Table missing, skip */ }
+      } catch { /* Table missing, skip */ }
     } else {
       setUserProfile(null);
       setUserLikedThreads([]);
@@ -330,14 +367,47 @@ export function CommsView({ query }: Props) {
   }, [threads, query]);
 
   const selectedThread = useMemo(
-    () => filtered.find((thread) => thread.id === selectedThreadId),
-    [filtered, selectedThreadId],
+    () => threads.find((thread) => thread.id === selectedThreadId),
+    [threads, selectedThreadId],
+  );
+
+  const syncThreadUrl = useCallback(
+    (threadId: string | null, mode: "push" | "replace" = "push") => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (threadId) params.set("t", threadId);
+      else params.delete("t");
+      const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+      if (mode === "replace") router.replace(nextUrl, { scroll: false });
+      else router.push(nextUrl, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const closeThreadDetail = useCallback(() => {
+    setSelectedThreadId("");
+    syncThreadUrl(null, "replace");
+  }, [syncThreadUrl]);
+
+  const openThreadDetail = useCallback(
+    (threadId: string) => {
+      setSelectedThreadId(threadId);
+      setRightPanelMode("detail");
+      syncThreadUrl(threadId, "push");
+    },
+    [syncThreadUrl],
   );
 
   useEffect(() => {
     if (selectedThreadId) setRightPanelMode("detail");
-    else if (!selectedProfileId) setRightPanelMode("create");
   }, [selectedThreadId, selectedProfileId]);
+
+  useEffect(() => {
+    const t = searchParams.get("t") ?? "";
+    if (t !== selectedThreadId) {
+      setSelectedThreadId(t);
+      if (t) setRightPanelMode("detail");
+    }
+  }, [searchParams, selectedThreadId]);
 
   // --- MUTATIONS ---
   
@@ -353,7 +423,7 @@ export function CommsView({ query }: Props) {
       console.error("Error deleting thread:", error);
     } else {
       fetchThreads();
-      if (selectedThreadId === id) setSelectedThreadId("");
+      if (selectedThreadId === id) closeThreadDetail();
     }
   };
 
@@ -365,6 +435,44 @@ export function CommsView({ query }: Props) {
        setRightPanelMode("profile");
     }
   }, [userProfile, router]);
+
+  const openCreateOverlay = useCallback(() => {
+    setIsCreateOpen(true);
+  }, []);
+
+  const closeCreateOverlay = useCallback(() => {
+    setIsCreateOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedProfileId) resetTeamAccent();
+  }, [selectedProfileId]);
+
+  useEffect(() => {
+    if (prevThreadCount === 0) {
+      setPrevThreadCount(threads.length);
+      return;
+    }
+    if (threads.length > prevThreadCount) {
+      setToast("New transmission received");
+      setTimeout(() => setToast(null), 1800);
+      try {
+        const WinAudio = window as Window & { webkitAudioContext?: typeof AudioContext };
+        const Ctx = window.AudioContext ?? WinAudio.webkitAudioContext;
+        if (!Ctx) return;
+        const audioCtx = new Ctx();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.value = 620;
+        gain.gain.value = 0.03;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.09);
+      } catch {}
+    }
+    setPrevThreadCount(threads.length);
+  }, [threads.length, prevThreadCount]);
 
   const addReply = async (threadId: string, parentReplyId: string | null, message: string, imageUrl?: string) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -419,6 +527,8 @@ export function CommsView({ query }: Props) {
     if (!selectedThread || !replyMessage.trim()) return;
 
     addReply(selectedThread.id, null, replyMessage.trim(), replyImage.trim() || undefined);
+    setTransmitPulse(true);
+    setTimeout(() => setTransmitPulse(false), 500);
     setReplyMessage("");
     setReplyImage("");
   };
@@ -528,16 +638,30 @@ export function CommsView({ query }: Props) {
 
   if (loading) {
     return (
-      <div className="flex h-[60vh] flex-col items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="mt-4 font-mono text-xs uppercase tracking-[0.3em] text-on-surface-variant">Syncing with Pit Wall...</p>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="skeleton-shimmer h-40 rounded-[24px]" />
+        <div className="skeleton-shimmer h-40 rounded-[24px]" />
+        <div className="skeleton-shimmer h-64 rounded-[24px]" />
+        <div className="skeleton-shimmer h-64 rounded-[24px]" />
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-12 gap-4">
-      <section className="col-span-12 xl:col-span-7">
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-12 gap-3 sm:gap-4">
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, x: 80 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 80 }}
+            className="fixed right-6 top-24 z-80 rounded-full border border-white/20 bg-white/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface backdrop-blur-xl"
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <section className={`col-span-12 xl:col-span-8 ${selectedThreadId ? "hidden xl:block" : "block"}`}>
         <div className="mb-4 flex items-end justify-between border-b border-primary/20 pb-3">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">The Grid</p>
@@ -566,7 +690,7 @@ export function CommsView({ query }: Props) {
                 } ${hasImage ? "md:row-span-2" : ""}`}
               >
                 <div 
-                  onClick={() => setSelectedThreadId(thread.id)}
+                  onClick={() => openThreadDetail(thread.id)}
                   className="cursor-pointer p-4 flex-1"
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -574,7 +698,7 @@ export function CommsView({ query }: Props) {
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleUserClick(thread.profileId);
+                          openThreadDetail(thread.id);
                         }}
                         className="font-headline text-sm text-on-surface hover:text-primary transition-colors text-left"
                       >
@@ -604,7 +728,7 @@ export function CommsView({ query }: Props) {
 
                 {hasImage && (
                   <div 
-                    onClick={() => setSelectedThreadId(thread.id)}
+                    onClick={() => openThreadDetail(thread.id)}
                     className="w-full overflow-hidden cursor-pointer bg-surface-dim border-y border-outline-variant/10"
                   >
                     <img 
@@ -634,9 +758,15 @@ export function CommsView({ query }: Props) {
 
                   <div className="mt-3 flex items-center gap-4 text-xs text-on-surface-variant">
                     <button 
-                      onClick={(e) => { e.stopPropagation(); likeThread(thread.id); }}
-                      className={`flex items-center gap-1 transition-colors ${userLikedThreads.includes(thread.id) ? "text-primary" : "hover:text-primary"}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        likeThread(thread.id);
+                        setLikeBurstThread(thread.id);
+                        setTimeout(() => setLikeBurstThread(null), 420);
+                      }}
+                      className={`relative flex items-center gap-1 transition-colors ${userLikedThreads.includes(thread.id) ? "text-primary" : "hover:text-primary"}`}
                     >
+                      <LikeBurst show={likeBurstThread === thread.id} />
                       <Heart className={`h-3.5 w-3.5 ${userLikedThreads.includes(thread.id) ? "fill-primary" : ""}`} />
                       {thread.likes}
                     </button>
@@ -652,23 +782,42 @@ export function CommsView({ query }: Props) {
         </div>
       </section>
 
-      <aside className="thin-scrollbar col-span-12 h-fit max-h-[calc(100vh-8rem)] overflow-y-auto xl:col-span-5 relative">
-        {rightPanelMode === "detail" && selectedThread ? (
-          <div className="dashboard-panel p-5 animate-in slide-in-from-right-4 duration-500">
+      <aside
+        className={`col-span-12 mx-auto w-full max-w-2xl xl:col-span-4 xl:max-w-none ${
+          rightPanelMode === "detail" && !!selectedThreadId
+            ? "fixed inset-0 z-85 bg-slate-900/20 p-3 pb-20 backdrop-blur-[2px] xl:relative xl:inset-auto xl:z-auto xl:bg-transparent xl:p-0 xl:backdrop-blur-0"
+            : "relative"
+        }`}
+        onClick={rightPanelMode === "detail" && !!selectedThreadId ? closeThreadDetail : undefined}
+      >
+        <AnimatePresence mode="wait">
+          {rightPanelMode === "detail" && selectedThread ? (
+            <motion.div
+              key={selectedThread.id}
+              initial={{ x: 44, opacity: 0.5 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 44, opacity: 0.5 }}
+              transition={{
+                x: { type: "spring", stiffness: 360, damping: 34, mass: 0.72 },
+                opacity: { duration: 0.16, ease: "easeOut" },
+              }}
+              className="dashboard-panel h-[calc(100dvh-7.5rem)] overflow-y-auto rounded-card p-4 sm:p-5 xl:h-auto xl:overflow-visible"
+              onClick={(event) => event.stopPropagation()}
+            >
             <div className="flex items-center justify-between gap-2 border-b border-outline-variant/20 pb-3">
                <div className="flex items-center gap-3">
                   <button 
-                    onClick={() => { setSelectedThreadId(""); setRightPanelMode("create"); }}
+                    onClick={closeThreadDetail}
                     className="flex h-8 w-8 items-center justify-center rounded-sm border border-outline-variant/30 text-on-surface-variant hover:border-primary/40 hover:text-primary transition-all"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                   <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">Thread Detail</p>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary">Thread Detail</p>
                     <div className="mt-1 flex flex-col">
-                       <button 
+                       <button
                          onClick={() => handleUserClick(selectedThread.profileId)}
-                         className="font-headline text-lg hover:text-primary transition-colors text-left"
+                         className="font-headline text-base sm:text-lg hover:text-primary transition-colors text-left"
                        >
                          {selectedThread.username}
                        </button>
@@ -682,7 +831,7 @@ export function CommsView({ query }: Props) {
                <DriverVideo driverName={selectedThread.favDriver || null} className="w-12 h-12 shrink-0 border-outline-variant/30" />
             </div>
 
-            <p className="mt-4 leading-relaxed text-on-surface">{selectedThread.message}</p>
+            <p className="mt-3 leading-relaxed text-sm sm:text-base text-on-surface">{selectedThread.message}</p>
 
             {/* Signal Score Detail */}
             {(() => {
@@ -724,7 +873,7 @@ export function CommsView({ query }: Props) {
               </div>
             )}
 
-            <div className="mt-4 flex items-center gap-3">
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               <button
                 onClick={() => likeThread(selectedThread.id)}
                 className={`flex items-center gap-1.5 border border-outline-variant/30 px-3 py-2 text-xs transition-colors ${
@@ -745,13 +894,13 @@ export function CommsView({ query }: Props) {
               </button>
             </div>
 
-            <form onSubmit={submitThreadReply} className="mt-5 space-y-2 border-t border-outline-variant/25 pt-4">
+            <form onSubmit={submitThreadReply} className="mt-4 space-y-2 border-t border-outline-variant/25 pt-3">
               <textarea
                 value={replyMessage}
                 onChange={(event) => setReplyMessage(event.target.value)}
                 className="w-full resize-none border border-outline-variant/35 bg-surface-container-low p-3 font-mono text-xs tracking-[0.12em] text-on-surface outline-none focus:border-secondary"
                 placeholder="ENTER RADIO TRANSCRIPT..."
-                rows={4}
+                rows={3}
               />
               <input
                 value={replyImage}
@@ -761,7 +910,11 @@ export function CommsView({ query }: Props) {
               />
               <button
                 type="submit"
-                className="w-full bg-primary px-4 py-3 font-headline text-sm font-bold tracking-[0.24em] text-black uppercase hover:scale-[1.01] active:scale-[0.99] transition-transform"
+                className={`w-full px-4 py-3 font-headline text-sm font-bold tracking-[0.24em] uppercase transition-transform ${
+                  transmitPulse
+                    ? "bg-emerald-400 text-emerald-950 shadow-[0_0_22px_rgba(74,222,128,0.6)] animate-pulse"
+                    : "bg-primary text-white hover:scale-[1.01] active:scale-[0.99]"
+                }`}
               >
                 TRANSMIT
               </button>
@@ -786,28 +939,86 @@ export function CommsView({ query }: Props) {
                 ))
               )}
             </div>
-          </div>
-        ) : rightPanelMode === "profile" ? (
-          <UserDetailPanel 
-            profileId={selectedProfileId} 
-            onBack={() => {
-              setRightPanelMode(selectedThreadId ? "detail" : "create");
-              setSelectedProfileId("");
-            }} 
-          />
-        ) : (
-          userProfile ? (
-            <CreateThreadPanel profile={userProfile} onSuccess={() => fetchThreads()} />
-          ) : (
-            <div className="dashboard-panel p-5 text-center">
-              <h3 className="font-headline text-xl uppercase tracking-wider text-primary">Radio Silence</h3>
-              <p className="mt-2 text-sm text-on-surface-variant font-mono uppercase tracking-widest">
-                Log in to your Super License to broadcast.
-              </p>
-            </div>
-          )
-        )}
+            </motion.div>
+          ) : rightPanelMode === "profile" ? (
+            <motion.div
+              key={`profile-${selectedProfileId}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              <UserDetailPanel 
+                profileId={selectedProfileId} 
+                onTeamAccent={(teamName) => applyTeamAccent(teamName)}
+                onBack={() => {
+                  setRightPanelMode("detail");
+                  setSelectedProfileId("");
+                }} 
+              />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </aside>
-    </div>
+
+      <button
+        onClick={openCreateOverlay}
+        className="fixed bottom-24 right-3 z-86 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-[0_10px_24px_rgba(124,58,237,0.38)] transition hover:scale-105 active:scale-95"
+        aria-label="Create thread"
+      >
+        <Plus className="h-5 w-5" />
+      </button>
+
+      <AnimatePresence>
+        {isCreateOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-87 bg-slate-900/25 p-3 pb-20 backdrop-blur-[2px]"
+            onClick={closeCreateOverlay}
+          >
+            <motion.div
+              initial={{ y: 34, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 34, opacity: 0 }}
+              className="mx-auto h-[calc(100dvh-7.5rem)] max-w-2xl overflow-y-auto rounded-card"
+              onClick={(event) => event.stopPropagation()}
+            >
+              {userProfile ? (
+                <div className="relative">
+                  <button
+                    onClick={closeCreateOverlay}
+                    className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/40 bg-white/90 text-on-surface-variant"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                  <CreateThreadPanel
+                    profile={userProfile}
+                    onSuccess={() => {
+                      fetchThreads();
+                      closeCreateOverlay();
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="dashboard-panel p-5 text-center">
+                  <button
+                    onClick={closeCreateOverlay}
+                    className="ml-auto mb-4 flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/40 bg-white/90 text-on-surface-variant"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                  <h3 className="font-headline text-xl uppercase tracking-wider text-primary">Radio Silence</h3>
+                  <p className="mt-2 text-sm text-on-surface-variant font-mono uppercase tracking-widest">
+                    Log in to your Super License to broadcast.
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

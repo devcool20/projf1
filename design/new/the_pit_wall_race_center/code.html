@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Race Center - F1 Kinetic</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@00,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#f5f6f7",
+                    "on-secondary-container": "#802b00",
+                    "surface": "#f5f6f7",
+                    "primary-dim": "#8300b0",
+                    "tertiary-dim": "#005c39",
+                    "inverse-primary": "#d05bff",
+                    "secondary-fixed-dim": "#ffb193",
+                    "primary": "#9500c8",
+                    "tertiary-fixed-dim": "#00ec9a",
+                    "surface-variant": "#dadddf",
+                    "primary-container": "#d978ff",
+                    "on-surface": "#2c2f30",
+                    "surface-container-low": "#eff1f2",
+                    "on-tertiary": "#caffdc",
+                    "inverse-surface": "#0c0f10",
+                    "outline-variant": "#abadae",
+                    "on-tertiary-fixed-variant": "#00653f",
+                    "on-tertiary-container": "#005a38",
+                    "on-error": "#ffefef",
+                    "surface-tint": "#9500c8",
+                    "on-secondary": "#ffefeb",
+                    "inverse-on-surface": "#9b9d9e",
+                    "secondary": "#a23900",
+                    "background": "#f5f6f7",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#3d0055",
+                    "on-secondary-fixed-variant": "#903100",
+                    "on-error-container": "#510017",
+                    "on-background": "#2c2f30",
+                    "on-primary-fixed-variant": "#4c0068",
+                    "tertiary-container": "#1dfba5",
+                    "on-tertiary-fixed": "#00452a",
+                    "error-container": "#f74b6d",
+                    "secondary-container": "#ffc5af",
+                    "on-primary-fixed": "#000000",
+                    "primary-fixed-dim": "#d160ff",
+                    "surface-container": "#e6e8ea",
+                    "outline": "#757778",
+                    "tertiary": "#006942",
+                    "tertiary-fixed": "#1dfba5",
+                    "error-dim": "#a70138",
+                    "secondary-fixed": "#ffc5af",
+                    "on-surface-variant": "#595c5d",
+                    "secondary-dim": "#8e3100"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .aura-purple { background: radial-gradient(circle, rgba(149, 0, 200, 0.15) 0%, rgba(255, 255, 255, 0) 70%); }
+        .aura-orange { background: radial-gradient(circle, rgba(162, 57, 0, 0.15) 0%, rgba(255, 255, 255, 0) 70%); }
+        .aura-mint { background: radial-gradient(circle, rgba(0, 105, 66, 0.15) 0%, rgba(255, 255, 255, 0) 70%); }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface min-h-screen pb-32 overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<header class="flex justify-between items-center px-6 py-4 w-full bg-transparent docked full-width top-0 z-40">
+<div class="text-2xl font-bold italic text-slate-900 dark:text-slate-50">F1 Kinetic</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-slate-500 hover:opacity-80 transition-opacity" data-icon="notifications">notifications</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a professional driver wearing a sleek carbon fiber racing helmet with a tinted visor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZ-zWUiZS7TZJU1Fr4RPF8uTLu9GAOXp_KUwKExlLXci23hGWI3vWjJEAuM88cxb4eAckcBYh1cMuSBOLntNVRNTy-gYj80mNkWbP9IhJfuOS4JfKDHQprhBlNH9ICt4T13t7-LaIRLmhBV4RJAz5MhHz2AFngqX15UYbhwd9xx-cm5R-vXBZ4ajcyFUEpnQR7LpOVuwkTtAasC_IZwFYVZ-UBCg5mofi4xLQ6TcLTrX6-5QvbjRilgrgltDgSSwU5q_03Amnd2YNP"/>
+</div>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto px-6 pt-4">
+<!-- Dashboard Header & Deep Dive Toggle -->
+<div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+<div>
+<span class="label-md uppercase tracking-widest text-xs font-bold text-primary mb-2 block">Grand Prix Live</span>
+<h1 class="text-5xl font-black tracking-tight leading-none">THE PIT WALL</h1>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-lowest p-2 rounded-full shadow-sm">
+<span class="text-xs font-bold uppercase tracking-wider px-4">Standard View</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-14 h-8 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+<span class="text-xs font-bold uppercase tracking-wider px-4 text-primary">Deep Dive</span>
+</div>
+</div>
+<!-- Bento Grid Race Center -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Leaderboard (Primary Bento) -->
+<div class="md:col-span-8 bg-surface-container-lowest rounded-lg p-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 aura-purple -mr-20 -mt-20"></div>
+<div class="flex justify-between items-center mb-10">
+<h2 class="text-2xl font-bold tracking-tight">Race Standings</h2>
+<div class="flex gap-2">
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] font-black uppercase px-3 py-1 rounded-full">Lap 42/57</span>
+<span class="bg-surface-container text-on-surface-variant text-[10px] font-black uppercase px-3 py-1 rounded-full">Safety Car: No</span>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Position 1 -->
+<div class="flex items-center p-4 bg-surface-container-low rounded-md group hover:bg-surface-bright transition-colors">
+<div class="w-10 text-xl font-black italic text-primary">01</div>
+<div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+<img class="w-full h-full object-cover" data-alt="professional formula one racer headshot with stoic expression and corporate team branding on fire suit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj-EbH0ra2nCE1laJOPGKJ4R07udTmwxeYLRYRvJAtK9mORry9wyjXdssaXz6EJSIZJhieZLId1c7qW6oVK8SZAmGGQGSeIBnm2o1SIeoHx-6Kd5oW8Cyj3JOfKeUrGlEQEY0ztbQAW2575qNNEvhPNAXZw2XGCDtXoCl1C1VozX-pCXWqbYUtl-RajqWXzyfVXtowAKnrMISlldoX6ri1o_agM46zJdIW9lRFrWmSkoDoXImX1azOEUCRsGLNtncsiwFgoP8CEOUk"/>
+</div>
+<div class="flex-1">
+<div class="text-sm font-bold uppercase tracking-tight">Max Verstappen</div>
+<div class="text-[10px] text-on-surface-variant">Red Bull Racing</div>
+</div>
+<div class="text-right flex items-center gap-6">
+<div class="hidden md:block">
+<div class="text-[10px] font-bold uppercase text-outline">Interval</div>
+<div class="text-sm font-mono font-bold">INTERVAL</div>
+</div>
+<div class="hidden md:block">
+<div class="text-[10px] font-bold uppercase text-outline">Sector 3</div>
+<div class="text-sm font-mono font-bold text-tertiary">23.411</div>
+</div>
+<div>
+<div class="text-[10px] font-bold uppercase text-outline">Last Lap</div>
+<div class="text-sm font-mono font-bold">1:34.221</div>
+</div>
+</div>
+</div>
+<!-- Position 2 -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-md border border-surface-container transition-colors">
+<div class="w-10 text-xl font-black italic">02</div>
+<div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+<img class="w-full h-full object-cover" data-alt="portrait of a racing driver with intense focused gaze in the paddock area" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiqCsCnUF-Zy6273cJ33DDHUjIJ54NebT4Bk7Zf7kRe-hkvuZKaDHzDMH14uOsIVkvo1KPWtC2goBhMooA4P9NSjpqnpfyHoS11adETr-SFcRSVp3P0NIVgLBh7hT5tqdyxaQfffGgmzfipVvrbf9RwXcn0wEZIIk-9uBwt4LfyiK17na8PtDw82VQrw8bLuy6ERUiZAPHdcD-Ih5RZcC8wXTosCyo9bWEl8Oqn1yFQe6WljE8W_gW4M77BU3EG2DiQ70vkMYmOuNc"/>
+</div>
+<div class="flex-1">
+<div class="text-sm font-bold uppercase tracking-tight">Charles Leclerc</div>
+<div class="text-[10px] text-on-surface-variant">Ferrari</div>
+</div>
+<div class="text-right flex items-center gap-6">
+<div class="hidden md:block">
+<div class="text-[10px] font-bold uppercase text-outline">Interval</div>
+<div class="text-sm font-mono font-bold text-primary">+4.281</div>
+</div>
+<div class="hidden md:block">
+<div class="text-[10px] font-bold uppercase text-outline">Sector 3</div>
+<div class="text-sm font-mono font-bold">23.602</div>
+</div>
+<div>
+<div class="text-[10px] font-bold uppercase text-outline">Last Lap</div>
+<div class="text-sm font-mono font-bold">1:34.550</div>
+</div>
+</div>
+</div>
+<!-- Position 3 -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-md border border-surface-container transition-colors">
+<div class="w-10 text-xl font-black italic">03</div>
+<div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+<img class="w-full h-full object-cover" data-alt="professional racing driver looking towards the horizon with sunlight catching facial features" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVCSYPOQ5z_UcKYwrVo7B5MaYuvwIlUcJDXo1qfnlxXO10AAsryWjUymTl1j4RxbytxlTtOhmaf-pY8SKGYDVlOQZsAuGbbeniftTkNx6SS_W7fNtUI3jM1JCyR7P6ZZAe6eYzUIUMM40NGMdBDz7ISXgwnicx2ttf6ew0nJsrO6poncXH7-OQOzLhbF5KQ6kaHEyEdFiB2o_KP9PU1It4et20qqP3Yv814oVM0nO_Fkss8lsLfn45NX6ZWilGK4L-OY3jr3YaaiPO"/>
+</div>
+<div class="flex-1">
+<div class="text-sm font-bold uppercase tracking-tight">Lando Norris</div>
+<div class="text-[10px] text-on-surface-variant">McLaren</div>
+</div>
+<div class="text-right flex items-center gap-6">
+<div class="hidden md:block">
+<div class="text-[10px] font-bold uppercase text-outline">Interval</div>
+<div class="text-sm font-mono font-bold text-primary">+0.492</div>
+</div>
+<div class="hidden md:block">
+<div class="text-[10px] font-bold uppercase text-outline">Sector 3</div>
+<div class="text-sm font-mono font-bold text-tertiary">23.388</div>
+</div>
+<div>
+<div class="text-[10px] font-bold uppercase text-outline">Last Lap</div>
+<div class="text-sm font-mono font-bold">1:34.192</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Race Analytics Bento (Asymmetric Right) -->
+<div class="md:col-span-4 space-y-6">
+<!-- Track Map Small -->
+<div class="bg-surface-container-lowest rounded-lg p-6 relative overflow-hidden h-48">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<!-- Simplified Track Visualization Background -->
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<path d="M20,50 Q30,20 50,20 T80,50 T50,80 T20,50" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</div>
+<div class="relative z-10">
+<h3 class="text-xs font-black uppercase tracking-widest text-on-surface-variant mb-4">Track Status: Silverstone</h3>
+<div class="flex items-end gap-2">
+<div class="text-4xl font-black">24°C</div>
+<div class="text-xs font-bold text-on-surface-variant mb-1">TRACK TEMP</div>
+</div>
+<div class="mt-4 flex gap-4">
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-outline">WIND</span>
+<span class="text-sm font-bold">14.2 km/h NW</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-outline">HUMIDITY</span>
+<span class="text-sm font-bold">48%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Tire Degradation -->
+<div class="bg-surface-container-lowest rounded-lg p-6 relative overflow-hidden">
+<div class="absolute bottom-0 left-0 w-full h-1/2 aura-orange opacity-40"></div>
+<h3 class="text-xs font-black uppercase tracking-widest text-on-surface-variant mb-6">Tire Strategy (Team Garage)</h3>
+<div class="space-y-6">
+<div>
+<div class="flex justify-between text-[10px] font-black mb-2">
+<span>NORRIS (SOFT)</span>
+<span class="text-secondary">CRITICAL</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 18%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-black mb-2">
+<span>PIASTRI (MEDIUM)</span>
+<span>OPTIMAL</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 64%"></div>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 bg-surface-container-low text-xs font-black uppercase tracking-widest rounded-md hover:bg-surface-container transition-colors">Open Pit Predictor</button>
+</div>
+</div>
+<!-- Deep Dive Live Data Table (Bottom Wide Bento) -->
+<div class="md:col-span-12 bg-surface-container-lowest rounded-lg p-8">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary" data-icon="query_stats">query_stats</span>
+<h2 class="text-xl font-bold">Live Sector Comparison</h2>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-surface-container-low">
+<th class="pb-4 text-[10px] font-black uppercase tracking-widest text-outline">Driver</th>
+<th class="pb-4 text-[10px] font-black uppercase tracking-widest text-outline">S1 (Speed)</th>
+<th class="pb-4 text-[10px] font-black uppercase tracking-widest text-outline">S2 (Chicane)</th>
+<th class="pb-4 text-[10px] font-black uppercase tracking-widest text-outline">S3 (Final)</th>
+<th class="pb-4 text-[10px] font-black uppercase tracking-widest text-outline">Delta vs P1</th>
+<th class="pb-4 text-[10px] font-black uppercase tracking-widest text-outline">DRS Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr>
+<td class="py-4 font-bold text-sm">VER</td>
+<td class="py-4 font-mono text-sm">28.441</td>
+<td class="py-4 font-mono text-sm text-primary font-bold">32.102</td>
+<td class="py-4 font-mono text-sm">23.411</td>
+<td class="py-4 font-mono text-sm">—</td>
+<td class="py-4"><span class="w-2 h-2 rounded-full bg-surface-container inline-block"></span></td>
+</tr>
+<tr>
+<td class="py-4 font-bold text-sm">LEC</td>
+<td class="py-4 font-mono text-sm text-tertiary font-bold">28.390</td>
+<td class="py-4 font-mono text-sm">32.411</td>
+<td class="py-4 font-mono text-sm">23.602</td>
+<td class="py-4 font-mono text-sm text-secondary">+4.281</td>
+<td class="py-4"><span class="w-2 h-2 rounded-full bg-tertiary-fixed inline-block"></span></td>
+</tr>
+<tr>
+<td class="py-4 font-bold text-sm">NOR</td>
+<td class="py-4 font-mono text-sm">28.502</td>
+<td class="py-4 font-mono text-sm">32.302</td>
+<td class="py-4 font-mono text-sm text-tertiary font-bold">23.388</td>
+<td class="py-4 font-mono text-sm text-secondary">+4.773</td>
+<td class="py-4"><span class="w-2 h-2 rounded-full bg-tertiary-fixed inline-block"></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Side Navigation Shell (Web Only) -->
+<aside class="hidden md:flex flex-col w-64 h-full py-8 px-4 fixed left-0 top-0 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-r-[32px] shadow-2xl shadow-purple-500/10 z-50">
+<div class="text-xl font-black text-purple-600 mb-12 px-4">F1 KINETIC</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-4 px-4 py-4 text-slate-400 dark:text-slate-600 font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-all ease-out rounded-md" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span>Paddock Hub</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-4 text-purple-600 dark:text-purple-400 font-extrabold font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-all ease-out rounded-md" href="#">
+<span class="material-symbols-outlined" data-icon="speed">speed</span>
+<span>Race Center</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-4 text-slate-400 dark:text-slate-600 font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-all ease-out rounded-md" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+<span>Boutique</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-4 text-slate-400 dark:text-slate-600 font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-all ease-out rounded-md" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span>Encyclopedia</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-4 text-slate-400 dark:text-slate-600 font-['Plus_Jakarta_Sans'] uppercase tracking-widest text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-all ease-out rounded-md" href="#">
+<span class="material-symbols-outlined" data-icon="group_work">group_work</span>
+<span>Team Garages</span>
+</a>
+</nav>
+<div class="px-4 pt-8 border-t border-surface-container">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container">
+<img class="w-full h-full object-cover" data-alt="professional driver avatar portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCILDcK3kUg7xVzhSUStkgrRyQ7aybHzrkhkEGhshujW6Cno5eQIz_F_P1lgZ71kM-m9hWrRyt_pojAv2tmjp_YeQkmyiBhpvndxoasjNy1TiAbiSKxz4YkoxYoJI0paQL6wuHiRi67y03X-EHYkAGH8VD1W7Go2-Gu2EGYkmNJstMouNa4KQtB-F1g6rf3-0ROCsY2P8-1ljw08qc0Fxs2PWviQ2uZiT6mw6aDGEKj8pnruquK_-_MwMZtrNYx9p-tOLXBSkF5Phfi"/>
+</div>
+<div>
+<div class="text-[10px] font-black uppercase text-purple-600">P1 Status</div>
+<div class="text-xs font-bold">Driver's License</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Floating Pill Dock Navigation (Mobile Only / Responsive Shift) -->
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white/80 dark:bg-slate-900/80 backdrop-blur-[24px] rounded-full px-6 py-3 flex justify-around items-center z-50 shadow-[0_20px_40px_rgba(0,0,0,0.08)] md:hidden">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center text-purple-600 dark:text-purple-400 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-purple-600 after:rounded-full hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="workspace_premium">workspace_premium</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider">Podium</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:scale-110 transition-transform active:scale-90 duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-bold uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+</body></html>
