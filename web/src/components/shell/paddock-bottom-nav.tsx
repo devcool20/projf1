@@ -12,7 +12,7 @@ export function PaddockBottomNav() {
   return (
     <nav className="pointer-events-none fixed inset-x-0 bottom-2 z-[90] px-3 pb-[env(safe-area-inset-bottom)]">
       <div className="pointer-events-auto mx-auto w-full max-w-[780px] rounded-full border border-slate-300 bg-white/95 p-1 shadow-[0_14px_24px_rgba(15,23,42,0.14)] backdrop-blur-xl">
-        <div className="grid grid-cols-7 items-center gap-1 px-0.5">
+        <div className="grid grid-cols-6 items-center gap-1 px-0.5">
           {navItems.map((item) => {
             const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (

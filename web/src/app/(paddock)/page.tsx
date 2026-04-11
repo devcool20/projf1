@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { DashboardProfileModal, PremiumProfileTrigger } from "@/components/dashboard/dashboard-profile-modal";
 import {
   Radio,
   Calendar,
@@ -97,6 +98,7 @@ const gridItem = {
 };
 
 export default function DashboardPage() {
+  const [profileOpen, setProfileOpen] = useState(false);
   const topThread = getTopThread(commThreads);
   const topPrediction = getTopPrediction(racePredictions);
   const nextRaceData = getNextRace(raceCalendar);
@@ -107,9 +109,13 @@ export default function DashboardPage() {
 
   return (
     <motion.div initial={false} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-      <div className="max-w-full">
-        <TelemetryTicker />
+      <div className="flex max-w-full items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <TelemetryTicker />
+        </div>
+        <PremiumProfileTrigger onPress={() => setProfileOpen(true)} />
       </div>
+      <DashboardProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
       {/* Hero header */}
       <motion.section
         {...fadeUp}

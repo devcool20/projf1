@@ -24,7 +24,6 @@ export const navItems: NavItem[] = [
   { label: "Paddock Premieres", href: "/paddock-premieres", icon: "clapperboard" },
   { label: "Standings", href: "/standings", icon: "trophy" },
   { label: "Parc Ferme", href: "/parc-ferme", icon: "shopping-bag" },
-  { label: "Profile", href: "/profile", icon: "id-card" },
 ];
 
 export const teams: Team[] = [
