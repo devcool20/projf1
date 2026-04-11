@@ -22,6 +22,7 @@ import {
   Zap,
 } from "lucide-react";
 import { TelemetryTicker } from "@/components/shell/telemetry-ticker";
+import { MovingBorderButton } from "@/components/ui/moving-border";
 import {
   commThreads,
   racePredictions,
@@ -116,26 +117,33 @@ export default function DashboardPage() {
         <PremiumProfileTrigger onPress={() => setProfileOpen(true)} />
       </div>
       <DashboardProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
-      {/* Hero header */}
+      {/* Hero header — moving edge highlight (Aceternity-style) */}
       <motion.section
         {...fadeUp}
         transition={{ duration: 0.4 }}
-        className="dashboard-panel relative overflow-hidden p-6"
+        className="w-full"
       >
-        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute -bottom-12 -left-12 h-36 w-36 rounded-full bg-secondary/5 blur-3xl" />
-        <div className="relative z-10">
-          <div className="flex items-center gap-2">
-            <Wifi className="h-3 w-3 text-secondary" />
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-secondary">
-              Mission Control Active
+        <MovingBorderButton
+          as="div"
+          borderRadius="1.5rem"
+          duration={4800}
+          className="dashboard-panel relative overflow-hidden p-6"
+        >
+          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/5 blur-3xl" />
+          <div className="absolute -bottom-12 -left-12 h-36 w-36 rounded-full bg-secondary/5 blur-3xl" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2">
+              <Wifi className="h-3 w-3 text-secondary" />
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-secondary">
+                Mission Control Active
+              </p>
+            </div>
+            <h2 className="mt-1 font-headline text-3xl sm:text-4xl font-bold tracking-tight">projf1</h2>
+            <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">
+              Your race weekend command center — threads, predictions, screenings, and the full grid at a glance.
             </p>
           </div>
-          <h2 className="mt-1 font-headline text-3xl sm:text-4xl font-bold tracking-tight">projf1</h2>
-          <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">
-            Your race weekend command center — threads, predictions, screenings, and the full grid at a glance.
-          </p>
-        </div>
+        </MovingBorderButton>
       </motion.section>
 
       {/* Bento Grid */}
