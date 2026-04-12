@@ -1,26 +1,20 @@
 "use client";
 
-import { predictionDriverPool } from "@/lib/mock-data";
 import { RacePrediction } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
-import { Clock3, Heart, MessageSquarePlus, Trophy } from "lucide-react";
+import {
+  F1_2026_CALENDAR,
+  type F1Round2026,
+  type PredictionConfigRow,
+  formatGpRange,
+  getQualifyingLockTimeMs,
+  isRoundInPredictionHorizon,
+  matchConfigToRound,
+} from "@/lib/f1-calendar-2026";
+import { PredictionCreatorModal } from "@/components/predictions/prediction-creator-modal";
+import { ArrowLeft, Calendar, ChevronRight, Heart, MapPin, Plus } from "lucide-react";
 import { motion } from "framer-motion";
-import { FormEvent, useEffect, useState, useCallback, useRef } from "react";
-
-type PredictionForm = {
-  first: string;
-  second: string;
-  third: string;
-  pole: string;
-  dotd: string;
-};
-
-type PredictionConfig = {
-  id: string;
-  event_name: string;
-  qualifying_at: string;
-  lat: string;
-};
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type RawPredictionRow = {
   id: string;
@@ -30,35 +24,19 @@ type RawPredictionRow = {
   likes_count: number;
   created_at: string;
   profiles:
-    | {
-        username: string;
-        full_name: string;
-      }
-    | {
-        username: string;
-        full_name: string;
-      }[];
+    | { username: string; full_name: string }
+    | { username: string; full_name: string }[];
 };
 
 function pickProfile(
   profile:
-    | {
-        username: string;
-        full_name: string;
-      }
-    | {
-        username: string;
-        full_name: string;
-      }[]
+    | { username: string; full_name: string }
+    | { username: string; full_name: string }[]
     | null
     | undefined,
 ) {
-  if (!profile) {
-    return { username: "unknown", full_name: "Unknown Driver" };
-  }
-  if (Array.isArray(profile)) {
-    return profile[0] ?? { username: "unknown", full_name: "Unknown Driver" };
-  }
+  if (!profile) return { username: "unknown", full_name: "Unknown" };
+  if (Array.isArray(profile)) return profile[0] ?? { username: "unknown", full_name: "Unknown" };
   return profile;
 }
 
@@ -71,438 +49,351 @@ function formatCountdown(ms: number) {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-function relativeNowLabel() {
-  return new Date().toLocaleTimeString("en-GB", { hour12: false });
-}
+type SelectedGp = {
+  round: F1Round2026;
+  config: PredictionConfigRow | null;
+};
 
 export function PredictionsScreen() {
+  const [configs, setConfigs] = useState<PredictionConfigRow[]>([]);
   const [predictions, setPredictions] = useState<RacePrediction[]>([]);
-  const [activeConfig, setActiveConfig] = useState<PredictionConfig | null>(null);
   const [loading, setLoading] = useState(true);
-  const [msUntilQualifying, setMsUntilQualifying] = useState(0);
-  const [form, setForm] = useState<PredictionForm>({
-    first: predictionDriverPool[0],
-    second: predictionDriverPool[1],
-    third: predictionDriverPool[2],
-    pole: predictionDriverPool[0],
-    dotd: predictionDriverPool[3],
-  });
-  const [submitError, setSubmitError] = useState("");
-  const [draggingDriver, setDraggingDriver] = useState<string | null>(null);
-  const zoneRefs = {
-    first: useRef<HTMLDivElement | null>(null),
-    second: useRef<HTMLDivElement | null>(null),
-    third: useRef<HTMLDivElement | null>(null),
-  };
+  const [selected, setSelected] = useState<SelectedGp | null>(null);
+  const [creatorOpen, setCreatorOpen] = useState(false);
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  const selectedEventIdRef = useRef<string | null>(null);
+  selectedEventIdRef.current = selected?.config?.id ?? null;
 
-  // --- FETCHING ---
+  const horizonRounds = useMemo(
+    () => F1_2026_CALENDAR.filter((r) => isRoundInPredictionHorizon(r, new Date(nowTick), 30)),
+    [nowTick],
+  );
 
-  const fetchPredictionsData = useCallback(async () => {
-    try {
-      // 1. Get active config
-      const { data: configData, error: configError } = await supabase
-        .from('prediction_config')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-      
-      if (configError) throw configError;
-      setActiveConfig(configData);
+  const enriched = useMemo(
+    () =>
+      horizonRounds.map((round) => ({
+        round,
+        config: matchConfigToRound(configs, round),
+      })),
+    [horizonRounds, configs],
+  );
 
-      // 2. Fetch predictions for this event
-      const { data, error } = await supabase
-        .from('race_predictions')
-        .select(`
-          id, top3, pole_position, driver_of_the_day, likes_count, created_at,
-          profiles (username, full_name)
-        `)
-        .eq('event_id', configData.id)
-        .order('likes_count', { ascending: false });
-
-      if (error) throw error;
-
-      const formatted: RacePrediction[] = ((data ?? []) as RawPredictionRow[]).map((p) => {
-        const profile = pickProfile(p.profiles);
-        return {
-          id: p.id,
-          username: profile.username,
-          fullName: profile.full_name,
-          createdAt: new Date(p.created_at).toLocaleDateString("en-GB"),
-          top3: p.top3 as [string, string, string],
-          polePosition: p.pole_position,
-          driverOfTheDay: p.driver_of_the_day,
-          likes: p.likes_count,
-        };
-      });
-
-      setPredictions(formatted);
-    } catch (err) {
-      console.error("Error syncing strategy data:", err);
-    } finally {
-      setLoading(false);
+  const fetchConfigs = useCallback(async () => {
+    const { data, error } = await supabase.from("prediction_config").select("id, event_name, qualifying_at, lat, is_active");
+    if (error) {
+      console.error(error);
+      setConfigs([]);
+      return;
     }
+    setConfigs((data ?? []) as PredictionConfigRow[]);
+  }, []);
+
+  const fetchPredictionsForEvent = useCallback(async (eventId: string) => {
+    const { data, error } = await supabase
+      .from("race_predictions")
+      .select(`id, top3, pole_position, driver_of_the_day, likes_count, created_at, profiles (username, full_name)`)
+      .eq("event_id", eventId)
+      .order("likes_count", { ascending: false });
+    if (error) {
+      console.error(error);
+      setPredictions([]);
+      return;
+    }
+    const formatted: RacePrediction[] = ((data ?? []) as RawPredictionRow[]).map((p) => {
+      const profile = pickProfile(p.profiles);
+      return {
+        id: p.id,
+        username: profile.username,
+        fullName: profile.full_name,
+        createdAt: new Date(p.created_at).toLocaleDateString("en-GB"),
+        top3: p.top3,
+        polePosition: p.pole_position,
+        driverOfTheDay: p.driver_of_the_day,
+        likes: p.likes_count,
+      };
+    });
+    setPredictions(formatted);
+  }, []);
+
+  const refreshAll = useCallback(async () => {
+    setLoading(true);
+    await fetchConfigs();
+    setLoading(false);
+  }, [fetchConfigs]);
+
+  useEffect(() => {
+    refreshAll();
+  }, [refreshAll]);
+
+  useEffect(() => {
+    const id = setInterval(() => setNowTick(Date.now()), 1000);
+    return () => clearInterval(id);
   }, []);
 
   useEffect(() => {
-    fetchPredictionsData();
+    if (selected?.config?.id) {
+      void fetchPredictionsForEvent(selected.config.id);
+    } else {
+      setPredictions([]);
+    }
+  }, [selected, fetchPredictionsForEvent]);
 
-    // 📡 Real-time Subscription
+  useEffect(() => {
     const channel = supabase
-      .channel('paddock-predictions')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'race_predictions' }, 
-        () => fetchPredictionsData()
-      )
+      .channel("paddock-predictions-v2")
+      .on("postgres_changes", { event: "*", schema: "public", table: "race_predictions" }, () => {
+        const id = selectedEventIdRef.current;
+        if (id) void fetchPredictionsForEvent(id);
+      })
       .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchPredictionsData]);
-
-  // Handle countdown
-  useEffect(() => {
-    if (!activeConfig) return;
-
-    const timer = setInterval(() => {
-      const qualifyingMs = new Date(activeConfig.qualifying_at).getTime();
-      setMsUntilQualifying(qualifyingMs - Date.now());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [activeConfig]);
-
-  const postLocked = msUntilQualifying <= 60 * 60 * 1000;
-  const lockText = postLocked ? "LOCKED" : "ACTIVE";
-  const countdown = formatCountdown(msUntilQualifying);
-
-  const updateField = (field: keyof PredictionForm, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const assignPodiumFromDrop = (driver: string, x: number, y: number) => {
-    const zones: Array<keyof Pick<PredictionForm, "first" | "second" | "third">> = ["first", "second", "third"];
-    let selected: (typeof zones)[number] = "first";
-    let minDist = Number.POSITIVE_INFINITY;
-
-    for (const zone of zones) {
-      const rect = zoneRefs[zone].current?.getBoundingClientRect();
-      if (!rect) continue;
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dist = Math.hypot(cx - x, cy - y);
-      if (dist < minDist) {
-        minDist = dist;
-        selected = zone;
-      }
-    }
-
-    updateField(selected, driver);
-  };
+  }, [fetchPredictionsForEvent]);
 
   const likePrediction = async (id: string) => {
-    setPredictions(prev => prev.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p));
-    await supabase.rpc('increment_prediction_likes', { target_id: id });
+    setPredictions((prev) => prev.map((p) => (p.id === id ? { ...p, likes: p.likes + 1 } : p)));
+    await supabase.rpc("increment_prediction_likes", { target_id: id });
   };
 
-  const submitPrediction = async (event: FormEvent) => {
-    event.preventDefault();
-    setSubmitError("");
+  const qualifyingMs = selected ? getQualifyingLockTimeMs(selected.round, selected.config) : 0;
+  const msUntilQualifying = qualifyingMs - Date.now();
+  const postLocked = selected ? msUntilQualifying <= 60 * 60 * 1000 : false;
+  const countdown = formatCountdown(msUntilQualifying);
 
-    if (postLocked) {
-      setSubmitError("Uplink failed: window locked 1h before qualifying.");
-      return;
+  const modalTarget = useMemo(() => {
+    if (selected) {
+      return {
+        eventId: selected.config?.id ?? null,
+        eventTitle: selected.round.name,
+        qualifyingAtMs: getQualifyingLockTimeMs(selected.round, selected.config),
+      };
     }
-
-    const podium = [form.first, form.second, form.third];
-    const distinct = new Set(podium);
-    if (distinct.size !== 3) {
-      setSubmitError("Podium error: Drivers must be distinct.");
-      return;
+    const withCfg = enriched.find((e) => e.config);
+    if (withCfg) {
+      return {
+        eventId: withCfg.config!.id,
+        eventTitle: withCfg.round.name,
+        qualifyingAtMs: getQualifyingLockTimeMs(withCfg.round, withCfg.config),
+      };
     }
-
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) {
-      alert("Encryption Error: Please link your Super License first.");
-      return;
+    const first = enriched[0];
+    if (first) {
+      return {
+        eventId: first.config?.id ?? null,
+        eventTitle: first.round.name,
+        qualifyingAtMs: getQualifyingLockTimeMs(first.round, first.config),
+      };
     }
+    return { eventId: null as string | null, eventTitle: "Grand Prix", qualifyingAtMs: Date.now() + 86400000 };
+  }, [selected, enriched]);
 
-    const { error } = await supabase
-      .from('race_predictions')
-      .insert({
-        profile_id: userData.user.id,
-        event_id: activeConfig?.id,
-        top3: podium,
-        pole_position: form.pole,
-        driver_of_the_day: form.dotd
-      });
-
-    if (error) {
-       console.error("Insertion error:", error);
-       setSubmitError("Strategy deployment failed. You might have already submitted.");
-    } else {
-       fetchPredictionsData();
-    }
-  };
-
-  if (loading || !activeConfig) {
+  if (loading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="skeleton-shimmer h-56 rounded-[24px] md:col-span-2" />
-        <div className="skeleton-shimmer h-40 rounded-[24px]" />
-        <div className="skeleton-shimmer h-40 rounded-[24px]" />
+      <div className="grid gap-4">
+        <div className="skeleton-shimmer h-24 rounded-2xl" />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="skeleton-shimmer h-40 rounded-2xl" />
+          <div className="skeleton-shimmer h-40 rounded-2xl" />
+          <div className="skeleton-shimmer h-40 rounded-2xl" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-12 gap-4">
-      <section className="col-span-12 xl:col-span-8">
-        <div className="dashboard-panel mb-4 p-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-on-surface-variant">
-                Prediction Engine
-              </p>
-              <h2 className="mt-2 font-headline text-4xl font-bold tracking-tight">
-                Strategy Room: <span className="text-primary">Predictions</span>
-              </h2>
-              <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
-                Global Simulation Consensus: {activeConfig.event_name}
-              </p>
-            </div>
-            <div className="dashboard-panel min-w-40 px-4 py-3">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-                Locks in
-              </p>
-              <p className="mt-1 font-mono text-3xl text-on-surface">{countdown}</p>
-            </div>
+    <div className="relative pb-24">
+      <header className="dashboard-panel mb-6 p-5 sm:p-6">
+        <p className="text-xs font-medium uppercase tracking-widest text-slate-500">Predictions</p>
+        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="font-headline text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              Grand Prix picks
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
+              Open rounds are on the calendar within the next 30 days. Choose a race to see the grid&apos;s predictions,
+              then deploy yours from the{" "}
+              <span className="font-medium text-slate-800">+</span> button — locked one hour before qualifying.
+            </p>
           </div>
-        </div>
-
-        <div className="space-y-4">
-          {predictions.map((prediction) => (
-            <article key={prediction.id} className="dashboard-panel p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-sm bg-surface-container-high border border-outline-variant/10" />
-                  <div>
-                    <p className="font-headline text-base">{prediction.fullName}</p>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-                      {prediction.username} {"//"} {prediction.createdAt}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => likePrediction(prediction.id)}
-                  className="flex items-center gap-1 border border-outline-variant/30 px-2 py-1 text-xs text-on-surface-variant hover:border-primary/40 hover:text-primary transition-colors"
-                >
-                  <Heart className="h-3.5 w-3.5" />
-                  {prediction.likes}
-                </button>
-              </div>
-
-              <div className="mt-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-on-surface-variant">
-                  Projected Podium
-                </p>
-                <div className="mt-2 grid gap-2 md:grid-cols-3">
-                  {prediction.top3.map((driver, index) => (
-                    <div key={driver} className="border border-outline-variant/30 bg-surface-container-low p-3">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary">P{index + 1}</p>
-                      <p className="mt-2 font-headline text-sm">{driver}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-2 md:grid-cols-2">
-                <div className="border border-outline-variant/30 bg-surface-container-low p-3">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-                    Pole Position
-                  </p>
-                  <p className="mt-1 font-headline text-sm">{prediction.polePosition}</p>
-                </div>
-                <div className="border border-outline-variant/30 bg-surface-container-low p-3">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-                    Driver of the Day
-                  </p>
-                  <p className="mt-1 font-headline text-sm">{prediction.driverOfTheDay}</p>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <aside className="col-span-12 xl:col-span-4">
-        <div className="dashboard-panel sticky top-0 p-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
-            Prediction Creator
-          </p>
-          <div className="mt-3 flex items-center justify-between border border-outline-variant/25 bg-surface-container-low px-3 py-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-              Uplink {lockText}
-            </span>
-            <span className="font-mono text-sm text-on-surface">{countdown}</span>
-          </div>
-          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-            Lat: {activeConfig.lat}
-          </p>
-
-          <form onSubmit={submitPrediction} className="mt-4 space-y-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Podium Drag Zone</p>
-
-            <div className={`grid grid-cols-3 gap-2 ${postLocked ? "opacity-70 saturate-50" : ""}`}>
-              {([
-                { key: "second", label: "P2", accent: "text-tertiary", ring: "border-tertiary/35", value: form.second },
-                { key: "first", label: "P1", accent: "text-primary", ring: "border-primary/45", value: form.first },
-                { key: "third", label: "P3", accent: "text-secondary", ring: "border-secondary/35", value: form.third },
-              ] as const).map((slot) => (
-                <div
-                  key={slot.key}
-                  ref={zoneRefs[slot.key]}
-                  className={`rounded-[18px] border ${slot.ring} bg-surface-container-low p-3 text-center`}
-                >
-                  <p className={`font-mono text-[10px] uppercase tracking-[0.2em] ${slot.accent}`}>{slot.label}</p>
-                  <p className="mt-2 font-headline text-xs">{slot.value.split(" ").pop()}</p>
-                </div>
-              ))}
+          {selected && (
+            <div className="dashboard-panel shrink-0 px-4 py-3">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Qualifying countdown</p>
+              <p className="mt-1 font-mono text-2xl tabular-nums text-slate-900">{countdown}</p>
+              <p className="mt-1 text-xs text-slate-500">{postLocked ? "Locked" : "Open for picks"}</p>
             </div>
+          )}
+        </div>
+      </header>
 
-            <div className="rounded-[18px] border border-white/10 bg-surface-container-low p-2">
-              <p className="mb-2 px-1 font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">
-                Drag driver chips onto P1/P2/P3
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {predictionDriverPool.map((driver) => (
+      {!selected ? (
+        <section>
+          <h2 className="mb-4 font-headline text-lg font-semibold text-slate-900">Upcoming Grands Prix</h2>
+          {enriched.length === 0 ? (
+            <div className="dashboard-panel p-8 text-center text-sm text-slate-600">
+              No races in the 30-day prediction window right now. Check back closer to the next Grand Prix.
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {enriched.map(({ round, config }) => {
+                const qMs = getQualifyingLockTimeMs(round, config);
+                const locked = qMs - Date.now() <= 60 * 60 * 1000;
+                return (
                   <motion.button
-                    key={`chip-${driver}`}
+                    key={round.slug}
                     type="button"
-                    drag={!postLocked}
-                    dragSnapToOrigin
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onDragStart={() => setDraggingDriver(driver)}
-                    onDragEnd={(_, info) => {
-                      assignPodiumFromDrop(driver, info.point.x, info.point.y);
-                      setDraggingDriver(null);
-                    }}
-                    onClick={() => !postLocked && updateField("first", driver)}
-                    className={`haptic-pill rounded-full border border-white/15 px-3 py-2 text-left text-xs ${draggingDriver === driver ? "text-primary" : "text-on-surface"}`}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => setSelected({ round, config })}
+                    className="dashboard-panel group w-full overflow-hidden p-5 text-left transition hover:border-primary/25"
                   >
-                    {driver}
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-2xl" aria-hidden>
+                        {round.flagEmoji}
+                      </span>
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                          locked ? "bg-slate-200 text-slate-600" : "bg-primary/15 text-primary"
+                        }`}
+                      >
+                        {locked ? "Locked" : "Open"}
+                      </span>
+                    </div>
+                    <p className="mt-3 font-headline text-lg font-bold tracking-tight text-slate-900">{round.name}</p>
+                    <p className="mt-1 text-sm text-slate-600">{round.circuit}</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        {round.country}
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5 shrink-0" />
+                        {formatGpRange(round)}
+                      </span>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between border-t border-slate-200/80 pt-3">
+                      <span className="text-xs text-slate-500">
+                        {config ? (
+                          <span className="text-emerald-700">Linked · predictions live</span>
+                        ) : (
+                          <span className="text-amber-700">No DB link · view only</span>
+                        )}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-primary" />
+                    </div>
                   </motion.button>
-                ))}
+                );
+              })}
+            </div>
+          )}
+        </section>
+      ) : (
+        <section>
+          <button
+            type="button"
+            onClick={() => setSelected(null)}
+            className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            All Grands Prix
+          </button>
+
+          <div className="dashboard-panel mb-6 p-5 sm:p-6">
+            <div className="flex flex-wrap items-start gap-4">
+              <span className="text-4xl">{selected.round.flagEmoji}</span>
+              <div className="min-w-0 flex-1">
+                <h2 className="font-headline text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{selected.round.name}</h2>
+                <p className="mt-1 text-sm text-slate-600">{selected.round.circuit}</p>
+                <p className="mt-2 text-xs text-slate-500">{formatGpRange(selected.round)}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200/90 bg-slate-50 px-4 py-3 text-right">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Grid predictions</p>
+                <p className="font-mono text-2xl font-semibold tabular-nums text-slate-900">{predictions.length}</p>
               </div>
             </div>
-
-            <select
-              value={form.first}
-              onChange={(event) => updateField("first", event.target.value)}
-              className="hidden w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-primary"
-            >
-              {predictionDriverPool.map((driver) => (
-                <option key={`p1-${driver}`} value={driver}>
-                  P1 - {driver}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={form.second}
-              onChange={(event) => updateField("second", event.target.value)}
-              className="hidden w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-secondary"
-            >
-              {predictionDriverPool.map((driver) => (
-                <option key={`p2-${driver}`} value={driver}>
-                  P2 - {driver}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={form.third}
-              onChange={(event) => updateField("third", event.target.value)}
-              className="hidden w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-tertiary"
-            >
-              {predictionDriverPool.map((driver) => (
-                <option key={`p3-${driver}`} value={driver}>
-                  P3 - {driver}
-                </option>
-              ))}
-            </select>
-
-            <p className="pt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-              Pole Position
-            </p>
-            <select
-              value={form.pole}
-              onChange={(event) => updateField("pole", event.target.value)}
-              className="w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-primary"
-            >
-              {predictionDriverPool.map((driver) => (
-                <option key={`pole-${driver}`} value={driver}>
-                  {driver}
-                </option>
-              ))}
-            </select>
-
-            <p className="pt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-              Driver of the Day
-            </p>
-            <select
-              value={form.dotd}
-              onChange={(event) => updateField("dotd", event.target.value)}
-              className="w-full border border-outline-variant/35 bg-surface-container-low px-3 py-2 text-sm outline-none focus:border-secondary"
-            >
-              {predictionDriverPool.map((driver) => (
-                <option key={`dotd-${driver}`} value={driver}>
-                  {driver}
-                </option>
-              ))}
-            </select>
-
-            <button
-              disabled={postLocked}
-              type="submit"
-              className="mt-2 flex w-full items-center justify-center gap-2 bg-primary px-4 py-3 font-headline text-sm font-bold tracking-[0.2em] text-white uppercase disabled:cursor-not-allowed disabled:bg-outline-variant disabled:text-on-surface-variant transition-transform hover:scale-[1.01] active:scale-[0.99]"
-            >
-              <MessageSquarePlus className="h-4 w-4" />
-              {postLocked ? "Prediction Locked" : "Deploy Prediction"}
-            </button>
-          </form>
-
-          <div className={`mt-4 border px-3 py-2 ${postLocked ? "border-tertiary/40 bg-[linear-gradient(130deg,rgba(0,229,255,0.12),rgba(124,58,237,0.2),rgba(255,255,255,0.06))]" : "border-alert-red/20 bg-alert-red/10"}`}>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-alert-red">
-              {postLocked
-                ? "Predictions frozen in holographic lock state."
-                : "Predictions auto-lock exactly 1 hour before qualifying."}
-            </p>
-            {submitError && (
-              <p className="mt-2 text-xs text-alert-red">{submitError}</p>
-            )}
           </div>
 
-          <div className="mt-6 border-t border-outline-variant/20 pt-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-              Strategy Multiplier
-            </p>
-            <div className="mt-2 flex items-center justify-between">
-              <span className="flex items-center gap-1 text-xs text-secondary">
-                <Trophy className="h-3.5 w-3.5" />
-                x1.45 Sim Reward
-              </span>
-              <span className="flex items-center gap-1 text-xs text-on-surface-variant">
-                <Clock3 className="h-3.5 w-3.5" />
-                {relativeNowLabel()}
-              </span>
+          <h3 className="mb-3 font-headline text-base font-semibold text-slate-900">Community picks</h3>
+          {!selected.config ? (
+            <div className="dashboard-panel p-6 text-sm text-slate-600">
+              This round is not linked to <code className="font-mono text-xs">prediction_config</code> yet, so
+              community submissions cannot load. After your admin adds a row whose{" "}
+              <code className="font-mono text-xs">event_name</code> matches this Grand Prix, predictions appear here.
             </div>
-          </div>
-        </div>
-      </aside>
+          ) : predictions.length === 0 ? (
+            <div className="dashboard-panel p-8 text-center text-sm text-slate-600">
+              No predictions yet for this Grand Prix. Be the first — tap + to deploy yours.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {predictions.map((prediction) => (
+                <article key={prediction.id} className="dashboard-panel p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-headline text-base font-semibold tracking-tight text-slate-900">{prediction.fullName}</p>
+                      <p className="mt-0.5 text-xs text-slate-500">
+                        {prediction.username} · {prediction.createdAt}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => likePrediction(prediction.id)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-primary/30 hover:text-primary"
+                    >
+                      <Heart className="h-3.5 w-3.5" />
+                      {prediction.likes}
+                    </button>
+                  </div>
+                  <p className="mt-4 text-[11px] font-medium uppercase tracking-wider text-slate-500">Podium</p>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                    {prediction.top3.map((driver, index) => (
+                      <div key={`${prediction.id}-${driver}`} className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">P{index + 1}</p>
+                        <p className="mt-1 font-headline text-sm font-semibold text-slate-900">{driver}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Pole</p>
+                      <p className="mt-1 text-sm font-medium text-slate-900">{prediction.polePosition}</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Driver of the day</p>
+                      <p className="mt-1 text-sm font-medium text-slate-900">{prediction.driverOfTheDay}</p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {enriched.length > 0 && (
+        <motion.button
+          type="button"
+          aria-label="New prediction"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setCreatorOpen(true)}
+          className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-[95] flex h-14 w-14 items-center justify-center rounded-full border border-primary/30 bg-primary text-white shadow-[0_12px_28px_rgba(124,58,237,0.35)] sm:right-6"
+        >
+          <Plus className="h-7 w-7" strokeWidth={2.2} />
+        </motion.button>
+      )}
+
+      <PredictionCreatorModal
+        open={creatorOpen}
+        onClose={() => setCreatorOpen(false)}
+        eventId={modalTarget.eventId}
+        eventTitle={modalTarget.eventTitle}
+        qualifyingAtMs={modalTarget.qualifyingAtMs}
+        onSubmitted={() => {
+          if (selected?.config?.id) void fetchPredictionsForEvent(selected.config.id);
+          void fetchConfigs();
+        }}
+      />
     </div>
   );
 }

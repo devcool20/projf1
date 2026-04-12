@@ -44,3 +44,21 @@ Constraints you should keep enforcing
 Standings driver cutout video on hover — preserve (desktop); mobile may hide inline video to reduce jank.
 web/CLAUDE.md is canonical for architecture but design tokens section is outdated vs current light UI — treat CLAUDE as structure + data flows, not current color truth.
 Do not recreate Pit Wall / global search unless explicitly requested.
+
+## Chat #2
+
+**Docs**: Re-stated roles — `CLAUDE.md` = architecture / data flows only; `AGENTS.md` = agent-session changelog (this file). Design tokens in CLAUDE can lag the live light UI.
+
+**Profile off bottom nav, on dashboard**: Dropped Profile from `mock-data.ts` `navItems`; `paddock-bottom-nav.tsx` `grid-cols-7` → `6`. Dashboard `(paddock)/page.tsx`: row = `TelemetryTicker` (flex-1) + `PremiumProfileTrigger`; `DashboardProfileModal` opens `ProfileScreen` almost full-screen, iOS-style spring (scale + y), dim backdrop, header “Super License” + X, body scroll lock + Escape. **Portal to `document.body`** — `PageTransition` uses transforms, so `fixed` inside main would mis-position.
+
+**Profile trigger polish (v2)**: Removed stacked gradient ring + heavy purple shadow (read “cheap”). Single `rounded-full` white pill, `border-slate-200`, neutral `shadow-[0_1px_2px…]`, `UserRound` `strokeWidth={2.25}`, hover border/bg shift + `text-primary`, `focus-visible` ring, gentler `whileHover` / `whileTap`.
+
+**`lib/utils.ts`**: Shared `cn()`; `moving-border.tsx` switched off local `cn` duplicate.
+
+**Moving border (hero “projf1” bar)**: `components/ui/moving-border.tsx` — Aceternity-style animated edge via `useAnimationFrame` + SVG `<rect>` path + radial-gradient orb (`p-[2px]` track); inner radius `calc(radius * 0.96)`. Dashboard hero: `MovingBorderButton` `as="div"`, `borderRadius="1.5rem"`, `duration={4800}`, inner keeps `dashboard-panel` + blobs + copy. Springs tuned for large perimeter.
+
+**Floating dock (bottom nav)**: Replaced grid+pill nav with `components/ui/floating-dock.tsx` — shared `mouseX` from **`e.clientX`** (viewport-consistent with `getBoundingClientRect`), `useSpring` on tray + icon sizes, distance bands ±120px, tooltips spring in/out (blur→sharp), `aria-current` on active link. **Containment pass**: dock `w-fit` + `max-w-[calc(100vw-1.25rem)]` so pill hugs icons; nav wrapper `flex justify-center` + inner `w-fit max-w-full`; tighter `px`/`gap`/`rounded`, `h-[4rem]`, **`overflow-visible`** so tooltips not clipped (dropped `overflow-x-auto` on bar).
+
+**Predictions system (GP-centric + profile)**: `lib/f1-calendar-2026.ts` — 2026 rounds 1–14 public UTC anchors (`fp1Iso` / `qualifyingIso` / `raceIso`), `matchTokens` for fuzzy match to `prediction_config.event_name`, `isRoundInPredictionHorizon(..., 30)` (FP1 within 30d horizon + race window not over ~race+4h), `getQualifyingLockTimeMs` prefers DB `qualifying_at` else calendar quali, `formatGpRange`, `matchConfigToRound`. **`predictions-screen.tsx` rewrite**: no right sidebar; grid of upcoming GPs (Open/Locked, Linked vs no DB link); tap card → detail + `race_predictions` for that `event_id`; likes + realtime channel; **`selectedEventIdRef`** so `postgres_changes` handler isn’t stale. **`prediction-creator-modal.tsx`**: same portal/modal shell as profile; full drag chips / podium / pole / DOTD; auth via `getUser()` + copy if no `prediction_config` match; lock still **≤1h before qualifying**. **FAB `+`**: `fixed` `bottom-[calc(5.25rem+safe-area)]` `right-4` `z-[95]` above dock; modal target = selected GP else first linked horizon round else first horizon round. **Typography**: fewer all-caps mono walls — `font-headline` for titles, body `text-sm`/`text-slate-600`, `font-mono` + `tabular-nums` mainly countdowns. **`mock-data.ts`**: `predictionDriverPool` expanded (more 2026-style names). **`supabase/seed_prediction_config_f1_2026.sql`**: idempotent `INSERT … SELECT … WHERE NOT EXISTS` for 14 `prediction_config` rows (`event_name`, `qualifying_at`, `lat`, `is_active`) aligned to calendar; comments for extra required columns (`id`, `created_at`).
+
+**Constraints unchanged**: Standings hover driver video; no Pit Wall / global search unless asked; CLAUDE for structure not live color truth.

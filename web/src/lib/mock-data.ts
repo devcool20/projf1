@@ -190,6 +190,17 @@ export const predictionDriverPool = [
   "George Russell",
   "Carlos Sainz",
   "Oscar Piastri",
+  "Fernando Alonso",
+  "Lance Stroll",
+  "Liam Lawson",
+  "Yuki Tsunoda",
+  "Isack Hadjar",
+  "Esteban Ocon",
+  "Oliver Bearman",
+  "Pierre Gasly",
+  "Franco Colapinto",
+  "Gabriel Bortoleto",
+  "Nico Hülkenberg",
 ];
 
 export const predictionConfig: PredictionConfig = {
