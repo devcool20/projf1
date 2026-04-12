@@ -12,9 +12,11 @@ import {
   matchConfigToRound,
 } from "@/lib/f1-calendar-2026";
 import { PredictionCreatorModal } from "@/components/predictions/prediction-creator-modal";
+import { MovingBorderButton } from "@/components/ui/moving-border";
 import { ArrowLeft, Calendar, ChevronRight, Heart, MapPin, Plus } from "lucide-react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { iosSpring, listContainerVariants, listItemVariants, routeVariants, skeletonPulse } from "@/components/motion/premium-motion";
 
 type RawPredictionRow = {
   id: string;
@@ -188,107 +190,135 @@ export function PredictionsScreen() {
     return { eventId: null as string | null, eventTitle: "Grand Prix", qualifyingAtMs: Date.now() + 86400000 };
   }, [selected, enriched]);
 
-  if (loading) {
-    return (
-      <div className="grid gap-4">
-        <div className="skeleton-shimmer h-24 rounded-2xl" />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="skeleton-shimmer h-40 rounded-2xl" />
-          <div className="skeleton-shimmer h-40 rounded-2xl" />
-          <div className="skeleton-shimmer h-40 rounded-2xl" />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="relative pb-24">
-      <header className="dashboard-panel mb-6 p-5 sm:p-6">
-        <p className="text-xs font-medium uppercase tracking-widest text-slate-500">Predictions</p>
+    <AnimatePresence mode="wait">
+      {loading ? (
+        <motion.div
+          key="predictions-loading"
+          layout
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={iosSpring}
+          className="grid gap-4"
+        >
+          <motion.div variants={skeletonPulse} initial="initial" animate="animate" className="skeleton-shimmer h-24 rounded-2xl" />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                variants={skeletonPulse}
+                initial="initial"
+                animate="animate"
+                className="skeleton-shimmer h-40 rounded-2xl"
+              />
+            ))}
+          </div>
+        </motion.div>
+      ) : (
+    <motion.div
+      key="predictions-loaded"
+      layout
+      variants={routeVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={iosSpring}
+      className="relative pb-24"
+    >
+      <header className="surface-ink relative mb-6 p-5 sm:p-6">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Predictions</p>
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="font-headline text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          <div className="relative min-w-0">
+            <h1 className="font-headline text-2xl font-semibold tracking-tight text-white sm:text-3xl">
               Grand Prix picks
             </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
-              Open rounds are on the calendar within the next 30 days. Choose a race to see the grid&apos;s predictions,
-              then deploy yours from the{" "}
-              <span className="font-medium text-slate-800">+</span> button — locked one hour before qualifying.
+            <p className="surface-ink-muted mt-2 max-w-2xl text-sm font-normal leading-relaxed">
+              Rounds in the next 30 days on the calendar. Open a race for community picks — deploy from{" "}
+              <span className="font-medium text-zinc-300">+</span>. Locks one hour before qualifying.
             </p>
           </div>
           {selected && (
-            <div className="dashboard-panel shrink-0 px-4 py-3">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Qualifying countdown</p>
-              <p className="mt-1 font-mono text-2xl tabular-nums text-slate-900">{countdown}</p>
-              <p className="mt-1 text-xs text-slate-500">{postLocked ? "Locked" : "Open for picks"}</p>
+            <div className="shrink-0 rounded-xl border border-white/10 bg-white/6 px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Qualifying countdown</p>
+              <p className="mt-1 font-mono text-xl font-semibold tabular-nums text-white sm:text-2xl">{countdown}</p>
+              <p className="mt-1 text-xs font-medium text-zinc-500">{postLocked ? "Locked" : "Open for picks"}</p>
             </div>
           )}
         </div>
       </header>
 
+      <AnimatePresence mode="wait">
       {!selected ? (
-        <section>
-          <h2 className="mb-4 font-headline text-lg font-semibold text-slate-900">Upcoming Grands Prix</h2>
+        <motion.section
+          key="predictions-gp-grid"
+          variants={routeVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={iosSpring}
+        >
+          <h2 className="mb-4 font-headline text-[15px] font-semibold tracking-tight text-slate-900">Upcoming Grands Prix</h2>
           {enriched.length === 0 ? (
             <div className="dashboard-panel p-8 text-center text-sm text-slate-600">
               No races in the 30-day prediction window right now. Check back closer to the next Grand Prix.
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {enriched.map(({ round, config }) => {
-                const qMs = getQualifyingLockTimeMs(round, config);
-                const locked = qMs - Date.now() <= 60 * 60 * 1000;
-                return (
-                  <motion.button
+            <motion.div
+              className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+              variants={listContainerVariants}
+              initial="hidden"
+              animate="show"
+            >
+              {enriched.map(({ round, config }, idx) => (
+                  <MovingBorderButton
                     key={round.slug}
+                    as={motion.button}
                     type="button"
+                    borderRadius="1.25rem"
+                    duration={4200 + (idx % 4) * 280}
+                    containerClassName="h-full"
+                    className="dashboard-panel group relative flex h-full w-full flex-col overflow-hidden px-5 pb-4 pt-4 text-left transition hover:border-primary/25"
+                    onClick={() => setSelected({ round, config })}
                     whileHover={{ y: -2 }}
                     whileTap={{ scale: 0.99 }}
-                    onClick={() => setSelected({ round, config })}
-                    className="dashboard-panel group w-full overflow-hidden p-5 text-left transition hover:border-primary/25"
+                    variants={listItemVariants}
+                    transition={iosSpring}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-2xl" aria-hidden>
-                        {round.flagEmoji}
-                      </span>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                          locked ? "bg-slate-200 text-slate-600" : "bg-primary/15 text-primary"
-                        }`}
-                      >
-                        {locked ? "Locked" : "Open"}
-                      </span>
-                    </div>
-                    <p className="mt-3 font-headline text-lg font-bold tracking-tight text-slate-900">{round.name}</p>
-                    <p className="mt-1 text-sm text-slate-600">{round.circuit}</p>
-                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    <p className="pr-6 font-headline text-[15px] font-semibold leading-snug tracking-tight text-slate-900">
+                      {round.name}
+                    </p>
+                    <p className="mt-1 text-[10px] font-medium leading-snug text-slate-500">{round.circuit}</p>
+                    <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-200/70 pt-3">
+                      <span className="gp-meta-row inline-flex items-center gap-1.5 text-slate-600">
+                        <MapPin className="h-3 w-3 text-slate-400" strokeWidth={2} aria-hidden />
                         {round.country}
                       </span>
-                      <span className="inline-flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5 shrink-0" />
+                      <span className="gp-meta-row inline-flex items-center gap-1.5 text-slate-600">
+                        <Calendar className="h-3 w-3 text-slate-400" strokeWidth={2} aria-hidden />
                         {formatGpRange(round)}
                       </span>
                     </div>
-                    <div className="mt-4 flex items-center justify-between border-t border-slate-200/80 pt-3">
-                      <span className="text-xs text-slate-500">
-                        {config ? (
-                          <span className="text-emerald-700">Linked · predictions live</span>
-                        ) : (
-                          <span className="text-amber-700">No DB link · view only</span>
-                        )}
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-primary" />
+                    <div className="mt-3 flex justify-end">
+                      <ChevronRight
+                        className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-primary"
+                        aria-hidden
+                      />
                     </div>
-                  </motion.button>
-                );
-              })}
-            </div>
+                  </MovingBorderButton>
+              ))}
+            </motion.div>
           )}
-        </section>
+        </motion.section>
       ) : (
-        <section>
+        <motion.section
+          key={`predictions-gp-${selected.round.slug}`}
+          variants={routeVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={iosSpring}
+        >
           <button
             type="button"
             onClick={() => setSelected(null)}
@@ -302,7 +332,7 @@ export function PredictionsScreen() {
             <div className="flex flex-wrap items-start gap-4">
               <span className="text-4xl">{selected.round.flagEmoji}</span>
               <div className="min-w-0 flex-1">
-                <h2 className="font-headline text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{selected.round.name}</h2>
+                <h2 className="font-headline text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">{selected.round.name}</h2>
                 <p className="mt-1 text-sm text-slate-600">{selected.round.circuit}</p>
                 <p className="mt-2 text-xs text-slate-500">{formatGpRange(selected.round)}</p>
               </div>
@@ -313,7 +343,7 @@ export function PredictionsScreen() {
             </div>
           </div>
 
-          <h3 className="mb-3 font-headline text-base font-semibold text-slate-900">Community picks</h3>
+          <h3 className="mb-3 font-headline text-[15px] font-semibold text-slate-900">Community picks</h3>
           {!selected.config ? (
             <div className="dashboard-panel p-6 text-sm text-slate-600">
               This round is not linked to <code className="font-mono text-xs">prediction_config</code> yet, so
@@ -325,12 +355,22 @@ export function PredictionsScreen() {
               No predictions yet for this Grand Prix. Be the first — tap + to deploy yours.
             </div>
           ) : (
-            <div className="space-y-4">
+            <motion.div
+              className="space-y-4"
+              variants={listContainerVariants}
+              initial="hidden"
+              animate="show"
+            >
               {predictions.map((prediction) => (
-                <article key={prediction.id} className="dashboard-panel p-5">
+                <motion.article
+                  key={prediction.id}
+                  variants={listItemVariants}
+                  transition={iosSpring}
+                  className="dashboard-panel p-5"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="font-headline text-base font-semibold tracking-tight text-slate-900">{prediction.fullName}</p>
+                      <p className="font-headline text-[15px] font-semibold tracking-tight text-slate-900">{prediction.fullName}</p>
                       <p className="mt-0.5 text-xs text-slate-500">
                         {prediction.username} · {prediction.createdAt}
                       </p>
@@ -363,12 +403,13 @@ export function PredictionsScreen() {
                       <p className="mt-1 text-sm font-medium text-slate-900">{prediction.driverOfTheDay}</p>
                     </div>
                   </div>
-                </article>
+                </motion.article>
               ))}
-            </div>
+            </motion.div>
           )}
-        </section>
+        </motion.section>
       )}
+      </AnimatePresence>
 
       {enriched.length > 0 && (
         <motion.button
@@ -377,9 +418,9 @@ export function PredictionsScreen() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setCreatorOpen(true)}
-          className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-[95] flex h-14 w-14 items-center justify-center rounded-full border border-primary/30 bg-primary text-white shadow-[0_12px_28px_rgba(124,58,237,0.35)] sm:right-6"
+          className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-95 flex h-11 w-11 items-center justify-center rounded-full border border-primary/35 bg-primary text-white shadow-[0_10px_22px_rgba(124,58,237,0.32)] sm:right-6"
         >
-          <Plus className="h-7 w-7" strokeWidth={2.2} />
+          <Plus className="h-5 w-5" strokeWidth={2.25} />
         </motion.button>
       )}
 
@@ -394,6 +435,8 @@ export function PredictionsScreen() {
           void fetchConfigs();
         }}
       />
-    </div>
+    </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

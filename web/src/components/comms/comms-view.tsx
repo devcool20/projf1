@@ -10,6 +10,7 @@ import { CreateThreadPanel } from "./create-thread-panel";
 import { UserDetailPanel } from "./user-detail-panel";
 import { Heart, MessageCircle, Share2, Signal, ChevronLeft, Plus, Trash2, X } from "lucide-react";
 import { applyTeamAccent, resetTeamAccent } from "@/lib/team-accent";
+import { iosSpring, listContainerVariants, listItemVariants, skeletonPulse } from "@/components/motion/premium-motion";
 
 type Props = {
   query: string;
@@ -635,19 +636,38 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="skeleton-shimmer h-40 rounded-[24px]" />
-        <div className="skeleton-shimmer h-40 rounded-[24px]" />
-        <div className="skeleton-shimmer h-64 rounded-[24px]" />
-        <div className="skeleton-shimmer h-64 rounded-[24px]" />
-      </div>
-    );
-  }
-
   return (
-    <motion.div initial={false} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-12 gap-3 sm:gap-4">
+    <AnimatePresence mode="wait">
+      {loading ? (
+        <motion.div
+          key="comms-loading"
+          layout
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={iosSpring}
+          className="grid gap-4 md:grid-cols-2"
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <motion.div
+              key={i}
+              variants={skeletonPulse}
+              initial="initial"
+              animate="animate"
+              className={`skeleton-shimmer rounded-[24px] ${i < 2 ? "h-40" : "h-64"}`}
+            />
+          ))}
+        </motion.div>
+      ) : (
+    <motion.div
+      key="comms-loaded"
+      layout
+      initial={{ opacity: 0, y: 20, scale: 1.01 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 8, scale: 0.99 }}
+      transition={iosSpring}
+      className="grid grid-cols-12 gap-3 sm:gap-4"
+    >
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -671,7 +691,12 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
           </p>
         </div>
 
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 grid-flow-dense">
+        <motion.div
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 md:grid-flow-dense"
+          variants={listContainerVariants}
+          initial="hidden"
+          animate="show"
+        >
           {filtered.map((thread) => {
             const isSelected = selectedThreadId === thread.id;
             const score = computeSignalScore(thread);
@@ -682,6 +707,8 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
             return (
               <motion.div
                 key={thread.id}
+                variants={listItemVariants}
+                transition={iosSpring}
                 whileHover={{ scale: 1.01 }}
                 layout
                 className={`dashboard-panel flex flex-col overflow-hidden h-fit ${
@@ -778,7 +805,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
               </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </section>
 
       <aside
@@ -796,10 +823,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
               initial={{ x: 44, opacity: 0.5 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 44, opacity: 0.5 }}
-              transition={{
-                x: { type: "spring", stiffness: 360, damping: 34, mass: 0.72 },
-                opacity: { duration: 0.16, ease: "easeOut" },
-              }}
+              transition={iosSpring}
               className="dashboard-panel h-[calc(100dvh-7.5rem)] overflow-y-auto rounded-card p-4 sm:p-5 xl:h-auto xl:overflow-visible"
               onClick={(event) => event.stopPropagation()}
             >
@@ -1025,5 +1049,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
         )}
       </AnimatePresence>
     </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

@@ -9,6 +9,7 @@ import { Podium } from "./podium";
 import { StandingsList } from "./standings-list";
 import { ConstructorsView } from "./constructors-view";
 import { getNationalityFlag, getTeamColor } from "@/lib/team-colors";
+import { iosSpring, routeVariants, skeletonPulse } from "@/components/motion/premium-motion";
 
 type Tab = "drivers" | "constructors";
 
@@ -87,16 +88,6 @@ export function StandingsScreen({
     [drivers],
   );
 
-  if (loading) {
-    return (
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="skeleton-shimmer h-56 rounded-[24px]" />
-        <div className="skeleton-shimmer h-56 rounded-[24px]" />
-        <div className="skeleton-shimmer h-64 rounded-[24px] md:col-span-2" />
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
@@ -117,7 +108,32 @@ export function StandingsScreen({
   }
 
   return (
-    <motion.div initial={false} animate={{ opacity: 1, y: 0 }}>
+    <AnimatePresence mode="wait">
+      {loading ? (
+        <motion.div
+          key="standings-loading"
+          layout
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={iosSpring}
+          className="grid gap-4"
+        >
+          <motion.div variants={skeletonPulse} initial="initial" animate="animate" className="skeleton-shimmer h-24 rounded-[24px]" />
+          <motion.div variants={skeletonPulse} initial="initial" animate="animate" className="skeleton-shimmer h-12 w-56 rounded-full" />
+          <motion.div variants={skeletonPulse} initial="initial" animate="animate" className="skeleton-shimmer h-56 rounded-[24px]" />
+          <motion.div variants={skeletonPulse} initial="initial" animate="animate" className="skeleton-shimmer h-64 rounded-[24px]" />
+        </motion.div>
+      ) : (
+    <motion.div
+      key="standings-loaded"
+      layout
+      variants={routeVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={iosSpring}
+    >
       {/* Header */}
       <div className="mb-5 flex items-end justify-between border-b border-white/15 pb-3">
         <div>
@@ -176,10 +192,11 @@ export function StandingsScreen({
         {tab === "drivers" ? (
           <motion.div
             key="drivers"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
+            variants={routeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={iosSpring}
             className="grid grid-cols-12 gap-4"
           >
             <div className="col-span-12 xl:col-span-8">
@@ -209,10 +226,11 @@ export function StandingsScreen({
         ) : (
           <motion.div
             key="constructors"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
+            variants={routeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={iosSpring}
           >
             <ConstructorsView
               teams={teams}
@@ -241,7 +259,7 @@ export function StandingsScreen({
               exit={{ x: 42, opacity: 0.65 }}
               transition={{
                 x: { type: "spring", stiffness: 360, damping: 34, mass: 0.75 },
-                opacity: { duration: 0.16, ease: "easeOut" },
+                opacity: iosSpring,
               }}
               className="dashboard-panel mx-auto h-[calc(100dvh-8rem)] w-full max-w-2xl overflow-y-auto rounded-card p-5"
               onClick={(event) => event.stopPropagation()}
@@ -346,5 +364,7 @@ export function StandingsScreen({
         )}
       </AnimatePresence>
     </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ApiDriverStanding } from "@/lib/types";
 import { getTeamColor, getNationalityFlag } from "@/lib/team-colors";
+import { iosSpring, listContainerVariants, listItemVariants } from "@/components/motion/premium-motion";
 
 type Props = {
   drivers: ApiDriverStanding[];
@@ -51,8 +52,13 @@ export function StandingsList({ drivers, selectedCode, onSelect, onOpenDriver, l
         <span className="hidden font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant text-right sm:block">PTS</span>
       </div>
 
-      <div className="thin-scrollbar max-h-[420px] overflow-y-auto">
-        {drivers.map((driver, i) => {
+      <motion.div
+        className="thin-scrollbar max-h-[420px] overflow-y-auto"
+        variants={listContainerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        {drivers.map((driver) => {
           const tc = getTeamColor(driver.teamName);
           const isSelected = selectedCode === driver.driverCode;
           const barWidth = maxPoints > 0 ? (driver.points / maxPoints) * 100 : 0;
@@ -60,9 +66,8 @@ export function StandingsList({ drivers, selectedCode, onSelect, onOpenDriver, l
           return (
             <motion.button
               key={driver.driverCode}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.02, duration: 0.3 }}
+              variants={listItemVariants}
+              transition={iosSpring}
               whileHover={{ scale: 1.01 }}
               onClick={() => {
                 onSelect(driver.driverCode);
@@ -131,7 +136,7 @@ export function StandingsList({ drivers, selectedCode, onSelect, onOpenDriver, l
             </motion.button>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Chibi video popup — floats beside the hovered row */}
       <AnimatePresence>
@@ -141,7 +146,7 @@ export function StandingsList({ drivers, selectedCode, onSelect, onOpenDriver, l
             initial={{ opacity: 0, scale: 0.8, x: 10 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.85, x: 10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            transition={iosSpring}
             className="pointer-events-none absolute right-3 z-50 hidden w-36 overflow-hidden rounded-lg border shadow-2xl shadow-black/50 md:block"
             style={{
               top: Math.max(8, popupY - 40),

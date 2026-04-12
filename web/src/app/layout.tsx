@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Sora } from "next/font/google";
+import { JetBrains_Mono, Manrope, Syne } from "next/font/google";
 import "./globals.css";
 
-const headingFont = Sora({
+const headingFont = Syne({
   variable: "--font-heading",
   subsets: ["latin"],
   weight: ["600", "700", "800"],
 });
 
-const bodyFont = Inter({
+const bodyFont = Manrope({
   variable: "--font-body",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],

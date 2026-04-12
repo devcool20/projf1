@@ -80,6 +80,13 @@ function IconContainer({
             : "border-slate-200/90 bg-slate-100/95 text-slate-600 hover:border-slate-300 hover:bg-white hover:text-slate-800",
         )}
       >
+        {active && (
+          <motion.span
+            layoutId="floating-dock-active-bg"
+            transition={springTray}
+            className="absolute inset-0 rounded-full bg-primary/10"
+          />
+        )}
         <AnimatePresence mode="popLayout">
           {hovered && (
             <motion.span
@@ -125,7 +132,7 @@ export function FloatingDock({
       onPointerLeave={() => mouseX.set(Infinity)}
       onPointerCancel={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto flex h-[4rem] w-fit max-w-[calc(100vw-1.25rem)] items-end justify-center gap-0.5 overflow-visible rounded-[1.15rem] border border-slate-200/90 bg-white/92 px-1 pb-2 pt-0.5 shadow-[0_14px_32px_rgba(15,23,42,0.1)] backdrop-blur-xl sm:gap-1 sm:rounded-[1.25rem] sm:px-1.5",
+        "mx-auto flex h-16 w-fit max-w-[calc(100vw-1.25rem)] items-end justify-center gap-0.5 overflow-visible rounded-[1.15rem] border border-slate-200/90 bg-white/92 px-1 pb-2 pt-0.5 shadow-[0_14px_32px_rgba(15,23,42,0.1)] backdrop-blur-xl sm:gap-1 sm:rounded-[1.25rem] sm:px-1.5",
         desktopClassName,
         mobileClassName,
       )}

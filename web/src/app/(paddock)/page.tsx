@@ -117,33 +117,26 @@ export default function DashboardPage() {
         <PremiumProfileTrigger onPress={() => setProfileOpen(true)} />
       </div>
       <DashboardProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
-      {/* Hero header — moving edge highlight (Aceternity-style) */}
+      {/* Hero — premium ink (no moving border; border lives on bento cards below) */}
       <motion.section
         {...fadeUp}
         transition={{ duration: 0.4 }}
-        className="w-full"
+        className="surface-ink relative w-full overflow-hidden p-6 sm:p-7"
       >
-        <MovingBorderButton
-          as="div"
-          borderRadius="1.5rem"
-          duration={4800}
-          className="dashboard-panel relative overflow-hidden p-6"
-        >
-          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/5 blur-3xl" />
-          <div className="absolute -bottom-12 -left-12 h-36 w-36 rounded-full bg-secondary/5 blur-3xl" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-2">
-              <Wifi className="h-3 w-3 text-secondary" />
-              <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-secondary">
-                Mission Control Active
-              </p>
-            </div>
-            <h2 className="mt-1 font-headline text-3xl sm:text-4xl font-bold tracking-tight">projf1</h2>
-            <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">
-              Your race weekend command center — threads, predictions, screenings, and the full grid at a glance.
+        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-violet-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-white/[0.04] blur-2xl" />
+        <div className="relative z-10">
+          <div className="flex items-center gap-2">
+            <Wifi className="h-3.5 w-3.5 text-zinc-500" />
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+              Mission Control Active
             </p>
           </div>
-        </MovingBorderButton>
+          <h2 className="mt-2 font-headline text-3xl font-semibold tracking-tight text-white sm:text-4xl">projf1</h2>
+          <p className="surface-ink-muted mt-2 max-w-2xl text-sm leading-relaxed">
+            Your race weekend command center — threads, predictions, screenings, and the full grid at a glance.
+          </p>
+        </div>
       </motion.section>
 
       {/* Bento Grid */}
@@ -153,22 +146,28 @@ export default function DashboardPage() {
         animate="show"
         className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
       >
-        {/* 1. Top Thread of the Hour */}
+        {/* 1. Top Thread of the Hour — moving border */}
         <motion.div variants={gridItem} className="xl:col-span-1">
           <Link href="/comms" className="group block h-full">
-            <div className="dashboard-panel flex h-full flex-col p-5 transition hover:border-primary/40 hover:scale-[1.005]">
+            <MovingBorderButton
+              as="div"
+              borderRadius="1.25rem"
+              duration={4600}
+              containerClassName="h-full"
+              className="dashboard-panel flex h-full flex-col p-5 transition hover:border-primary/35"
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded bg-primary/15">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/12">
                     <Radio className="h-3.5 w-3.5 text-primary" />
                   </div>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
                     Top Thread
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="h-1.5 w-1.5 rounded-full" style={{ background: topThreadSignal.color }} />
-                  <span className="font-mono text-[9px] uppercase tracking-[0.2em]" style={{ color: topThreadSignal.color }}>
+                  <span className="font-mono text-[9px] font-medium uppercase tracking-[0.14em]" style={{ color: topThreadSignal.color }}>
                     {topThreadSignal.label} · {topThreadScore}
                   </span>
                 </div>
@@ -176,14 +175,14 @@ export default function DashboardPage() {
 
               {topThread && (
                 <div className="mt-4">
-                  <div className="flex items-center gap-2">
-                    <p className="font-headline text-sm font-semibold">{topThread.username}</p>
-                    <p className="font-mono text-[10px] text-on-surface-variant">{topThread.fullName}</p>
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <p className="font-headline text-sm font-semibold text-slate-900">{topThread.username}</p>
+                    <p className="text-[11px] font-medium text-slate-500">{topThread.fullName}</p>
                   </div>
-                  <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-on-surface/85">
+                  <p className="mt-2 line-clamp-3 text-sm font-normal leading-relaxed text-slate-600">
                     {topThread.message}
                   </p>
-                  <div className="mt-4 flex items-center gap-4 text-xs text-on-surface-variant">
+                  <div className="mt-4 flex items-center gap-4 text-xs font-medium text-slate-500">
                     <span className="flex items-center gap-1"><Heart className="h-3 w-3" />{topThread.likes}</span>
                     <span className="flex items-center gap-1"><MessageCircle className="h-3 w-3" />{topThread.comments}</span>
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{topThread.createdAt}</span>
@@ -191,10 +190,10 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              <div className="mt-auto flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-primary">
+              <div className="mt-auto flex items-center gap-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
                 Open Comms <ChevronRight className="h-3 w-3" />
               </div>
-            </div>
+            </MovingBorderButton>
           </Link>
         </motion.div>
 
@@ -203,30 +202,36 @@ export default function DashboardPage() {
           <NextRaceCard data={nextRaceData} />
         </motion.div>
 
-        {/* 3. Upcoming Screening */}
+        {/* 3. Upcoming Screening — moving border */}
         <motion.div variants={gridItem} className="xl:col-span-1">
           <Link href="/paddock-premieres" className="group block h-full">
-            <div className="dashboard-panel flex h-full flex-col p-5 transition hover:border-tertiary/40 hover:scale-[1.005]">
+            <MovingBorderButton
+              as="div"
+              borderRadius="1.25rem"
+              duration={5000}
+              containerClassName="h-full"
+              className="dashboard-panel flex h-full flex-col p-5 transition hover:border-tertiary/35"
+            >
               <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded bg-tertiary/15">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-tertiary/12">
                   <Clapperboard className="h-3.5 w-3.5 text-tertiary" />
                 </div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-tertiary">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-tertiary">
                   Next Screening
                 </p>
               </div>
 
               {screening && (
                 <div className="mt-4">
-                  <h3 className="font-headline text-lg font-bold">{screening.title}</h3>
-                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-on-surface-variant">
+                  <h3 className="font-headline text-lg font-semibold text-slate-900">{screening.title}</h3>
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500">
                     <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{screening.city}</span>
                     <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{screening.dateLabel}</span>
                     <span className="flex items-center gap-1"><Ticket className="h-3 w-3" />₹{screening.entryFee}</span>
                   </div>
 
                   <div className="mt-4">
-                    <div className="flex items-center justify-between font-mono text-[10px] text-on-surface-variant">
+                    <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-[0.12em] text-slate-500">
                       <span>{screening.bookedSeats} booked</span>
                       <span>{screening.totalSeats - screening.bookedSeats} left</span>
                     </div>
@@ -240,10 +245,10 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              <div className="mt-auto flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-tertiary">
+              <div className="mt-auto flex items-center gap-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-tertiary">
                 View Screenings <ChevronRight className="h-3 w-3" />
               </div>
-            </div>
+            </MovingBorderButton>
           </Link>
         </motion.div>
 
@@ -256,46 +261,46 @@ export default function DashboardPage() {
                   <div className="flex h-7 w-7 items-center justify-center rounded bg-secondary/15">
                     <Target className="h-3.5 w-3.5 text-secondary" />
                   </div>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-secondary">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-secondary">
                     Top Prediction
                   </p>
                 </div>
-                <span className="font-mono text-[10px] text-on-surface-variant">{predictionConfig.eventName}</span>
+                <span className="text-[10px] font-medium text-slate-500">{predictionConfig.eventName}</span>
               </div>
 
               {topPrediction && (
                 <div className="mt-4">
-                  <div className="flex items-center gap-2">
-                    <p className="font-headline text-sm font-semibold">{topPrediction.username}</p>
-                    <p className="font-mono text-[10px] text-on-surface-variant">{topPrediction.fullName}</p>
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <p className="font-headline text-sm font-semibold text-slate-900">{topPrediction.username}</p>
+                    <p className="text-[11px] font-medium text-slate-500">{topPrediction.fullName}</p>
                   </div>
 
                   <div className="mt-3 space-y-2">
                     <div className="flex items-center gap-2">
                       <Trophy className="h-3 w-3 text-primary" />
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-on-surface-variant">Podium</span>
-                      <span className="font-mono text-xs">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">Podium</span>
+                      <span className="font-mono text-xs font-medium">
                         {topPrediction.top3.map((d, i) => (
                           <span key={d}>
                             {i > 0 && <span className="text-outline-variant"> · </span>}
-                            <span className={i === 0 ? "text-primary font-semibold" : ""}>{d.split(" ").pop()}</span>
+                            <span className={i === 0 ? "text-primary font-semibold" : "text-slate-700"}>{d.split(" ").pop()}</span>
                           </span>
                         ))}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Zap className="h-3 w-3 text-secondary" />
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-on-surface-variant">Pole</span>
-                      <span className="font-mono text-xs">{topPrediction.polePosition}</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">Pole</span>
+                      <span className="font-mono text-xs font-medium text-slate-800">{topPrediction.polePosition}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="h-3 w-3 text-tertiary" />
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-on-surface-variant">DOTD</span>
-                      <span className="font-mono text-xs">{topPrediction.driverOfTheDay}</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">DOTD</span>
+                      <span className="font-mono text-xs font-medium text-slate-800">{topPrediction.driverOfTheDay}</span>
                     </div>
                   </div>
 
-                  <div className="mt-4 flex items-center gap-2 text-xs text-on-surface-variant">
+                  <div className="mt-4 flex items-center gap-2 text-xs font-medium text-slate-500">
                     <Heart className="h-3 w-3" /> {topPrediction.likes} likes
                     <span className="text-outline-variant">·</span>
                     {topPrediction.createdAt}
@@ -303,7 +308,7 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              <div className="mt-auto flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-secondary">
+              <div className="mt-auto flex items-center gap-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-secondary">
                 All Predictions <ChevronRight className="h-3 w-3" />
               </div>
             </div>
@@ -329,7 +334,7 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
           <div className={`flex h-7 w-7 items-center justify-center rounded ${isRaceWeekend ? "bg-alert-red/20" : "bg-primary/15"}`}>
             <Flag className={`h-3.5 w-3.5 ${isRaceWeekend ? "text-alert-red" : "text-primary"}`} />
           </div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/85">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
             {isRaceWeekend ? "Race Weekend Live" : "Next Race"}
           </p>
         </div>
@@ -339,7 +344,7 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-alert-red opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-alert-red" />
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-wider text-alert-red">Live</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-alert-red">Live</span>
           </span>
         )}
       </div>
@@ -347,10 +352,10 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
       <div className="mt-4 flex-1">
         <div className="flex items-center gap-2">
           <span className="text-xl">{race.flagEmoji}</span>
-          <h3 className="font-headline text-lg font-bold">{race.name}</h3>
+          <h3 className="font-headline text-lg font-semibold text-white">{race.name}</h3>
         </div>
-        <p className="mt-1 font-mono text-[11px] text-on-surface-variant">{race.circuit}</p>
-        <div className="mt-2 flex items-center gap-2 text-xs text-on-surface-variant">
+        <p className="mt-1 text-[11px] font-medium text-white/65">{race.circuit}</p>
+        <div className="mt-2 flex items-center gap-2 text-xs font-medium text-white/70">
           <MapPin className="h-3 w-3" />{race.city}, {race.country}
           <span className="text-outline-variant">·</span>
           Round {race.round}/{race.totalRounds}
@@ -358,10 +363,10 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
 
         {/* Countdown */}
         <div className="mt-4 rounded-[20px] border border-white/20 bg-black/25 px-4 py-3 backdrop-blur-md">
-          <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/70">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/65">
             {isLive ? "Race Status" : "Lights Out In"}
           </p>
-          <p className={`mt-1 font-mono text-3xl font-bold ${isLive ? "text-white" : "text-white"}`}>
+          <p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-white">
             {countdown}
           </p>
         </div>
