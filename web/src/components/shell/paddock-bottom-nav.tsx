@@ -24,7 +24,7 @@ export function PaddockBottomNav() {
   });
 
   return (
-    <nav className="pointer-events-none fixed inset-x-0 bottom-2 z-[90] flex justify-center px-3 pb-[env(safe-area-inset-bottom)]">
+    <nav className="pointer-events-none fixed inset-x-0 bottom-2 z-90 flex justify-center px-2 pb-[max(0.25rem,env(safe-area-inset-bottom))] sm:px-3">
       <div className="pointer-events-auto w-fit max-w-full">
         <FloatingDock items={items} />
       </div>

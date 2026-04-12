@@ -57,15 +57,16 @@ export function DashboardProfileModal({ open, onClose }: DashboardProfileModalPr
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.22 }}
+          transition={{ duration: 0.15 }}
         >
           <motion.button
             type="button"
             aria-label="Close profile"
-            className="absolute inset-0 bg-slate-900/45 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-transparent"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             onClick={onClose}
           />
 
@@ -74,9 +75,9 @@ export function DashboardProfileModal({ open, onClose }: DashboardProfileModalPr
             aria-modal="true"
             aria-labelledby="dashboard-profile-modal-title"
             className="relative flex h-[min(92dvh,920px)] w-full max-w-3xl flex-col overflow-hidden rounded-[26px] border border-slate-200/90 bg-[var(--color-base)] shadow-[0_28px_80px_rgba(15,23,42,0.28)]"
-            initial={{ opacity: 0, scale: 0.9, y: 28 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.94, y: 18 }}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.97 }}
             transition={{ type: "spring", stiffness: 520, damping: 38, mass: 0.72 }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -98,7 +99,7 @@ export function DashboardProfileModal({ open, onClose }: DashboardProfileModalPr
               </motion.button>
             </div>
 
-            <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-3 pb-6 pt-4 sm:px-5">
+            <div className="premium-scrollbar min-h-0 flex-1 overflow-y-auto px-3 pb-6 pt-4 sm:px-5">
               <ProfileScreen />
             </div>
           </motion.div>

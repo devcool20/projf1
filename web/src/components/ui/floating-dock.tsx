@@ -132,7 +132,7 @@ export function FloatingDock({
       onPointerLeave={() => mouseX.set(Infinity)}
       onPointerCancel={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto flex h-16 w-fit max-w-[calc(100vw-1.25rem)] items-end justify-center gap-0.5 overflow-visible rounded-[1.15rem] border border-slate-200/90 bg-white/92 px-1 pb-2 pt-0.5 shadow-[0_14px_32px_rgba(15,23,42,0.1)] backdrop-blur-xl sm:gap-1 sm:rounded-[1.25rem] sm:px-1.5",
+        "mx-auto flex h-14 w-fit max-w-[calc(100vw-1rem)] items-center justify-center gap-0.5 overflow-visible rounded-[1.05rem] border border-slate-200/90 bg-white/92 px-1.5 py-1 shadow-[0_12px_28px_rgba(15,23,42,0.1)] backdrop-blur-xl sm:h-15 sm:gap-1 sm:rounded-[1.2rem] sm:px-2 sm:py-1",
         desktopClassName,
         mobileClassName,
       )}

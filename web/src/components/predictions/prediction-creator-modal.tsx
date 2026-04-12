@@ -167,14 +167,16 @@ export function PredictionCreatorModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
         >
           <motion.button
             type="button"
             aria-label="Close"
-            className="absolute inset-0 bg-slate-900/45 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-transparent"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             onClick={onClose}
           />
           <motion.div
@@ -182,9 +184,9 @@ export function PredictionCreatorModal({
             aria-modal="true"
             aria-labelledby="prediction-creator-title"
             className="relative flex max-h-[min(88dvh,760px)] w-full max-w-lg flex-col overflow-hidden rounded-[22px] border border-slate-200/90 bg-white shadow-[0_28px_80px_rgba(15,23,42,0.22)]"
-            initial={{ opacity: 0, scale: 0.92, y: 24 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 16 }}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.97 }}
             transition={{ type: "spring", stiffness: 520, damping: 38, mass: 0.72 }}
             onClick={(ev) => ev.stopPropagation()}
           >
@@ -210,7 +212,7 @@ export function PredictionCreatorModal({
               </motion.button>
             </div>
 
-            <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-4 py-4">
+            <div className="premium-scrollbar min-h-0 flex-1 overflow-y-auto px-4 py-4">
               {!eventId && (
                 <p className="mb-4 rounded-xl border border-amber-200/80 bg-amber-50/90 p-3 text-sm text-amber-900">
                   No Supabase <code className="font-mono text-xs">prediction_config</code> row matches this Grand Prix

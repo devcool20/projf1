@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Loader2, ShieldAlert, LogOut } from "lucide-react";
+import { Loader2, ShieldAlert, LogOut, Upload, Camera } from "lucide-react";
 import { predictionDriverPool } from "@/lib/mock-data";
-import { DriverVideo } from "@/components/ui/driver-video";
 import { getTeamAccent } from "@/lib/team-colors";
 import { applyTeamAccent, resetTeamAccent } from "@/lib/team-accent";
 
@@ -29,6 +28,7 @@ type Profile = {
   fav_team: string | null;
   fav_driver: string | null;
   points: number;
+  avatar_url?: string | null;
 };
 
 type MinimalUser = {
@@ -79,6 +79,7 @@ export function ProfileScreen() {
   const [fullName, setFullName] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [authError, setAuthError] = useState("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const teamAccent = getTeamAccent(profile?.fav_team);
 
   const fetchProfileData = async (userId: string) => {
@@ -211,6 +212,33 @@ export function ProfileScreen() {
     }
   };
 
+  const uploadAvatar = async (file: File) => {
+    if (!profile || !file) return;
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${profile.id}/${Date.now()}-avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("profile-avatars")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from("profile-avatars").getPublicUrl(path);
+      const nextUrl = data.publicUrl;
+      setProfile((prev) => (prev ? { ...prev, avatar_url: nextUrl } : prev));
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: nextUrl })
+        .eq("id", profile.id);
+      if (profileError) throw profileError;
+    } catch (error) {
+      console.error("Avatar upload failed:", error);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center">
@@ -299,7 +327,7 @@ export function ProfileScreen() {
           <div className="mt-6 border-t border-outline-variant/20 pt-4 text-center">
             <button
               onClick={() => setIsSignUp(!isSignUp)}
-              className="font-mono text-xs uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors"
+              className="font-mono text-xs uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors"
             >
               {isSignUp ? "Already hold a license? Authenticate." : "No license? Acquire one."}
             </button>
@@ -312,23 +340,48 @@ export function ProfileScreen() {
   return (
     <div className="space-y-6">
       <section
-        className="dashboard-panel relative overflow-hidden p-6"
+        className="dashboard-panel relative overflow-hidden p-4 sm:p-6"
         style={{
           background: `linear-gradient(135deg, ${teamAccent}30 0%, rgba(255,255,255,0.08) 42%, rgba(255,255,255,0.03) 100%)`,
         }}
       >
-        <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-white/15 to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 h-full w-1/3 bg-linear-to-l from-white/15 to-transparent pointer-events-none" />
         
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-center gap-5 z-10">
-            <DriverVideo driverName={profile?.fav_driver || null} className="w-20 h-20 shrink-0 border-primary/20" />
-            <div>
+          <div className="z-10 flex min-w-0 flex-1 flex-wrap items-start gap-4 sm:gap-5">
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-primary/20 bg-white/80">
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt={`${profile.full_name || "Driver"} avatar`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-primary">
+                  <Camera className="h-6 w-6" />
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
               <p className="font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: teamAccent }}>Super License</p>
-              <h2 className="mt-1 font-headline text-4xl font-bold">{profile?.full_name || "Driver"}</h2>
-              <p className="font-mono text-sm text-on-surface-variant">{profile?.username || "@driver"}</p>
+              <h2 className="mt-1 wrap-break-word font-headline text-2xl font-semibold sm:text-4xl">{profile?.full_name || "Driver"}</h2>
+              <p className="text-sm font-medium text-on-surface-variant">{profile?.username || "@driver"}</p>
+              <label className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-outline-variant/30 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant hover:border-primary/40 hover:text-primary">
+                <Upload className="h-3.5 w-3.5" />
+                {uploadingAvatar ? "Uploading..." : "Upload photo"}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/avif"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void uploadAvatar(file);
+                  }}
+                />
+              </label>
             </div>
           </div>
-          <div className="flex flex-col items-end gap-3">
+          <div className="flex w-full flex-row items-center justify-between gap-3 sm:w-auto sm:flex-col sm:items-end sm:justify-start">
              <button
                onClick={handleLogout}
                className="flex items-center gap-1.5 border border-outline-variant/30 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant hover:border-alert-red/50 hover:text-alert-red transition-colors"
@@ -341,7 +394,7 @@ export function ProfileScreen() {
           </div>
         </div>
 
-        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-1">
             <label className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Constructor Affiliation</label>
             <select
@@ -413,7 +466,7 @@ export function ProfileScreen() {
               predictions.map((pred) => (
                 <div key={pred.id} className="border border-outline-variant/20 bg-surface-container-low p-4 hover:border-secondary/40 transition-colors">
                   <div className="flex items-start justify-between">
-                    <p className="font-mono text-xs text-secondary uppercase tracking-[0.1em]">{pred.prediction_config?.event_name || "Grand Prix"}</p>
+                    <p className="font-mono text-xs text-secondary uppercase tracking-widest">{pred.prediction_config?.event_name || "Grand Prix"}</p>
                     <p className="font-mono text-[10px] text-on-surface-variant">{new Date(pred.created_at).toLocaleDateString()}</p>
                   </div>
                   

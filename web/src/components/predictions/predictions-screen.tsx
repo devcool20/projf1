@@ -15,8 +15,13 @@ import { PredictionCreatorModal } from "@/components/predictions/prediction-crea
 import { MovingBorderButton } from "@/components/ui/moving-border";
 import { ArrowLeft, Calendar, ChevronRight, Heart, MapPin, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { iosSpring, listContainerVariants, listItemVariants, routeVariants, skeletonPulse } from "@/components/motion/premium-motion";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
+import { fastFade, listContainerVariants, listItemVariants, skeletonPulse } from "@/components/motion/premium-motion";
+
+function portalSubscribe() {
+  return () => {};
+}
 
 type RawPredictionRow = {
   id: string;
@@ -57,11 +62,14 @@ type SelectedGp = {
 };
 
 export function PredictionsScreen() {
+  const portalMounted = useSyncExternalStore(portalSubscribe, () => true, () => false);
   const [configs, setConfigs] = useState<PredictionConfigRow[]>([]);
   const [predictions, setPredictions] = useState<RacePrediction[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<SelectedGp | null>(null);
   const [creatorOpen, setCreatorOpen] = useState(false);
+  const [highlightPredictionId, setHighlightPredictionId] = useState<string>("");
+  const [preselectedEventId, setPreselectedEventId] = useState<string>("");
   const [nowTick, setNowTick] = useState(() => Date.now());
   const selectedEventIdRef = useRef<string | null>(null);
   selectedEventIdRef.current = selected?.config?.id ?? null;
@@ -141,6 +149,20 @@ export function PredictionsScreen() {
   }, [selected, fetchPredictionsForEvent]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const eventQuery = params.get("event") || "";
+    const predictionQuery = params.get("prediction") || "";
+    if (eventQuery) setPreselectedEventId(eventQuery);
+    if (predictionQuery) setHighlightPredictionId(predictionQuery);
+  }, []);
+
+  useEffect(() => {
+    if (!preselectedEventId || selected) return;
+    const hit = enriched.find((entry) => entry.config?.id === preselectedEventId);
+    if (hit) setSelected(hit);
+  }, [enriched, preselectedEventId, selected]);
+
+  useEffect(() => {
     const channel = supabase
       .channel("paddock-predictions-v2")
       .on("postgres_changes", { event: "*", schema: "public", table: "race_predictions" }, () => {
@@ -191,15 +213,14 @@ export function PredictionsScreen() {
   }, [selected, enriched]);
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
       {loading ? (
         <motion.div
           key="predictions-loading"
-          layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={iosSpring}
+          transition={fastFade}
           className="grid gap-4"
         >
           <motion.div variants={skeletonPulse} initial="initial" animate="animate" className="skeleton-shimmer h-24 rounded-2xl" />
@@ -218,12 +239,10 @@ export function PredictionsScreen() {
       ) : (
     <motion.div
       key="predictions-loaded"
-      layout
-      variants={routeVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={iosSpring}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={fastFade}
       className="relative pb-24"
     >
       <header className="surface-ink relative mb-6 p-5 sm:p-6">
@@ -248,15 +267,14 @@ export function PredictionsScreen() {
         </div>
       </header>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
       {!selected ? (
         <motion.section
           key="predictions-gp-grid"
-          variants={routeVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={iosSpring}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={fastFade}
         >
           <h2 className="mb-4 font-headline text-[15px] font-semibold tracking-tight text-slate-900">Upcoming Grands Prix</h2>
           {enriched.length === 0 ? (
@@ -280,10 +298,8 @@ export function PredictionsScreen() {
                     containerClassName="h-full"
                     className="dashboard-panel group relative flex h-full w-full flex-col overflow-hidden px-5 pb-4 pt-4 text-left transition hover:border-primary/25"
                     onClick={() => setSelected({ round, config })}
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.99 }}
                     variants={listItemVariants}
-                    transition={iosSpring}
+                    transition={fastFade}
                   >
                     <p className="pr-6 font-headline text-[15px] font-semibold leading-snug tracking-tight text-slate-900">
                       {round.name}
@@ -313,11 +329,10 @@ export function PredictionsScreen() {
       ) : (
         <motion.section
           key={`predictions-gp-${selected.round.slug}`}
-          variants={routeVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={iosSpring}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={fastFade}
         >
           <button
             type="button"
@@ -365,8 +380,10 @@ export function PredictionsScreen() {
                 <motion.article
                   key={prediction.id}
                   variants={listItemVariants}
-                  transition={iosSpring}
-                  className="dashboard-panel p-5"
+                  transition={fastFade}
+                  className={`dashboard-panel p-5 transition ${
+                    highlightPredictionId === prediction.id ? "ring-2 ring-primary/35 shadow-[0_0_0_1px_rgba(124,58,237,0.2)]" : ""
+                  }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
@@ -411,18 +428,19 @@ export function PredictionsScreen() {
       )}
       </AnimatePresence>
 
-      {enriched.length > 0 && (
-        <motion.button
-          type="button"
-          aria-label="New prediction"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setCreatorOpen(true)}
-          className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-95 flex h-11 w-11 items-center justify-center rounded-full border border-primary/35 bg-primary text-white shadow-[0_10px_22px_rgba(124,58,237,0.32)] sm:right-6"
-        >
-          <Plus className="h-5 w-5" strokeWidth={2.25} />
-        </motion.button>
-      )}
+      {enriched.length > 0 &&
+        portalMounted &&
+        createPortal(
+          <button
+            type="button"
+            aria-label="New prediction"
+            onClick={() => setCreatorOpen(true)}
+            className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-200 flex h-11 w-11 items-center justify-center rounded-full border border-primary/35 bg-primary text-white shadow-[0_10px_22px_rgba(124,58,237,0.32)] transition hover:scale-105 active:scale-95 sm:right-6"
+          >
+            <Plus className="h-5 w-5" strokeWidth={2.25} />
+          </button>,
+          document.body,
+        )}
 
       <PredictionCreatorModal
         open={creatorOpen}

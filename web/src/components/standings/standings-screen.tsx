@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Users, RefreshCw, Wifi, WifiOff, Clock } from "lucide-react";
 import type { ApiDriverStanding, ApiTeamStanding } from "@/lib/types";
@@ -8,10 +8,30 @@ import { fetchDriverStandings, fetchTeamStandings } from "@/lib/api";
 import { Podium } from "./podium";
 import { StandingsList } from "./standings-list";
 import { ConstructorsView } from "./constructors-view";
-import { getNationalityFlag, getTeamColor } from "@/lib/team-colors";
-import { iosSpring, routeVariants, skeletonPulse } from "@/components/motion/premium-motion";
+import { getTeamColor } from "@/lib/team-colors";
+import { fastFade, iosSpring, modalSpring, routeVariants, skeletonPulse } from "@/components/motion/premium-motion";
+import { createPortal } from "react-dom";
 
 type Tab = "drivers" | "constructors";
+
+/** Stable across SSR + browser (default locale differs for 12h vs 24h). */
+function formatFetchedClock(iso: string) {
+  return new Date(iso).toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+}
+
+function getAvatarSrc(driverName: string): string {
+  const firstName = driverName.trim().split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, "") ?? "";
+  return `/api/avatar/${firstName}`;
+}
+
+function subscribe() {
+  return () => {};
+}
 
 export type StandingsScreenProps = {
   initialDrivers?: ApiDriverStanding[];
@@ -24,6 +44,7 @@ export function StandingsScreen({
   initialTeams,
   initialFetchedAt,
 }: StandingsScreenProps) {
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
   const [tab, setTab] = useState<Tab>("drivers");
   const [drivers, setDrivers] = useState<ApiDriverStanding[]>(initialDrivers ?? []);
   const [teams, setTeams] = useState<ApiTeamStanding[]>(initialTeams ?? []);
@@ -34,6 +55,8 @@ export function StandingsScreen({
   const [refreshing, setRefreshing] = useState(false);
   const [modalDriverCode, setModalDriverCode] = useState("");
   const [modalTeamName, setModalTeamName] = useState("");
+  /** Pixel box matching intrinsic video aspect (scaled), so object-contain has no letterboxing */
+  const [driverVideoBox, setDriverVideoBox] = useState<{ w: number; h: number } | null>(null);
 
   const loadData = async () => {
     try {
@@ -82,11 +105,33 @@ export function StandingsScreen({
     setModalDriverCode("");
     setModalTeamName("");
   };
+  const modalOpen = !!(modalDriver || modalTeam);
 
-  const totalDriverPoints = useMemo(
-    () => drivers.reduce((sum, d) => sum + d.points, 0),
-    [drivers],
-  );
+  useEffect(() => {
+    if (!modalOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [modalOpen]);
+
+  useEffect(() => {
+    setDriverVideoBox(null);
+  }, [modalDriverCode]);
+
+  const measureDriverAvatarBox = useCallback((el: HTMLVideoElement) => {
+    const vw = el.videoWidth;
+    const vh = el.videoHeight;
+    if (!vw || !vh) return;
+    const maxW = 108;
+    const maxH = 128;
+    const scale = Math.min(maxW / vw, maxH / vh, 1);
+    setDriverVideoBox({
+      w: Math.max(1, Math.round(vw * scale)),
+      h: Math.max(1, Math.round(vh * scale)),
+    });
+  }, []);
 
   if (error) {
     return (
@@ -108,15 +153,14 @@ export function StandingsScreen({
   }
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
       {loading ? (
         <motion.div
           key="standings-loading"
-          layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={iosSpring}
+          transition={fastFade}
           className="grid gap-4"
         >
           <motion.div variants={skeletonPulse} initial="initial" animate="animate" className="skeleton-shimmer h-24 rounded-[24px]" />
@@ -127,12 +171,10 @@ export function StandingsScreen({
       ) : (
     <motion.div
       key="standings-loaded"
-      layout
-      variants={routeVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      transition={iosSpring}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={fastFade}
     >
       {/* Header */}
       <div className="mb-5 flex items-end justify-between border-b border-white/15 pb-3">
@@ -145,14 +187,14 @@ export function StandingsScreen({
           </div>
           <h2 className="mt-1 font-headline text-3xl font-bold">Championship Standings</h2>
           <p className="mt-0.5 font-mono text-[10px] text-on-surface-variant">
-            2026 Season — {drivers.length} drivers — {teams.length} constructors — {totalDriverPoints} total points scored
+            2026 Season — {drivers.length} drivers — {teams.length} constructors
           </p>
         </div>
         <div className="flex items-center gap-3">
           {fetchedAt && (
             <div className="flex items-center gap-1 font-mono text-[10px] text-on-surface-variant">
               <Clock className="h-3 w-3" />
-              {new Date(fetchedAt).toLocaleTimeString()}
+              {formatFetchedClock(fetchedAt)}
             </div>
           )}
           <button
@@ -188,15 +230,14 @@ export function StandingsScreen({
       </div>
 
       {/* Content */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         {tab === "drivers" ? (
           <motion.div
             key="drivers"
-            variants={routeVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={iosSpring}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={fastFade}
             className="grid grid-cols-12 gap-4"
           >
             <div className="col-span-12 xl:col-span-8">
@@ -226,11 +267,10 @@ export function StandingsScreen({
         ) : (
           <motion.div
             key="constructors"
-            variants={routeVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={iosSpring}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={fastFade}
           >
             <ConstructorsView
               teams={teams}
@@ -244,70 +284,93 @@ export function StandingsScreen({
         )}
       </AnimatePresence>
 
+      {mounted
+        ? createPortal(
       <AnimatePresence>
-        {(modalDriver || modalTeam) && (
+        {modalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-90 bg-slate-900/30 p-3 pb-24 backdrop-blur-[2px]"
+            className="fixed inset-0 z-95 bg-transparent p-3 pb-[calc(5.6rem+env(safe-area-inset-bottom))] sm:p-4"
             onClick={closeModal}
           >
             <motion.div
-              initial={{ x: 42, opacity: 0.65 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 42, opacity: 0.65 }}
-              transition={{
-                x: { type: "spring", stiffness: 360, damping: 34, mass: 0.75 },
-                opacity: iosSpring,
-              }}
-              className="dashboard-panel mx-auto h-[calc(100dvh-8rem)] w-full max-w-2xl overflow-y-auto rounded-card p-5"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={modalSpring}
+              className="dashboard-panel premium-scrollbar mx-auto h-[calc(100dvh-8.2rem)] w-full max-w-2xl overflow-y-auto rounded-card px-4 py-4 sm:px-5 sm:py-5"
               onClick={(event) => event.stopPropagation()}
             >
               {modalDriver ? (
                 <>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">Driver Detail</p>
-                  <h3 className="mt-1 font-headline text-2xl">{modalDriver.driverName}</h3>
-                  <p className="mt-0.5 font-mono text-[11px] text-on-surface-variant">
-                    {modalDriver.driverCode} · {getNationalityFlag(modalDriver.nationality)} {modalDriver.nationality}
-                  </p>
-                  <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="mb-3 flex items-start justify-between gap-2 sm:gap-3">
+                    <div className="min-w-0 flex-1 pr-1">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary">Driver Detail</p>
+                      <h3 className="mt-1 wrap-break-word font-headline text-xl font-semibold leading-snug sm:text-2xl">
+                        {modalDriver.driverName}
+                      </h3>
+                    </div>
+                    <div
+                      className="flex shrink-0 items-center justify-center overflow-hidden rounded-lg border border-outline-variant/25 bg-slate-900"
+                      style={
+                        driverVideoBox
+                          ? { width: driverVideoBox.w, height: driverVideoBox.h }
+                          : { width: 80, height: 96 }
+                      }
+                    >
+                      <video
+                        key={getAvatarSrc(modalDriver.driverName)}
+                        src={getAvatarSrc(modalDriver.driverName)}
+                        className="block h-full w-full object-contain"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="metadata"
+                        onLoadedMetadata={(e) => measureDriverAvatarBox(e.currentTarget)}
+                        onLoadedData={(e) => measureDriverAvatarBox(e.currentTarget)}
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
                     <div className="rounded border border-outline-variant/25 bg-surface-container-low p-3">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Position</p>
-                      <p className="mt-1 font-mono text-2xl font-bold" style={{ color: getTeamColor(modalDriver.teamName).accent }}>
+                      <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-variant">Position</p>
+                      <p className="mt-1 font-mono text-2xl font-semibold" style={{ color: getTeamColor(modalDriver.teamName).accent }}>
                         P{modalDriver.position}
                       </p>
                     </div>
                     <div className="rounded border border-outline-variant/25 bg-surface-container-low p-3">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Points</p>
-                      <p className="mt-1 font-mono text-2xl font-bold" style={{ color: getTeamColor(modalDriver.teamName).accent }}>
+                      <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-variant">Points</p>
+                      <p className="mt-1 font-mono text-2xl font-semibold" style={{ color: getTeamColor(modalDriver.teamName).accent }}>
                         {modalDriver.points}
                       </p>
                     </div>
                   </div>
                   <div className="mt-3 rounded border border-outline-variant/25 bg-surface-container-low p-3">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Team</p>
-                    <p className="mt-1 font-headline text-lg" style={{ color: getTeamColor(modalDriver.teamName).accent }}>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-variant">Team</p>
+                    <p className="mt-1 font-headline text-lg font-semibold" style={{ color: getTeamColor(modalDriver.teamName).accent }}>
                       {modalDriver.teamName}
                     </p>
                   </div>
                   <div className="mt-3 rounded border border-outline-variant/25 bg-surface-container-low p-3">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Gap To Leader</p>
-                    <p className="mt-1 font-mono text-lg font-bold text-on-surface">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-variant">Gap To Leader</p>
+                    <p className="mt-1 font-mono text-lg font-semibold text-on-surface">
                       {drivers[0]?.driverCode === modalDriver.driverCode
                         ? "Leader"
                         : `${Math.max((drivers[0]?.points ?? modalDriver.points) - modalDriver.points, 0)} pts`}
                     </p>
                   </div>
                   <div className="mt-3 rounded border border-outline-variant/25 bg-surface-container-low p-3">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Nearby Rivals</p>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-variant">Nearby Rivals</p>
                     <div className="mt-2 space-y-2">
                       {drivers
                         .filter((d) => Math.abs(d.position - modalDriver.position) <= 1 && d.driverCode !== modalDriver.driverCode)
                         .slice(0, 2)
                         .map((rival) => (
                           <div key={rival.driverCode} className="flex items-center justify-between">
-                            <p className="font-headline text-sm">{rival.driverName}</p>
+                            <p className="font-headline text-sm font-semibold">{rival.driverName}</p>
                             <p className="font-mono text-[11px] text-on-surface-variant">
                               P{rival.position} · {rival.points} pts
                             </p>
@@ -363,6 +426,8 @@ export function StandingsScreen({
           </motion.div>
         )}
       </AnimatePresence>
+      , document.body)
+        : null}
     </motion.div>
       )}
     </AnimatePresence>

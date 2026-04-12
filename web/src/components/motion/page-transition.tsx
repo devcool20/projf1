@@ -3,13 +3,13 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { PropsWithChildren } from "react";
-import { iosSpring, routeVariants } from "./premium-motion";
+import { fastFade, routeVariants } from "./premium-motion";
 
 export function PageTransition({ children }: PropsWithChildren) {
   const pathname = usePathname();
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="popLayout" initial={false}>
       <motion.div
         key={pathname}
         className="h-full"
@@ -17,7 +17,7 @@ export function PageTransition({ children }: PropsWithChildren) {
         initial="initial"
         animate="animate"
         exit="exit"
-        transition={iosSpring}
+        transition={fastFade}
       >
         {children}
       </motion.div>

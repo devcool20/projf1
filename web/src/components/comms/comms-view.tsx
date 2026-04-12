@@ -4,13 +4,18 @@ import { CommReply, CommThread } from "@/lib/types";
 import { computeSignalScore, getSignalLabel } from "@/lib/signal-score";
 import { supabase } from "@/lib/supabase";
 import { AnimatePresence, motion } from "framer-motion";
-import { FormEvent, useEffect, useMemo, useState, useCallback } from "react";
+import { FormEvent, useEffect, useMemo, useState, useCallback, useRef, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CreateThreadPanel } from "./create-thread-panel";
 import { UserDetailPanel } from "./user-detail-panel";
 import { Heart, MessageCircle, Share2, Signal, ChevronLeft, Plus, Trash2, X } from "lucide-react";
 import { applyTeamAccent, resetTeamAccent } from "@/lib/team-accent";
-import { iosSpring, listContainerVariants, listItemVariants, skeletonPulse } from "@/components/motion/premium-motion";
+import { fastFade, listContainerVariants, listItemVariants, modalSpring, overlayVariants, modalPanelVariants, skeletonPulse } from "@/components/motion/premium-motion";
+
+function portalSubscribe() {
+  return () => {};
+}
 
 type Props = {
   query: string;
@@ -89,6 +94,48 @@ type ReplyNodeProps = {
   onReplyLike: (replyId: string) => void;
   onUserClick: (profileId: string) => void;
 };
+
+function ExpandableText({ text, lineClamp = 3 }: { text: string; lineClamp?: number }) {
+  const [expanded, setExpanded] = useState(false);
+  const [clamped, setClamped] = useState(false);
+  const ref = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    setClamped(el.scrollHeight > el.clientHeight + 2);
+  }, [text]);
+
+  return (
+    <div>
+      <p
+        ref={ref}
+        className={`text-sm leading-relaxed text-on-surface/90 ${expanded ? "" : `line-clamp-${lineClamp}`}`}
+        style={expanded ? undefined : { WebkitLineClamp: lineClamp, display: "-webkit-box", WebkitBoxOrient: "vertical", overflow: "hidden" }}
+      >
+        {text}
+      </p>
+      {clamped && !expanded && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
+          className="mt-1 text-xs font-medium text-primary hover:text-primary-dim"
+        >
+          Show more
+        </button>
+      )}
+      {expanded && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
+          className="mt-1 text-xs font-medium text-primary hover:text-primary-dim"
+        >
+          Show less
+        </button>
+      )}
+    </div>
+  );
+}
 
 function LikeBurst({ show }: { show: boolean }) {
   if (!show) return null;
@@ -216,6 +263,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onUserClick }: Re
 }
 
 export function CommsView({ query, initialThreadId = "" }: Props) {
+  const portalMounted = useSyncExternalStore(portalSubscribe, () => true, () => false);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -449,6 +497,15 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
   }, [selectedProfileId]);
 
   useEffect(() => {
+    if (!isCreateOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isCreateOpen]);
+
+  useEffect(() => {
     if (prevThreadCount === 0) {
       setPrevThreadCount(threads.length);
       return;
@@ -637,15 +694,14 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
   };
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="popLayout">
       {loading ? (
         <motion.div
           key="comms-loading"
-          layout
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={iosSpring}
+          transition={fastFade}
           className="grid gap-4 md:grid-cols-2"
         >
           {[0, 1, 2, 3].map((i) => (
@@ -661,19 +717,19 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
       ) : (
     <motion.div
       key="comms-loaded"
-      layout
-      initial={{ opacity: 0, y: 20, scale: 1.01 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 8, scale: 0.99 }}
-      transition={iosSpring}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={fastFade}
       className="grid grid-cols-12 gap-3 sm:gap-4"
     >
       <AnimatePresence>
         {toast && (
           <motion.div
-            initial={{ opacity: 0, x: 80 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 80 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={fastFade}
             className="fixed right-6 top-24 z-80 rounded-full border border-white/20 bg-white/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface backdrop-blur-xl"
           >
             {toast}
@@ -708,9 +764,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
               <motion.div
                 key={thread.id}
                 variants={listItemVariants}
-                transition={iosSpring}
-                whileHover={{ scale: 1.01 }}
-                layout
+                transition={fastFade}
                 className={`dashboard-panel flex flex-col overflow-hidden h-fit ${
                   isSelected ? "border-secondary/60 shadow-[0_0_16px_rgba(126,246,238,0.2)]" : "hover:border-primary/40"
                 } ${hasImage ? "md:row-span-2" : ""}`}
@@ -749,7 +803,9 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                       )}
                     </div>
                   </div>
-                  <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-on-surface/90">{thread.message}</p>
+                  <div className="mt-3">
+                    <ExpandableText text={thread.message} lineClamp={3} />
+                  </div>
                 </div>
 
                 {hasImage && (
@@ -811,20 +867,20 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
       <aside
         className={`col-span-12 mx-auto w-full max-w-2xl xl:col-span-4 xl:max-w-none ${
           rightPanelMode === "detail" && !!selectedThreadId
-            ? "fixed inset-0 z-85 bg-slate-900/20 p-3 pb-20 backdrop-blur-[2px] xl:relative xl:inset-auto xl:z-auto xl:bg-transparent xl:p-0 xl:backdrop-blur-0"
+            ? "fixed inset-0 z-85 bg-transparent p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:relative xl:inset-auto xl:z-auto xl:p-0"
             : "relative"
         }`}
         onClick={rightPanelMode === "detail" && !!selectedThreadId ? closeThreadDetail : undefined}
       >
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {rightPanelMode === "detail" && selectedThread ? (
             <motion.div
               key={selectedThread.id}
-              initial={{ x: 44, opacity: 0.5 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 44, opacity: 0.5 }}
-              transition={iosSpring}
-              className="dashboard-panel h-[calc(100dvh-7.5rem)] overflow-y-auto rounded-card p-4 sm:p-5 xl:h-auto xl:overflow-visible"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={fastFade}
+              className="dashboard-panel premium-scrollbar h-[calc(100dvh-7rem)] overflow-y-auto rounded-card p-4 sm:p-5 xl:h-auto xl:overflow-visible"
               onClick={(event) => event.stopPropagation()}
             >
             <div className="flex items-center justify-between gap-2 border-b border-outline-variant/20 pb-3">
@@ -856,7 +912,9 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
 
             <div className="mt-3 rounded-xl border border-outline-variant/25 bg-linear-to-br from-white/80 via-white to-surface-container-low p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-primary">Transmission</p>
-              <p className="mt-2 leading-relaxed text-sm sm:text-base text-on-surface">{selectedThread.message}</p>
+              <div className="mt-2">
+                <ExpandableText text={selectedThread.message} lineClamp={5} />
+              </div>
             </div>
 
             {/* Signal Score Detail */}
@@ -972,10 +1030,10 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
           ) : rightPanelMode === "profile" ? (
             <motion.div
               key={`profile-${selectedProfileId}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={fastFade}
             >
               <UserDetailPanel 
                 profileId={selectedProfileId} 
@@ -990,64 +1048,78 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
         </AnimatePresence>
       </aside>
 
-      <button
-        onClick={openCreateOverlay}
-        className="fixed bottom-24 right-3 z-86 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-[0_10px_24px_rgba(124,58,237,0.38)] transition hover:scale-105 active:scale-95"
-        aria-label="Create thread"
-      >
-        <Plus className="h-5 w-5" />
-      </button>
-
-      <AnimatePresence>
-        {isCreateOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-87 bg-slate-900/25 p-3 pb-20 backdrop-blur-[2px]"
-            onClick={closeCreateOverlay}
-          >
-            <motion.div
-              initial={{ y: 34, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 34, opacity: 0 }}
-              className="mx-auto h-[calc(100dvh-7.5rem)] max-w-2xl overflow-y-auto rounded-card"
-              onClick={(event) => event.stopPropagation()}
+      {!loading &&
+        portalMounted &&
+        createPortal(
+          <>
+            <button
+              type="button"
+              onClick={openCreateOverlay}
+              className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-200 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-[0_10px_24px_rgba(124,58,237,0.38)] transition hover:scale-105 active:scale-95 sm:right-6"
+              aria-label="Create thread"
             >
-              {userProfile ? (
-                <div className="relative">
-                  <button
-                    onClick={closeCreateOverlay}
-                    className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/40 bg-white/90 text-on-surface-variant"
+              <Plus className="h-5 w-5" />
+            </button>
+
+            <AnimatePresence>
+              {isCreateOpen && (
+                <motion.div
+                  variants={overlayVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={fastFade}
+                  className="fixed inset-0 z-199 bg-transparent p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-4"
+                  onClick={closeCreateOverlay}
+                >
+                  <motion.div
+                    variants={modalPanelVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={modalSpring}
+                    className="premium-scrollbar mx-auto max-h-[min(88dvh,760px)] max-w-2xl overflow-y-auto rounded-card shadow-[0_24px_64px_rgba(15,23,42,0.12)]"
+                    onClick={(event) => event.stopPropagation()}
                   >
-                    <X className="h-4 w-4" />
-                  </button>
-                  <CreateThreadPanel
-                    profile={userProfile}
-                    onSuccess={() => {
-                      fetchThreads();
-                      closeCreateOverlay();
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="dashboard-panel p-5 text-center">
-                  <button
-                    onClick={closeCreateOverlay}
-                    className="ml-auto mb-4 flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/40 bg-white/90 text-on-surface-variant"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                  <h3 className="font-headline text-xl uppercase tracking-wider text-primary">Radio Silence</h3>
-                  <p className="mt-2 text-sm text-on-surface-variant font-mono uppercase tracking-widest">
-                    Log in to your Super License to broadcast.
-                  </p>
-                </div>
+                    {userProfile ? (
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={closeCreateOverlay}
+                          className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/40 bg-white text-on-surface-variant shadow-sm"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                        <CreateThreadPanel
+                          profile={userProfile}
+                          onSuccess={() => {
+                            fetchThreads();
+                            closeCreateOverlay();
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="dashboard-panel p-5 text-center">
+                        <button
+                          type="button"
+                          onClick={closeCreateOverlay}
+                          className="ml-auto mb-4 flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/40 bg-white text-on-surface-variant shadow-sm"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                        <h3 className="font-headline text-xl uppercase tracking-wider text-primary">Radio Silence</h3>
+                        <p className="mt-2 font-mono text-sm uppercase tracking-widest text-on-surface-variant">
+                          Log in to your Super License to broadcast.
+                        </p>
+                      </div>
+                    )}
+                  </motion.div>
+                </motion.div>
               )}
-            </motion.div>
-          </motion.div>
+            </AnimatePresence>
+          </>,
+          document.body,
         )}
-      </AnimatePresence>
     </motion.div>
       )}
     </AnimatePresence>
