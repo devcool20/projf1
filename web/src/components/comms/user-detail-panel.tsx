@@ -90,9 +90,10 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
       className="dashboard-panel rounded-[24px] p-5 shadow-[0_24px_44px_rgba(2,6,23,0.38)]"
     >
       <div className="flex items-center gap-3 border-b border-primary/20 pb-4 mb-5">
-        <button 
+        <button
+          type="button"
           onClick={onBack}
-          className="flex h-8 w-8 items-center justify-center rounded-sm border border-outline-variant/30 text-on-surface-variant hover:border-primary/40 hover:text-primary transition-all"
+          className="btn-premium btn-outline-glass flex h-8 w-8 items-center justify-center rounded-lg p-0"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>

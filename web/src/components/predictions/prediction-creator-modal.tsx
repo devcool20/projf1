@@ -205,7 +205,7 @@ export function PredictionCreatorModal({
                 type="button"
                 whileTap={{ scale: 0.92 }}
                 onClick={onClose}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50"
+                className="btn-premium btn-outline-glass flex h-10 w-10 shrink-0 items-center justify-center rounded-full p-0 text-slate-600"
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
@@ -303,7 +303,7 @@ export function PredictionCreatorModal({
                 <button
                   disabled={postLocked || !eventId}
                   type="submit"
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-headline text-sm font-bold tracking-wide text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
+                  className="btn-premium btn-primary flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-headline text-sm font-bold tracking-wide text-white disabled:cursor-not-allowed"
                 >
                   <MessageSquarePlus className="h-4 w-4" />
                   {postLocked ? "Locked" : "Deploy prediction"}

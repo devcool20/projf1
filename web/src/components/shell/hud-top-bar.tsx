@@ -40,14 +40,16 @@ export function HudTopBar() {
           />
         </form>
         <button
+          type="button"
           {...bellMagnet}
-          className="haptic-pill rounded-full border border-transparent bg-white/5 p-2 text-on-surface-variant hover:border-tertiary/30 hover:text-tertiary"
+          className="btn-premium btn-outline-glass rounded-full border-white/10 bg-white/5 p-2 text-on-surface-variant hover:border-tertiary/40 hover:text-tertiary"
         >
           <Bell className="h-4 w-4" />
         </button>
         <button
+          type="button"
           {...settingsMagnet}
-          className="haptic-pill rounded-full border border-transparent bg-white/5 p-2 text-on-surface-variant hover:border-primary/30 hover:text-primary"
+          className="btn-premium btn-outline-glass rounded-full border-white/10 bg-white/5 p-2 text-on-surface-variant hover:border-primary/40 hover:text-primary"
         >
           <Settings className="h-4 w-4" />
         </button>

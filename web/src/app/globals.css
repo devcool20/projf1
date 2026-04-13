@@ -331,3 +331,398 @@ select {
 .team-accent-bg {
   background: color-mix(in oklab, var(--team-accent) 22%, transparent);
 }
+
+/* Premium Glass Glowing Button System — frosted glass + outer glow (project default) */
+.btn-premium {
+  position: relative;
+  isolation: isolate;
+  border-radius: 12px;
+  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition:
+    box-shadow 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.2s ease,
+    background 0.2s ease;
+  overflow: hidden;
+}
+
+.btn-premium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, transparent 45%, rgba(255, 255, 255, 0.08) 100%);
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.btn-premium::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.btn-premium:hover::before {
+  opacity: 1;
+}
+
+.btn-premium:active {
+  transform: scale(0.98);
+}
+
+/* Primary — violet glass + glow */
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, rgb(124 58 237) 82%, white) 0%,
+    color-mix(in oklab, rgb(91 33 182) 88%, transparent) 50%,
+    color-mix(in oklab, rgb(76 29 149) 85%, transparent) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: white;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 0 28px rgba(124, 58, 237, 0.42),
+    0 6px 24px rgba(124, 58, 237, 0.28),
+    0 2px 8px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, rgb(139 92 246) 78%, white) 0%,
+    color-mix(in oklab, rgb(124 58 237) 85%, transparent) 50%,
+    color-mix(in oklab, rgb(91 33 182) 82%, transparent) 100%
+  );
+  box-shadow:
+    0 0 36px rgba(124, 58, 237, 0.55),
+    0 8px 28px rgba(124, 58, 237, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Secondary — rose glass + glow */
+.btn-secondary {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, rgb(244 63 94) 78%, white) 0%,
+    color-mix(in oklab, rgb(190 18 60) 85%, transparent) 100%
+  );
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: white;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 0 24px rgba(244, 63, 94, 0.38),
+    0 6px 20px rgba(244, 63, 94, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-secondary:hover {
+  box-shadow:
+    0 0 32px rgba(244, 63, 94, 0.5),
+    0 8px 26px rgba(244, 63, 94, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  transform: translateY(-1px);
+}
+
+/* Tertiary — cyan glass + glow */
+.btn-tertiary {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, rgb(6 182 212) 75%, white) 0%,
+    color-mix(in oklab, rgb(14 116 144) 88%, transparent) 100%
+  );
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  color: white;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 0 24px rgba(6, 182, 212, 0.38),
+    0 6px 20px rgba(6, 182, 212, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.btn-tertiary:hover {
+  box-shadow:
+    0 0 32px rgba(6, 182, 212, 0.5),
+    0 8px 26px rgba(6, 182, 212, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Danger — red glass + glow */
+.btn-danger {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, rgb(220 38 38) 78%, white) 0%,
+    color-mix(in oklab, rgb(153 27 27) 88%, transparent) 100%
+  );
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: white;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 0 24px rgba(220, 38, 38, 0.42),
+    0 6px 20px rgba(220, 38, 38, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.btn-danger:hover {
+  box-shadow:
+    0 0 34px rgba(220, 38, 38, 0.55),
+    0 8px 26px rgba(220, 38, 38, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Success — emerald glass + glow */
+.btn-success {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, rgb(16 185 129) 72%, white) 0%,
+    color-mix(in oklab, rgb(4 120 87) 88%, transparent) 100%
+  );
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  color: white;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+  box-shadow:
+    0 0 26px rgba(16, 185, 129, 0.42),
+    0 6px 22px rgba(16, 185, 129, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.btn-success:hover {
+  box-shadow:
+    0 0 36px rgba(16, 185, 129, 0.52),
+    0 8px 28px rgba(16, 185, 129, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  transform: translateY(-1px);
+}
+
+/* Ghost — neutral frosted glass */
+.btn-ghost {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 252, 0.88) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  color: #334155;
+  box-shadow:
+    0 2px 16px rgba(15, 23, 42, 0.07),
+    0 0 0 1px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.btn-ghost:hover {
+  border-color: rgba(124, 58, 237, 0.22);
+  box-shadow:
+    0 4px 22px rgba(124, 58, 237, 0.12),
+    0 0 24px rgba(124, 58, 237, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
+/* Outline glass — secondary actions (like, share, back); pair with .btn-premium for sheen */
+.btn-premium.btn-outline-glass {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.88) 0%, rgba(248, 250, 252, 0.82) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(203, 213, 225, 0.65);
+  color: #475569;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+}
+
+.btn-premium.btn-outline-glass:hover {
+  border-color: rgba(124, 58, 237, 0.35);
+  color: rgb(124 58 237);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.12), 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.btn-premium.btn-outline-glass[data-active="true"] {
+  border-color: rgba(124, 58, 237, 0.5);
+  color: rgb(124 58 237);
+  background: linear-gradient(
+    165deg,
+    rgba(124, 58, 237, 0.12) 0%,
+    rgba(248, 250, 252, 0.9) 100%
+  );
+  box-shadow:
+    0 0 24px rgba(124, 58, 237, 0.18),
+    0 2px 12px rgba(15, 23, 42, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.btn-premium.btn-outline-glass-danger:hover {
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  color: rgb(220 38 38) !important;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.15), 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Glass variant with accent tinting */
+.btn-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Orange accent (Paddock signature) — glass */
+.btn-accent {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, rgb(255 154 72) 72%, white) 0%,
+    color-mix(in oklab, rgb(245 110 58) 88%, transparent) 100%
+  );
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 0 26px rgba(255, 122, 61, 0.42),
+    0 6px 22px rgba(255, 122, 61, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.btn-accent:hover {
+  box-shadow:
+    0 0 36px rgba(255, 122, 61, 0.52),
+    0 8px 28px rgba(255, 122, 61, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36);
+  transform: translateY(-1px);
+}
+
+/* Cyan accent (Telemetry signature) — glass */
+.btn-telemetry {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, rgb(34 211 238) 55%, white) 0%,
+    color-mix(in oklab, rgb(0 196 230) 82%, transparent) 100%
+  );
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #0f172a;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 0 26px rgba(0, 229, 255, 0.42),
+    0 6px 22px rgba(0, 229, 255, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.btn-telemetry:hover {
+  box-shadow:
+    0 0 36px rgba(0, 229, 255, 0.52),
+    0 8px 28px rgba(0, 229, 255, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.52);
+  transform: translateY(-1px);
+}
+
+/* Premium chip style — frosted */
+.chip-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  font-family: var(--font-heading), var(--font-body), sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(124, 58, 237, 0.22);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(255, 255, 255, 0.75) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #7c3aed;
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.chip-premium:hover {
+  border-color: rgba(124, 58, 237, 0.4);
+  transform: scale(1.03);
+  box-shadow: 0 4px 18px rgba(124, 58, 237, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.chip-premium.selected {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, rgb(124 58 237) 88%, white) 0%,
+    color-mix(in oklab, rgb(91 33 182) 90%, transparent) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 0 22px rgba(124, 58, 237, 0.4),
+    0 4px 16px rgba(124, 58, 237, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Premium FAB — glass + violet halo */
+.fab-premium {
+  position: fixed;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, rgb(124 58 237) 85%, white) 0%,
+    color-mix(in oklab, rgb(91 33 182) 88%, transparent) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  box-shadow:
+    0 0 32px rgba(124, 58, 237, 0.48),
+    0 8px 28px rgba(124, 58, 237, 0.3),
+    0 4px 12px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fab-premium:hover {
+  box-shadow:
+    0 0 44px rgba(124, 58, 237, 0.58),
+    0 10px 36px rgba(124, 58, 237, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transform: scale(1.06);
+}
+
+.fab-premium:active {
+  transform: scale(0.92);
+}
+
+/* Disabled state */
+.btn-premium:disabled,
+.btn-premium.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none;
+}
+
+.btn-premium:disabled:hover,
+.btn-premium.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}

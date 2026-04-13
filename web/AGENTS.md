@@ -41,7 +41,7 @@ Predictions / profile builds: predictions-screen.tsx, profile-screen.tsx.
 Motion: components/motion/page-transition.tsx.
 PDA client perf: lib/api.ts.
 Constraints you should keep enforcing
-Standings driver cutout video on hover — preserve (desktop); mobile may hide inline video to reduce jank.
+Standings: **no** hover/podium preview video — chibi clip **only in driver detail modal** (see Chat #3); list + podium stay static on hover.
 web/CLAUDE.md is canonical for architecture but design tokens section is outdated vs current light UI — treat CLAUDE as structure + data flows, not current color truth.
 Do not recreate Pit Wall / global search unless explicitly requested.
 
@@ -70,3 +70,57 @@ Do not recreate Pit Wall / global search unless explicitly requested.
 **Premium motion refactor (global + key lists)**: Added shared motion presets in `components/motion/premium-motion.ts` (`iosSpring` = `stiffness:300`, `damping:30`; `routeVariants`; `listContainerVariants` with `staggerChildren:0.05`; `listItemVariants`; `skeletonPulse`). `page-transition.tsx` now uses `AnimatePresence mode="wait"` + slide/scale route variants (enter from `y:20`, leave with subtle scale-down/fade). **Comms / Standings / Predictions** now use staggered list entrances with spring transitions. **Skeleton-to-content crossfade** implemented for Comms, Standings, Predictions using `AnimatePresence mode="wait"` + keyed `motion` containers + `layout` (reduced pop-in on hydration). `standings-list.tsx` row motions moved to shared spring/stagger. `floating-dock.tsx` adds `layoutId="floating-dock-active-bg"` for shared active-state movement.
 
 **Dashboard + Profile system pass**: Removed dashboard **Next Screening** tile; moved **Top Prediction** into that slot and removed old lower duplicate. Top Prediction card now uses moving-border light and deep-links to `/predictions?event=<event_id>&prediction=<id>`. Dashboard now computes **Top 5 rotating threads** + **Top 5 rotating predictions** from Supabase (`comms_threads`, `race_predictions`) with in-house recency+engagement scoring; auto-rotates (thread ~4.8s, prediction ~5.2s), falls back to mock data if backend unavailable. Top Thread click opens exact thread via `/comms?t=<threadId>`. Predictions screen reads event/prediction query params and preselects/highlights target prediction. Profile screen: removed `DriverVideo`, added avatar box + upload action (Supabase Storage bucket `profile-avatars` + `profiles.avatar_url` update), and tightened responsive layout in header/actions/forms for modal/mobile widths.
+
+## Chat #3 (session changelog — UI, motion, modals, hydration)
+
+**Standings — driver detail & list (UX + data)**  
+- Removed **podium hover chibi video** (`podium.tsx`); hover video removed from list earlier (`standings-list.tsx`). **Driver video** only in **driver detail modal** (`standings-screen.tsx`), with **metadata-driven box** sizing from `videoWidth`/`videoHeight` (`onLoadedMetadata` / `onLoadedData`) so letterboxing is minimized; narrow header column + `object-contain`.  
+- Modal: **`createPortal(..., document.body)`**, transparent outer scrim, **`document.body` scroll lock** while open; **`premium-scrollbar`** on modal body.  
+- **Minimal copy** on podium (no country + driver code line); list columns trimmed (no NAT column; no inline driver code on rows). Header subtitle dropped “total points scored” line.  
+- **Hydration fix**: `fetchedAt` clock used bare `toLocaleTimeString()` → SSR **12h** vs client **24h** mismatch. Replaced with **`formatFetchedClock(iso)`** — `toLocaleTimeString("en-GB", { hour12: false, hour/minute/second: "2-digit" })` in `standings-screen.tsx`.
+
+**Comms — thread detail, long text, FAB + create modal**  
+- **Thread detail aside** (mobile overlay): **`bg-slate-900/20` + blur removed** → `bg-transparent`; bottom padding accounts for dock + safe area.  
+- **`ExpandableText`**: clamp + measure overflow; **“Show more” / “Show less”** on **thread cards** (default 3 lines) and **thread detail** “Transmission” (default 5 lines); `stopPropagation` on toggle so row open isn’t triggered.  
+- **Create thread + FAB**: Both **`createPortal` to `document.body`** (avoids `fixed` inside Framer **`transform`** ancestors → FAB/modal no longer scroll with content). Overlay **`bg-transparent`**; **`body` overflow hidden** while create modal open. FAB **`z-200`**, overlay **`z-199`**, aligned with dock safe-area bottom inset.  
+- Thread detail scroll container: **`premium-scrollbar`**, height tuned for dock.
+
+**Predictions**  
+- **FAB** also **`createPortal` to `document.body`** + **`z-200`** (same fixed-position issue as Comms).
+
+**Modals (global theme)**  
+- **`prediction-creator-modal.tsx`** and **`dashboard-profile-modal.tsx`**: full-screen dismiss layer **`bg-transparent`** (was `bg-slate-900/45` + blur) for flat white theme consistency.
+
+**Global layout / theme — flat white**  
+- **`globals.css`**: `--color-base`, `--color-surface`, `--color-surface-dim`, **`body` background** → **`#ffffff`** (was ~`#f8f9fb`); panel hover token slightly adjusted.  
+- **`paddock-shell.tsx`**: root **`bg-white`**; **removed** ambient **blur blob** layer (no grey/lavender wash behind cards).  
+- **`paddock-shell` main**: **`premium-scrollbar`** (replaces hidden `thin-scrollbar` on shell), **`pb-36`** so last scroll row clears floating dock.
+
+**Scrollbars (`globals.css`)**  
+- **`.premium-scrollbar`**: slim **~6px** thumb, **slate** tint, rounded pill, hover darkens; **`@media (max-width: 767px)`** → scrollbar hidden (width 0 / `scrollbar-width: none`).  
+- **`.thin-scrollbar`** redefined to match premium behavior (legacy class name still works). **`html`** scrollbar styled the same; mobile hides.
+
+**Motion — second pass (reduce route / list jank)**  
+- **`premium-motion.ts`**: unified **fast opacity-first** system — `fastFade` (~150ms), **`routeVariants`** opacity-only; **`listContainerVariants`** empty (no stagger delay); **`listItemVariants`** opacity-only; **`modalSpring`** / **`overlayVariants`** / **`modalPanelVariants`** for modals; **`iosSpring`** slightly snappier for taps.  
+- **`page-transition.tsx`**: **`mode="popLayout"`** + **`routeVariants`** + **`fastFade`** (avoids `mode="wait"` + slide/scale stacking with screen-level loaders).  
+- **Comms / Standings / Predictions**: loading ↔ loaded **`mode="popLayout"`** where applicable; thread detail / profile / create overlays use **opacity** + shared modal variants; removed **layout** + heavy **whileHover scale** on thread cards where it hurt.  
+- **`podium.tsx`**: **flex `flex-1 min-w-0`** cards (no fixed `31vw` clipping); responsive type; lighter motion.  
+- **`standings-list.tsx`**: **`premium-scrollbar`**, **`pb-4`** in list scroller.  
+- **`(paddock)/page.tsx`**: dashboard grid stagger simplified (opacity-first grid items); hero fade shortened.
+
+**Floating dock**  
+- Ongoing tweaks: **`floating-dock.tsx`** bar height / **`items-center`** / symmetric **`px`/`py`**; **`paddock-bottom-nav.tsx`** horizontal padding + safe-area bottom.
+
+**Docs / constraints reminder**  
+- **`web/AGENTS.md`** (this file) = **live UI + agent changelog**; **`web/CLAUDE.md`** = architecture / data flows (design tokens there may lag).  
+- **Standings hover video**: removed per user; video lives in **modal only** (current truth — overrides older “preserve hover video” note in §Constraints).
+
+## Chat #4 — Comms screen testing system
+
+**Goal**: Automated tests for Comms-related logic — **robustness** (edge cases, unicode, dedupe) and **traffic** (volume, burst likes, large lists).
+
+**Tooling**: Jest via `next/jest` — `jest.config.js` (`setupFilesAfterEnv` → `jest.setup.ts` with DOM mocks), **`package.json`** scripts: `test`, `test:watch`, `test:coverage`.
+
+**`src/lib/comms-test-utils.ts`**: Pure helpers for reply trees (`countReplies`, `updateReplyLikeTree`, `addReplyToTree`, find/remove/flatten/depth), list helpers (`sortThreadsByEngagement`, `sortThreadsByRecency`, `filterThreadsByQuery`), traffic generators (`generateTrafficThreads`, `generateStressTestThreads`), race helper (`simulateRaceCondition`), small harness (`runRobustnessTests`). **Signal scoring** in helpers re-exports **`computeSignalScore` / `getSignalLabel`** from **`signal-score.ts`** (same as production Comms). **`generateNestedReplies`** fixed so nested replies attach under **`parent.replies`**, not a flat root array.
+
+**Tests** (`src/components/comms/__tests__/`): **`comms-tree.test.ts`** (deep chains, immutability-style updates); **`comms-signal.test.ts`** (production signal + sort/filter); **`comms-robustness.test.ts`** (search edge cases, race id dedupe); **`comms-traffic.test.ts`** (generated load, 5k-thread perf smoke, 10k-op burst). Run: **`npm test`** from `web/`.

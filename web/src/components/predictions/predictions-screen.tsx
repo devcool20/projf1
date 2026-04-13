@@ -337,7 +337,7 @@ export function PredictionsScreen() {
           <button
             type="button"
             onClick={() => setSelected(null)}
-            className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+            className="btn-premium btn-outline-glass mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-slate-700"
           >
             <ArrowLeft className="h-4 w-4" />
             All Grands Prix
@@ -395,7 +395,7 @@ export function PredictionsScreen() {
                     <button
                       type="button"
                       onClick={() => likePrediction(prediction.id)}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-primary/30 hover:text-primary"
+                      className="btn-premium btn-outline-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-slate-600"
                     >
                       <Heart className="h-3.5 w-3.5" />
                       {prediction.likes}
@@ -435,7 +435,7 @@ export function PredictionsScreen() {
             type="button"
             aria-label="New prediction"
             onClick={() => setCreatorOpen(true)}
-            className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-200 flex h-11 w-11 items-center justify-center rounded-full border border-primary/35 bg-primary text-white shadow-[0_10px_22px_rgba(124,58,237,0.32)] transition hover:scale-105 active:scale-95 sm:right-6"
+            className="fab-premium bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-200 h-11 w-11 text-lg transition hover:scale-105 active:scale-95 sm:right-6"
           >
             <Plus className="h-5 w-5" strokeWidth={2.25} />
           </button>,

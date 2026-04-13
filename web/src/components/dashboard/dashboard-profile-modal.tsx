@@ -19,7 +19,7 @@ export function PremiumProfileTrigger({ onPress }: { onPress: () => void }) {
       onClick={onPress}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.97 }}
-      className="group relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200/95 bg-white text-slate-500 shadow-[0_1px_2px_rgba(15,23,42,0.06)] transition-[color,box-shadow,border-color,background-color] hover:border-slate-300 hover:bg-slate-50/90 hover:text-primary hover:shadow-[0_2px_10px_rgba(15,23,42,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/35"
+      className="btn-premium btn-outline-glass group relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full p-0 text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/35"
     >
       <UserRound className="h-[19px] w-[19px]" strokeWidth={2.25} aria-hidden />
     </motion.button>
@@ -93,7 +93,7 @@ export function DashboardProfileModal({ open, onClose }: DashboardProfileModalPr
                 aria-label="Close"
                 whileTap={{ scale: 0.92 }}
                 onClick={onClose}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200/90 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900"
+                className="btn-premium btn-outline-glass flex h-10 w-10 items-center justify-center rounded-full p-0 text-slate-600"
               >
                 <X className="h-5 w-5" strokeWidth={2} />
               </motion.button>

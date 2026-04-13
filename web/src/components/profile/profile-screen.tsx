@@ -318,7 +318,7 @@ export function ProfileScreen() {
 
             <button
               type="submit"
-              className="mt-4 w-full bg-primary py-3 font-headline text-sm font-bold tracking-[0.2em] text-white uppercase hover:opacity-90 transition-opacity"
+              className="btn-premium btn-primary mt-4 w-full py-3 font-headline text-sm font-bold tracking-[0.2em] text-white uppercase"
             >
               {isSignUp ? "Register" : "Authenticate"}
             </button>
@@ -383,8 +383,9 @@ export function ProfileScreen() {
           </div>
           <div className="flex w-full flex-row items-center justify-between gap-3 sm:w-auto sm:flex-col sm:items-end sm:justify-start">
              <button
+               type="button"
                onClick={handleLogout}
-               className="flex items-center gap-1.5 border border-outline-variant/30 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant hover:border-alert-red/50 hover:text-alert-red transition-colors"
+               className="btn-premium btn-outline-glass btn-outline-glass-danger flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant"
              >
                <LogOut className="h-3 w-3" /> Terminate Link
              </button>

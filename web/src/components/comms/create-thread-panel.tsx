@@ -128,7 +128,7 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
                   setPreviewUrl(null);
                   if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
-                className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black transition-colors"
+                className="btn-premium absolute right-2 top-2 rounded-full border border-white/35 bg-black/55 p-1.5 text-white shadow-[0_4px_18px_rgba(0,0,0,0.35)] backdrop-blur-md transition-colors hover:bg-black/70"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -140,7 +140,7 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 border border-outline-variant/30 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.15em] text-on-surface-variant hover:border-secondary/40 hover:text-secondary transition-all"
+            className="btn-premium btn-outline-glass flex items-center gap-2 rounded-lg px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.15em] text-on-surface-variant"
             disabled={isSubmitting}
           >
             <ImagePlus className="h-4 w-4" />
@@ -157,7 +157,7 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
           <button
             type="submit"
             disabled={!message.trim() || isSubmitting}
-            className="group flex items-center gap-2 bg-primary px-6 py-2.5 font-headline text-sm font-bold tracking-[0.2em] text-white uppercase hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 transition-all"
+            className="btn-premium btn-primary px-6 py-2.5 text-sm tracking-widest uppercase group"
           >
             {isSubmitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />

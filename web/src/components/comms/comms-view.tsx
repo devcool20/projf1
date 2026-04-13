@@ -119,7 +119,7 @@ function ExpandableText({ text, lineClamp = 3 }: { text: string; lineClamp?: num
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-          className="mt-1 text-xs font-medium text-primary hover:text-primary-dim"
+          className="btn-premium btn-ghost mt-1 rounded-lg px-2.5 py-1 text-xs font-medium text-primary"
         >
           Show more
         </button>
@@ -128,7 +128,7 @@ function ExpandableText({ text, lineClamp = 3 }: { text: string; lineClamp?: num
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
-          className="mt-1 text-xs font-medium text-primary hover:text-primary-dim"
+          className="btn-premium btn-ghost mt-1 rounded-lg px-2.5 py-1 text-xs font-medium text-primary"
         >
           Show less
         </button>
@@ -206,20 +206,22 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onUserClick }: Re
 
         <div className="mt-3 flex items-center gap-4">
           <button
+            type="button"
             onClick={() => {
               onReplyLike(reply.id);
               setShowBurst(true);
               setTimeout(() => setShowBurst(false), 420);
             }}
-            className="relative flex items-center gap-1 text-xs text-on-surface-variant hover:text-primary"
+            className="btn-premium btn-outline-glass relative flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs"
           >
             <LikeBurst show={showBurst} />
             <Heart className="h-3.5 w-3.5" />
             {reply.likes}
           </button>
           <button
+            type="button"
             onClick={() => setIsReplying((value) => !value)}
-            className="flex items-center gap-1 text-xs text-on-surface-variant hover:text-secondary"
+            className="btn-premium btn-outline-glass flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs"
           >
             <MessageCircle className="h-3.5 w-3.5" />
             Reply
@@ -242,7 +244,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onUserClick }: Re
             placeholder="Optional image URL"
             className="w-full border border-outline-variant/30 bg-surface-container-low p-2 text-xs outline-none focus:border-secondary"
           />
-          <button type="submit" className="bg-primary px-3 py-1.5 font-headline text-xs font-bold tracking-[0.18em] text-white uppercase">
+          <button type="submit" className="btn-premium btn-primary px-4 py-2 text-xs tracking-widest uppercase">
             Reply
           </button>
         </form>
@@ -793,9 +795,10 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                         {new Date(thread.createdAt).toLocaleTimeString("en-GB", { hour12: false })}
                       </p>
                       {isOwner && (
-                        <button 
+                        <button
+                          type="button"
                           onClick={(e) => { e.stopPropagation(); deleteThread(thread.id); }}
-                          className="text-on-surface-variant hover:text-alert-red transition-colors"
+                          className="btn-premium btn-outline-glass btn-outline-glass-danger flex h-7 w-7 items-center justify-center rounded-md p-0"
                           title="Terminate Broadcast"
                         >
                           <Trash2 className="h-3 w-3" />
@@ -839,14 +842,16 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   </div>
 
                   <div className="mt-3 flex items-center gap-4 text-xs text-on-surface-variant">
-                    <button 
+                    <button
+                      type="button"
+                      data-active={userLikedThreads.includes(thread.id) ? "true" : undefined}
                       onClick={(e) => {
                         e.stopPropagation();
                         likeThread(thread.id);
                         setLikeBurstThread(thread.id);
                         setTimeout(() => setLikeBurstThread(null), 420);
                       }}
-                      className={`relative flex items-center gap-1 transition-colors ${userLikedThreads.includes(thread.id) ? "text-primary" : "hover:text-primary"}`}
+                      className="btn-premium btn-outline-glass relative flex items-center gap-1 rounded-lg px-2.5 py-1.5 transition-colors"
                     >
                       <LikeBurst show={likeBurstThread === thread.id} />
                       <Heart className={`h-3.5 w-3.5 ${userLikedThreads.includes(thread.id) ? "fill-primary" : ""}`} />
@@ -885,9 +890,10 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
             >
             <div className="flex items-center justify-between gap-2 border-b border-outline-variant/20 pb-3">
                <div className="flex items-center gap-3">
-                  <button 
+                  <button
+                    type="button"
                     onClick={closeThreadDetail}
-                    className="flex h-8 w-8 items-center justify-center rounded-sm border border-outline-variant/30 text-on-surface-variant hover:border-primary/40 hover:text-primary transition-all"
+                    className="btn-premium btn-outline-glass flex h-8 w-8 items-center justify-center rounded-lg p-0"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
@@ -962,19 +968,18 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
 
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <button
+                type="button"
+                data-active={userLikedThreads.includes(selectedThread.id) ? "true" : undefined}
                 onClick={() => likeThread(selectedThread.id)}
-                className={`flex items-center gap-1.5 border border-outline-variant/30 px-3 py-2 text-xs transition-colors ${
-                  userLikedThreads.includes(selectedThread.id) 
-                    ? "border-primary/40 text-primary bg-primary/5" 
-                    : "text-on-surface-variant hover:border-primary/40 hover:text-primary"
-                }`}
+                className="btn-premium btn-outline-glass flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs"
               >
                 <Heart className={`h-3.5 w-3.5 ${userLikedThreads.includes(selectedThread.id) ? "fill-primary" : ""}`} />
                 {selectedThread.likes}
               </button>
               <button
+                type="button"
                 onClick={() => shareThread(selectedThread)}
-                className="flex items-center gap-1.5 border border-outline-variant/30 px-3 py-2 text-xs text-on-surface-variant hover:border-secondary/40 hover:text-secondary transition-colors"
+                className="btn-premium btn-outline-glass flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs"
               >
                 <Share2 className="h-3.5 w-3.5" />
                 {shareState === "copied" ? "Copied" : "Share"}
@@ -997,10 +1002,10 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
               />
               <button
                 type="submit"
-                className={`w-full px-4 py-3 font-headline text-sm font-bold tracking-[0.24em] uppercase transition-transform ${
+                className={`btn-premium w-full px-4 py-3 font-headline text-sm font-bold tracking-[0.24em] uppercase transition-transform ${
                   transmitPulse
-                    ? "bg-emerald-400 text-emerald-950 shadow-[0_0_22px_rgba(74,222,128,0.6)] animate-pulse"
-                    : "bg-primary text-white hover:scale-[1.01] active:scale-[0.99]"
+                    ? "btn-success animate-pulse shadow-[0_0_22px_rgba(74,222,128,0.55)] hover:scale-[1.01] active:scale-[0.99]"
+                    : "btn-primary hover:scale-[1.01] active:scale-[0.99]"
                 }`}
               >
                 TRANSMIT
@@ -1055,7 +1060,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
             <button
               type="button"
               onClick={openCreateOverlay}
-              className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-200 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-[0_10px_24px_rgba(124,58,237,0.38)] transition hover:scale-105 active:scale-95 sm:right-6"
+              className="fab-premium bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 sm:right-6 h-12 w-12 text-lg"
               aria-label="Create thread"
             >
               <Plus className="h-5 w-5" />
@@ -1086,7 +1091,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                         <button
                           type="button"
                           onClick={closeCreateOverlay}
-                          className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/40 bg-white text-on-surface-variant shadow-sm"
+                          className="btn-premium btn-outline-glass absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full p-0"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -1103,7 +1108,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                         <button
                           type="button"
                           onClick={closeCreateOverlay}
-                          className="ml-auto mb-4 flex h-8 w-8 items-center justify-center rounded-full border border-outline-variant/40 bg-white text-on-surface-variant shadow-sm"
+                          className="btn-premium btn-outline-glass ml-auto mb-4 flex h-8 w-8 items-center justify-center rounded-full p-0"
                         >
                           <X className="h-4 w-4" />
                         </button>

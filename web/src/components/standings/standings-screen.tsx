@@ -142,8 +142,9 @@ export function StandingsScreen({
           Make sure the Paddock Data Agent is reachable from this frontend.
         </p>
         <button
+          type="button"
           onClick={handleRefresh}
-          className="mt-2 flex items-center gap-2 bg-primary px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-base"
+          className="btn-premium btn-primary mt-2 flex items-center gap-2 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-base"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Retry
@@ -198,9 +199,10 @@ export function StandingsScreen({
             </div>
           )}
           <button
+            type="button"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center gap-1.5 border border-outline-variant/30 bg-surface-container-low px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-on-surface-variant transition hover:border-secondary/40 hover:text-secondary disabled:opacity-50"
+            className="btn-premium btn-outline-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-on-surface-variant transition disabled:opacity-50"
           >
             <RefreshCw className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} />
             Refresh
@@ -216,11 +218,12 @@ export function StandingsScreen({
         ]).map(({ key, label, icon }) => (
           <button
             key={key}
+            type="button"
             onClick={() => setTab(key)}
-            className={`haptic-pill flex items-center gap-2 px-5 py-2.5 font-mono text-xs uppercase tracking-wider transition ${
+            className={`btn-premium flex items-center gap-2 rounded-full px-5 py-2.5 font-mono text-xs uppercase tracking-wider transition ${
               tab === key
-                ? "team-accent-bg team-accent-text"
-                : "text-on-surface-variant hover:bg-white/10 hover:text-on-surface"
+                ? "btn-primary"
+                : "btn-ghost text-on-surface-variant"
             }`}
           >
             {icon}

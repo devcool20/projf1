@@ -26,8 +26,9 @@ export function ProductCard({ product, onEquip }: Props) {
           <p className="font-mono text-xs text-on-surface-variant">${product.price}</p>
         </div>
         <button
+          type="button"
           onClick={() => onEquip(product)}
-          className="border border-secondary/40 px-3 py-2 font-headline text-xs tracking-[0.2em] hover:bg-secondary/10"
+          className="btn-premium btn-secondary px-3 py-2 font-headline text-xs tracking-[0.2em]"
         >
           EQUIP
         </button>

@@ -158,9 +158,10 @@ export default function PaddockPremieresPage() {
             </div>
 
             <button
+              type="button"
               onClick={onBook}
               disabled={bookedIds.has(selectedEvent.id) || selectedEvent.bookedSeats >= selectedEvent.totalSeats}
-              className="mt-5 w-full bg-primary px-4 py-3 font-headline text-sm font-bold tracking-[0.2em] text-white uppercase disabled:cursor-not-allowed disabled:bg-outline-variant disabled:text-on-surface-variant"
+              className="btn-premium btn-primary mt-5 w-full px-4 py-3 font-headline text-sm font-bold tracking-[0.2em] text-white uppercase disabled:cursor-not-allowed disabled:opacity-60"
             >
               {bookedIds.has(selectedEvent.id) ? "Place Booked" : "Book a Place"}
             </button>
