@@ -50,10 +50,10 @@ function IconContainer({
     return val - bounds.left - bounds.width / 2;
   });
 
-  const wSync = useTransform(distance, [-120, 0, 120], [40, 68, 40]);
-  const hSync = useTransform(distance, [-120, 0, 120], [40, 68, 40]);
-  const iwSync = useTransform(distance, [-120, 0, 120], [18, 29, 18]);
-  const ihSync = useTransform(distance, [-120, 0, 120], [18, 29, 18]);
+  const wSync = useTransform(distance, [-180, 0, 180], [52, 90, 52]);
+  const hSync = useTransform(distance, [-180, 0, 180], [52, 90, 52]);
+  const iwSync = useTransform(distance, [-180, 0, 180], [24, 40, 24]);
+  const ihSync = useTransform(distance, [-180, 0, 180], [24, 40, 24]);
 
   const width = useSpring(wSync, springTray);
   const height = useSpring(hSync, springTray);
@@ -132,7 +132,7 @@ export function FloatingDock({
       onPointerLeave={() => mouseX.set(Infinity)}
       onPointerCancel={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto flex h-14 w-fit max-w-[calc(100vw-1rem)] items-center justify-center gap-0.5 overflow-visible rounded-[1.05rem] border border-slate-200/90 bg-white/92 px-1.5 py-1 shadow-[0_12px_28px_rgba(15,23,42,0.1)] backdrop-blur-xl sm:h-15 sm:gap-1 sm:rounded-[1.2rem] sm:px-2 sm:py-1",
+        "mx-auto flex h-16 w-fit w-full max-w-[calc(100vw-2rem)] md:max-w-3xl items-center justify-between overflow-visible rounded-2xl border border-slate-200/90 bg-white/92 px-4 shadow-[0_12px_28px_rgba(15,23,42,0.1)] backdrop-blur-xl sm:h-20 sm:rounded-3xl sm:px-8",
         desktopClassName,
         mobileClassName,
       )}

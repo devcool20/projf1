@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Loader2, ShieldAlert, LogOut, Upload, Camera } from "lucide-react";
+import { Loader2, ShieldAlert, LogOut, Upload, Camera, ChevronDown } from "lucide-react";
+import { motion } from "framer-motion";
+import { formatTimeAgo } from "@/lib/format";
 import { predictionDriverPool } from "@/lib/mock-data";
 import { getTeamAccent } from "@/lib/team-colors";
 import { applyTeamAccent, resetTeamAccent } from "@/lib/team-accent";
@@ -366,7 +368,10 @@ export function ProfileScreen() {
               <p className="font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: teamAccent }}>Super License</p>
               <h2 className="mt-1 wrap-break-word font-headline text-2xl font-semibold sm:text-4xl">{profile?.full_name || "Driver"}</h2>
               <p className="text-sm font-medium text-on-surface-variant">{profile?.username || "@driver"}</p>
-              <label className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-outline-variant/30 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant hover:border-primary/40 hover:text-primary">
+              <motion.label 
+                whileTap={{ scale: 0.95 }}
+                className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-outline-variant/30 bg-surface px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-on-surface hover:border-primary/40 hover:text-primary transition-colors shadow-sm"
+              >
                 <Upload className="h-3.5 w-3.5" />
                 {uploadingAvatar ? "Uploading..." : "Upload photo"}
                 <input
@@ -378,17 +383,17 @@ export function ProfileScreen() {
                     if (file) void uploadAvatar(file);
                   }}
                 />
-              </label>
+              </motion.label>
             </div>
           </div>
           <div className="flex w-full flex-row items-center justify-between gap-3 sm:w-auto sm:flex-col sm:items-end sm:justify-start">
-             <button
-               type="button"
+             <motion.button
+               whileTap={{ scale: 0.95 }}
                onClick={handleLogout}
-               className="btn-premium btn-outline-glass btn-outline-glass-danger flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant"
+               className="group flex items-center gap-1.5 rounded-full border border-alert-red/20 bg-alert-red/5 px-4 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-alert-red hover:bg-alert-red hover:text-white transition-all shadow-sm"
              >
                <LogOut className="h-3 w-3" /> Terminate Link
-             </button>
+             </motion.button>
              <span className="px-3 py-1 font-mono text-[10px] tracking-[0.2em] uppercase" style={{ border: `1px solid ${teamAccent}88`, background: `${teamAccent}22`, color: teamAccent }}>
                 Verified
              </span>
@@ -396,35 +401,45 @@ export function ProfileScreen() {
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-1">
-            <label className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Constructor Affiliation</label>
-            <select
-              value={profile?.fav_team || ""}
-              onChange={(e) => updateProfile("fav_team", e.target.value)}
-              className="w-full border border-outline-variant/30 bg-surface-container-low p-2 text-sm outline-none focus:border-primary transition-colors"
-            >
-              <option value="">Select Team</option>
-              {teamPool.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
+          <div className="space-y-1.5">
+            <label className="pl-1 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-semibold">Constructor Affiliation</label>
+            <div className="relative">
+              <select
+                value={profile?.fav_team || ""}
+                onChange={(e) => updateProfile("fav_team", e.target.value)}
+                className="w-full appearance-none rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-2.5 text-sm font-medium text-on-surface outline-none focus:border-primary transition-colors cursor-pointer"
+              >
+                <option value="">Select Team</option>
+                {teamPool.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <ChevronDown className="h-4 w-4 text-on-surface-variant" />
+              </div>
+            </div>
           </div>
-          <div className="space-y-1">
-            <label className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Driver Affiliation</label>
-            <select
-              value={profile?.fav_driver || ""}
-              onChange={(e) => updateProfile("fav_driver", e.target.value)}
-              className="w-full border border-outline-variant/30 bg-surface-container-low p-2 text-sm outline-none focus:border-primary transition-colors"
-            >
-              <option value="">Select Driver</option>
-              {predictionDriverPool.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
+          <div className="space-y-1.5">
+            <label className="pl-1 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-semibold">Driver Affiliation</label>
+            <div className="relative">
+              <select
+                value={profile?.fav_driver || ""}
+                onChange={(e) => updateProfile("fav_driver", e.target.value)}
+                className="w-full appearance-none rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-2.5 text-sm font-medium text-on-surface outline-none focus:border-primary transition-colors cursor-pointer"
+              >
+                <option value="">Select Driver</option>
+                {predictionDriverPool.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <ChevronDown className="h-4 w-4 text-on-surface-variant" />
+              </div>
+            </div>
           </div>
-          <div className="border border-outline-variant/20 bg-surface-container-low p-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Career Points</p>
-            <p className="mt-1 font-mono text-2xl text-primary">{profile?.points || 0}</p>
+          <div className="rounded-xl border border-outline-variant/10 bg-surface-container-low/50 p-4 shadow-sm">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-semibold">Career Points</p>
+            <p className="mt-1 font-headline text-2xl font-bold text-primary">{profile?.points || 0}</p>
           </div>
-          <div className="border border-outline-variant/20 bg-surface-container-low p-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">License Level</p>
-            <p className="mt-1 font-mono text-2xl text-secondary">A-Class</p>
+          <div className="rounded-xl border border-outline-variant/10 bg-surface-container-low/50 p-4 shadow-sm">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-semibold">License Level</p>
+            <p className="mt-1 font-headline text-2xl font-bold text-secondary">A-Class</p>
           </div>
         </div>
       </section>
@@ -436,17 +451,17 @@ export function ProfileScreen() {
             <h3 className="font-headline text-xl">Transmitted Comms</h3>
             <span className="font-mono text-[10px] tracking-[0.2em] text-on-surface-variant">{comms.length} TOTAL</span>
           </div>
-          <div className="mt-4 flex flex-col gap-3 max-h-[500px] overflow-y-auto thin-scrollbar pr-2">
+          <div className="mt-4 flex flex-col gap-3 max-h-[460px] overflow-y-auto premium-scrollbar pr-2 pb-4">
             {comms.length === 0 ? (
-              <p className="font-mono text-xs text-on-surface-variant">No comms transmitted.</p>
+              <p className="font-mono text-xs text-on-surface-variant py-4">No comms transmitted.</p>
             ) : (
               comms.map((comm) => (
-                <div key={comm.id} className="border border-outline-variant/20 bg-surface-container-low p-3 hover:border-primary/40 transition-colors">
-                  <p className="font-mono text-[10px] text-primary">{new Date(comm.created_at).toLocaleString()}</p>
-                  <p className="mt-2 text-sm text-on-surface line-clamp-2">{comm.message}</p>
-                  <div className="mt-2 flex items-center gap-3 text-xs text-on-surface-variant font-mono">
-                    <span>{comm.likes_count} LIKES</span>
-                    <span>{comm.comments_count} REPLIES</span>
+                <div key={comm.id} className="rounded-xl border border-outline-variant/10 bg-surface-container-low/40 p-4 hover:border-primary/30 hover:bg-surface-container-low transition-all cursor-default shadow-sm">
+                  <p className="font-mono text-[10px] text-primary/80 font-bold uppercase tracking-wider">{formatTimeAgo(comm.created_at)}</p>
+                  <p className="mt-2 text-[15px] sm:text-base text-on-surface leading-normal line-clamp-3">{comm.message}</p>
+                  <div className="mt-3 flex items-center gap-4 text-xs font-semibold text-on-surface-variant/80 uppercase tracking-wide">
+                    <span>{comm.likes_count} Likes</span>
+                    <span>{comm.comments_count} Replies</span>
                   </div>
                 </div>
               ))
@@ -460,29 +475,29 @@ export function ProfileScreen() {
             <h3 className="font-headline text-xl">Deployed Predictions</h3>
             <span className="font-mono text-[10px] tracking-[0.2em] text-on-surface-variant">{predictions.length} TOTAL</span>
           </div>
-          <div className="mt-4 flex flex-col gap-4 max-h-[500px] overflow-y-auto thin-scrollbar pr-2">
+          <div className="mt-4 flex flex-col gap-4 max-h-[460px] overflow-y-auto premium-scrollbar pr-2 pb-4">
             {predictions.length === 0 ? (
-              <p className="font-mono text-xs text-on-surface-variant">No predictions deployed.</p>
+              <p className="font-mono text-xs text-on-surface-variant py-4">No predictions deployed.</p>
             ) : (
               predictions.map((pred) => (
-                <div key={pred.id} className="border border-outline-variant/20 bg-surface-container-low p-4 hover:border-secondary/40 transition-colors">
+                <div key={pred.id} className="rounded-xl border border-outline-variant/10 bg-surface-container-low/40 p-4 hover:border-secondary/30 hover:bg-surface-container-low transition-all cursor-default shadow-sm">
                   <div className="flex items-start justify-between">
-                    <p className="font-mono text-xs text-secondary uppercase tracking-widest">{pred.prediction_config?.event_name || "Grand Prix"}</p>
-                    <p className="font-mono text-[10px] text-on-surface-variant">{new Date(pred.created_at).toLocaleDateString()}</p>
+                    <p className="font-mono text-[11px] font-bold text-secondary uppercase tracking-[0.2em]">{pred.prediction_config?.event_name || "Grand Prix"}</p>
+                    <p className="font-mono text-[10px] text-on-surface-variant/80 font-bold uppercase tracking-wider">{formatTimeAgo(pred.created_at)}</p>
                   </div>
                   
-                  <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="mt-4 grid grid-cols-3 gap-2">
                     {pred.top3.map((driver: string, idx: number) => (
-                      <div key={idx} className="border border-outline-variant/20 p-2 text-center bg-surface-dim">
-                        <span className="block font-mono text-[9px] text-primary">P{idx+1}</span>
-                        <span className="mt-1 block font-headline text-xs truncate">{driver.split(' ').pop()}</span>
+                      <div key={idx} className="rounded-lg border border-outline-variant/10 p-2.5 text-center bg-surface-dim/40 shadow-sm">
+                        <span className="block font-mono text-[9px] font-bold tracking-widest text-[#94a3b8] uppercase">P{idx+1}</span>
+                        <span className="mt-1 block font-headline text-xs font-semibold text-on-surface truncate">{driver.split(' ').pop()}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="mt-3 flex justify-between border-t border-outline-variant/10 pt-2 font-mono text-[10px]">
-                    <span className="text-on-surface-variant">POLE: <span className="text-on-surface">{pred.pole_position.split(' ').pop()}</span></span>
-                    <span className="text-on-surface-variant">DOTD: <span className="text-on-surface">{pred.driver_of_the_day.split(' ').pop()}</span></span>
+                  <div className="mt-4 flex justify-between border-t border-outline-variant/10 pt-3 font-mono text-[10px] tracking-wide text-on-surface-variant">
+                    <span>POLE: <span className="font-headline font-bold text-on-surface">{pred.pole_position.split(' ').pop()}</span></span>
+                    <span>DOTD: <span className="font-headline font-bold text-on-surface">{pred.driver_of_the_day.split(' ').pop()}</span></span>
                   </div>
                 </div>
               ))

@@ -2,6 +2,8 @@ import { getTeamAccent } from "@/lib/team-colors";
 
 const ROOT = "--team-accent";
 
+export { getTeamAccent as getTeamColor } from "@/lib/team-colors";
+
 export function applyTeamAccent(teamName?: string | null) {
   if (typeof document === "undefined") return;
   const accent = getTeamAccent(teamName);

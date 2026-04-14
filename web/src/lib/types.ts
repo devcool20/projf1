@@ -29,6 +29,8 @@ export type CommReply = {
   username: string;
   fullName: string;
   favDriver?: string | null;
+  favTeam?: string | null;
+  avatarUrl?: string | null;
   message: string;
   imageUrl?: string;
   likes: number;
@@ -42,6 +44,8 @@ export type CommThread = {
   username: string;
   fullName: string;
   favDriver?: string | null;
+  favTeam?: string | null;
+  avatarUrl?: string | null;
   message: string;
   imageUrl?: string;
   likes: number;

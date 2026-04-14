@@ -3,58 +3,55 @@
 import type { Transition, Variants } from "framer-motion";
 
 /**
- * Unified motion system — iOS-style quick fade everywhere.
- * No stagger, no scale, no y-translate on routes = zero perceived lag.
+ * Premium Motion System
+ * Provides smooth, crisp animations for screens, modals, and cards.
  */
 
 /** Snappy spring for interactive elements (buttons, modals, cards) */
 export const iosSpring: Transition = {
   type: "spring",
-  stiffness: 500,
-  damping: 35,
+  stiffness: 350,
+  damping: 30,
   mass: 0.8,
 };
 
-/** Fast opacity-only tween for route/page transitions */
-export const fastFade: Transition = {
-  duration: 0.15,
-  ease: "easeOut",
-};
+/** Shared smooth fade using spring (replaces standard tweens) */
+export const fastFade: Transition = { ...iosSpring };
 
-/** Modal enter/exit spring — quick pop with no overshoot */
-export const modalSpring: Transition = {
-  type: "spring",
-  stiffness: 520,
-  damping: 38,
-  mass: 0.72,
-};
+/** Modal enter/exit spring */
+export const modalSpring: Transition = { ...iosSpring };
 
-/** Route-level variants — opacity only, no layout shift */
+/** Route-level screen opening animation */
 export const routeVariants: Variants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
+  initial: { opacity: 0, y: 15 },
+  animate: { opacity: 1, y: 0, transition: iosSpring },
+  exit: { opacity: 0, y: -10, transition: iosSpring },
 };
 
-/** Container for lists — no stagger, children appear instantly */
+/** Container for lists — staggers card loading */
 export const listContainerVariants: Variants = {
-  hidden: {},
-  show: {},
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
 };
 
-/** Individual list items — just fade in, no y-translate */
+/** Individual card loading items — slide up slightly as they fade in */
 export const listItemVariants: Variants = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: fastFade },
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: iosSpring },
 };
 
 /** Skeleton pulse while loading */
 export const skeletonPulse: Variants = {
-  initial: { opacity: 0.55 },
+  initial: { opacity: 0.4 },
   animate: {
-    opacity: [0.55, 0.8, 0.55],
+    opacity: [0.4, 0.8, 0.4],
     transition: {
-      duration: 1.2,
+      duration: 1.5,
       repeat: Infinity,
       ease: "easeInOut",
     },
@@ -63,14 +60,14 @@ export const skeletonPulse: Variants = {
 
 /** Modal overlay variants */
 export const overlayVariants: Variants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
+  initial: { opacity: 0, backdropFilter: "blur(0px)" },
+  animate: { opacity: 1, backdropFilter: "blur(4px)", transition: iosSpring },
+  exit: { opacity: 0, backdropFilter: "blur(0px)", transition: iosSpring },
 };
 
-/** Modal panel variants — subtle scale pop */
+/** Modal opening animation — Slide & Fade */
 export const modalPanelVariants: Variants = {
-  initial: { opacity: 0, scale: 0.96 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.97 },
+  initial: { opacity: 0, x: "100%" },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: "100%" },
 };

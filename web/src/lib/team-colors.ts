@@ -24,7 +24,22 @@ export function getTeamColor(teamName: string) {
 
 export function getTeamAccent(teamName: string | null | undefined) {
   if (!teamName) return FALLBACK.accent;
-  return getTeamColor(teamName).accent;
+  
+  const lower = teamName.toLowerCase();
+  if (lower.includes('ferrari')) return "#e10600";
+  if (lower.includes('mercedes')) return "#00d2be";
+  if (lower.includes('red bull') || lower.includes('redbull')) return "#3671C6";
+  if (lower.includes('mclaren')) return "#ff8000";
+  if (lower.includes('alpine')) return "#ff87bc";
+  if (lower.includes('aston')) return "#229971";
+  if (lower.includes('williams')) return "#64c4ff";
+  if (lower.includes('rb')) return "#6692ff";
+  if (lower.includes('sauber')) return "#52e252";
+  if (lower.includes('haas')) return "#b6babd";
+  
+  // Direct lookup fallback
+  const exactMatch = TEAM_COLORS[teamName as keyof typeof TEAM_COLORS];
+  return exactMatch ? exactMatch.accent : FALLBACK.accent;
 }
 
 const NATIONALITY_FLAGS: Record<string, string> = {

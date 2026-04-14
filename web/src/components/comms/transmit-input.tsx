@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { motion } from "framer-motion";
 
 type Props = {
   onTransmit: (message: string) => void;
@@ -27,12 +28,13 @@ export function TransmitInput({ onTransmit }: Props) {
           className="w-full bg-surface-container-low px-3 py-3 font-mono text-xs uppercase tracking-[0.16em] text-on-surface outline-none focus:border-secondary"
           placeholder="ENTER RADIO TRANSCRIPT..."
         />
-        <button
+        <motion.button
           type="submit"
+          whileTap={{ scale: 0.95 }}
           className="btn-premium btn-accent px-5 py-3 text-xs tracking-widest uppercase"
         >
           TRANSMIT
-        </button>
+        </motion.button>
       </div>
     </form>
   );

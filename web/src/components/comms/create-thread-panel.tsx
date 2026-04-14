@@ -5,11 +5,14 @@ import { supabase } from "@/lib/supabase";
 import { ImagePlus, Loader2, Send, X } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { getTeamColor } from "@/lib/team-accent";
 
 type Props = {
   profile: {
     id: string;
     username: string;
+    avatar_url?: string | null;
+    fav_team?: string | null;
   };
   onSuccess: () => void;
 };
@@ -86,10 +89,17 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
       className="dashboard-panel p-5"
     >
       <div className="flex items-center gap-3 border-b border-primary/20 pb-4 mb-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-sm border border-secondary/40 bg-secondary/10">
-          <span className="font-headline text-lg text-secondary">
-            {profile?.username?.[0]?.toUpperCase() || "P"}
-          </span>
+        <div 
+          className="flex h-10 w-10 shrink-0 overflow-hidden items-center justify-center rounded-full bg-surface-container-high border-2 text-on-surface font-headline text-lg"
+          style={{ borderColor: profile?.fav_team ? getTeamColor(profile.fav_team) : 'rgb(var(--outline-variant) / 0.3)' }}
+        >
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt={profile.username} className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-secondary">
+              {profile?.username?.[0]?.toUpperCase() || "P"}
+            </span>
+          )}
         </div>
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">New Transmission</p>
@@ -122,7 +132,8 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
               className="relative h-48 w-full overflow-hidden rounded-sm border border-outline-variant/40"
             >
               <Image src={previewUrl} alt="Preview" fill className="object-cover" />
-              <button
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={() => {
                   setPreviewUrl(null);
@@ -131,13 +142,14 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
                 className="btn-premium absolute right-2 top-2 rounded-full border border-white/35 bg-black/55 p-1.5 text-white shadow-[0_4px_18px_rgba(0,0,0,0.35)] backdrop-blur-md transition-colors hover:bg-black/70"
               >
                 <X className="h-4 w-4" />
-              </button>
+              </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
 
         <div className="flex items-center justify-between gap-4">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="btn-premium btn-outline-glass flex items-center gap-2 rounded-lg px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.15em] text-on-surface-variant"
@@ -145,7 +157,7 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
           >
             <ImagePlus className="h-4 w-4" />
             Attach Intel
-          </button>
+          </motion.button>
           <input
             type="file"
             ref={fileInputRef}
@@ -154,7 +166,8 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
             className="hidden"
           />
 
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             type="submit"
             disabled={!message.trim() || isSubmitting}
             className="btn-premium btn-primary px-6 py-2.5 text-sm tracking-widest uppercase group"
@@ -165,7 +178,7 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
               <Send className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             )}
             Transmit
-          </button>
+          </motion.button>
         </div>
       </form>
 
