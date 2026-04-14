@@ -119,7 +119,7 @@ type ReplyNodeProps = {
   depth: number;
   onReplySubmit: (parentReplyId: string, message: string, imageUrl?: string) => Promise<void>;
   onReplyLike: (replyId: string) => void;
-  onReplyDelete: (replyId: string) => void;
+  onReplyDelete: (replyId: string, isNested: boolean) => void;
   onUserClick: (profileId: string) => void;
   userLikedReplies: string[];
   userProfile: UserProfile | null;
@@ -724,13 +724,16 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
     setThreads((prev) => prev.map((t) => (t.id === threadId ? { ...t, likes: Math.max(0, t.likes + (intendedToLike ? 1 : -1)) } : t)));
 
     try {
-      if (intendedToLike) {
-        await supabase.from('comms_thread_likes').insert({ thread_id: threadId, profile_id: userProfile.id });
-      } else {
-        await supabase.from('comms_thread_likes').delete().eq('thread_id', threadId).eq('profile_id', userProfile.id);
-      }
+      // Use RPC to handle single like logic server-side to prevent races/infinite likes
+      const { error } = await supabase.rpc('handle_thread_like', {
+        p_thread_id: threadId,
+        p_profile_id: userProfile.id,
+        p_intended_to_like: intendedToLike
+      });
+      if (error) throw error;
     } catch (e) {
       console.error('Error toggling thread like:', e);
+      // Rollback optimistic update on error
       setUserLikedThreads((prev) => (!intendedToLike ? Array.from(new Set([...prev, threadId])) : prev.filter((id) => id !== threadId)));
       setThreads((prev) => prev.map((t) => (t.id === threadId ? { ...t, likes: Math.max(0, t.likes + (!intendedToLike ? 1 : -1)) } : t)));
     } finally {
@@ -768,11 +771,12 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
     );
 
     try {
-      if (intendedToLike) {
-        await supabase.from('comms_reply_likes').insert({ reply_id: replyId, profile_id: userProfile.id });
-      } else {
-        await supabase.from('comms_reply_likes').delete().eq('reply_id', replyId).eq('profile_id', userProfile.id);
-      }
+      const { error } = await supabase.rpc('handle_reply_like', {
+        p_reply_id: replyId,
+        p_profile_id: userProfile.id,
+        p_intended_to_like: intendedToLike
+      });
+      if (error) throw error;
     } catch (e) {
       console.error('Error toggling reply like:', e);
       setUserLikedReplies((prev) => (!intendedToLike ? Array.from(new Set([...prev, replyId])) : prev.filter((id) => id !== replyId)));
