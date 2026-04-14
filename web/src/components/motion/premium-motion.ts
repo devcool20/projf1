@@ -10,9 +10,9 @@ import type { Transition, Variants } from "framer-motion";
 /** Snappy spring for interactive elements (buttons, modals, cards) */
 export const iosSpring: Transition = {
   type: "spring",
-  stiffness: 350,
+  stiffness: 300,
   damping: 30,
-  mass: 0.8,
+  mass: 0.5,
 };
 
 /** Shared smooth fade using spring (replaces standard tweens) */
@@ -67,7 +67,7 @@ export const overlayVariants: Variants = {
 
 /** Modal opening animation — Slide & Fade */
 export const modalPanelVariants: Variants = {
-  initial: { opacity: 0, x: "100%" },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: "100%" },
+  initial: { opacity: 0, scale: 0.96, y: 10 },
+  animate: { opacity: 1, scale: 1, y: 0 },
+  exit: { opacity: 0, scale: 0.96, y: 10 },
 };

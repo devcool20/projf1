@@ -12,6 +12,7 @@ import { UserDetailPanel } from "./user-detail-panel";
 import { Trash2, Heart, MessageCircle, Signal, Shield, ChevronLeft, Send, Image as ImageIcon, X, User, Share2, Plus, ImagePlus, Loader2 } from "lucide-react";
 import { applyTeamAccent, resetTeamAccent, getTeamColor } from "@/lib/team-accent";
 import { fastFade, listContainerVariants, listItemVariants, modalSpring, overlayVariants, modalPanelVariants, skeletonPulse } from "@/components/motion/premium-motion";
+import { useComms } from "@/lib/contexts/comms-context";
 
 
 
@@ -196,6 +197,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBurst, setShowBurst] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAllReplies, setShowAllReplies] = useState(false);
 
   const submitReply = async (event: FormEvent) => {
     event.preventDefault();
@@ -218,56 +220,52 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
   };
 
   return (
-    <article className="relative mt-4 flex gap-3">
-      {depth > 0 && (
-        <span 
-          className="pointer-events-none absolute -left-6 top-0 h-10 w-6 border-b-2 border-l-2 border-outline-variant/30 rounded-bl-2xl" 
-          style={{ marginLeft: `${Math.min(depth - 1, 5) * 44}px` }} 
-        />
-      )}
-      <div className="flex flex-col items-center shrink-0" style={{ marginLeft: `${Math.min(depth, 6) * 44}px` }}>
-        <button 
-          onClick={() => onUserClick(reply.profileId)}
-          className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-surface-container-high border-2 text-on-surface hover:ring-2 hover:ring-primary/40 transition-all font-headline text-xs shrink-0"
-          style={{ borderColor: reply.favTeam ? getTeamColor(reply.favTeam) : 'rgb(var(--outline-variant) / 0.3)' }}
+    <article className="flex gap-3">
+      {/* Left column: avatar + vertical thread line */}
+      <div className="flex flex-col items-center shrink-0 w-9">
+        {/* Avatar - double-wrapped to guarantee overflow clipping */}
+        <div
+          className="relative h-9 w-9 shrink-0 rounded-full overflow-hidden border-2"
+          style={{ borderColor: reply.favTeam ? getTeamColor(reply.favTeam) : 'rgba(127,127,127,0.3)' }}
         >
-          {reply.avatarUrl ? (
-            <img src={reply.avatarUrl} alt={reply.fullName} className="h-full w-full object-cover" />
-          ) : (
-            reply.username?.replace(/^@/, '')[0]?.toUpperCase()
-          )}
-        </button>
+          <button
+            onClick={() => onUserClick(reply.profileId)}
+            className="absolute inset-0 flex items-center justify-center bg-surface-container-high font-headline text-xs text-on-surface hover:opacity-80 transition-opacity"
+          >
+            {reply.avatarUrl ? (
+              <img src={reply.avatarUrl} alt={reply.fullName} className="h-full w-full object-cover" />
+            ) : (
+              <span>{reply.username?.replace(/^@/, '')[0]?.toUpperCase()}</span>
+            )}
+          </button>
+        </div>
+        {/* Vertical thread connector line under avatar */}
         {reply.replies && reply.replies.length > 0 && (
-          <div className="w-[2px] h-full bg-outline-variant/20 mt-2 rounded-full" />
+          <div className="mt-1.5 w-0.5 flex-1 min-h-4 rounded-full bg-outline-variant/25" />
         )}
       </div>
 
-      <div className="flex-1 pb-4">
-        <div className="flex items-center gap-2">
-          <button 
+      <div className="flex-1 min-w-0 pb-3">
+        {/* Header: name · handle · time · [delete] */}
+        <div className="flex items-center justify-between gap-1 min-w-0">
+          <button
             onClick={() => onUserClick(reply.profileId)}
-            className="font-bold text-sm hover:underline transition-all text-on-surface"
+            className="flex items-baseline gap-1.5 min-w-0 hover:opacity-80 transition-opacity text-left"
           >
-            {reply.fullName}
+            <span className="font-semibold text-sm text-on-surface truncate">{reply.fullName}</span>
+            <span className="text-xs text-on-surface-variant/60 truncate">@{reply.username?.replace(/^@/, '')}</span>
+            <span className="text-[10px] text-on-surface-variant/35 font-mono shrink-0 ml-0.5">{formatTimeAgo(reply.createdAt)}</span>
           </button>
-          <span className="text-sm text-on-surface-variant font-medium">
-            @{reply.username?.replace(/^@/, '')}
-          </span>
-          <span className="text-sm text-on-surface-variant/50" aria-hidden>·</span>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-on-surface-variant shrink-0">
-              {formatTimeAgo(reply.createdAt)}
-            </span>
-            {userProfile?.id === reply.profileId && (
-              <button
-                onClick={() => onReplyDelete(reply.id)}
-                className="text-on-surface-variant/40 hover:text-alert-red p-1 rounded-full hover:bg-alert-red/10 transition-colors"
-                title="Delete Reply"
-              >
-                <Trash2 className="h-3 w-3" />
-              </button>
-            )}
-          </div>
+
+          {userProfile?.id === reply.profileId && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onReplyDelete(reply.id, depth > 0); }}
+              className="text-on-surface-variant/25 hover:text-red-400 p-1.5 rounded-full hover:bg-red-400/10 transition-colors shrink-0"
+              title="Delete"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
         
         <p className="mt-1 text-sm leading-normal" style={{ color: '#0f172a' }}>{reply.message}</p>
@@ -299,17 +297,19 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
             </div>
             {reply.likes > 0 && <span>{reply.likes}</span>}
           </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            type="button"
-            onClick={() => setIsReplying((value) => !value)}
-            className="group flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-secondary transition-colors"
-          >
-             <div className="flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-secondary/10 transition-colors">
-              <MessageCircle className="h-4 w-4" />
-            </div>
-            Reply
-          </motion.button>
+          {depth === 0 && (
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={() => setIsReplying((value) => !value)}
+              className="group flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-secondary transition-colors"
+            >
+               <div className="flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-secondary/10 transition-colors">
+                <MessageCircle className="h-4 w-4" />
+              </div>
+              Reply
+            </motion.button>
+          )}
         </div>
 
         <AnimatePresence>
@@ -396,20 +396,35 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
           )}
         </AnimatePresence>
 
-        {reply.replies?.map((nestedReply) => (
-          <ReplyNode
-            key={nestedReply.id}
-            reply={nestedReply}
-            depth={depth + 1}
-            onReplySubmit={onReplySubmit}
-            onReplyLike={onReplyLike}
-            onReplyDelete={onReplyDelete}
-            onUserClick={onUserClick}
-            userLikedReplies={userLikedReplies}
-            userProfile={userProfile}
-            uploadReplyImage={uploadReplyImage}
-          />
-        ))}
+        {/* Nested replies — indented with a left border line (Twitter-style) */}
+        {reply.replies && reply.replies.length > 0 && (
+          <div className="mt-3 space-y-0 pl-3 border-l-2 border-outline-variant/20">
+            {(showAllReplies ? reply.replies : reply.replies.slice(0, 1)).map((nestedReply) => (
+              <div key={nestedReply.id} className="pt-3">
+                <ReplyNode
+                  reply={nestedReply}
+                  depth={depth + 1}
+                  onReplySubmit={onReplySubmit}
+                  onReplyLike={onReplyLike}
+                  onReplyDelete={onReplyDelete}
+                  onUserClick={onUserClick}
+                  userLikedReplies={userLikedReplies}
+                  userProfile={userProfile}
+                  uploadReplyImage={uploadReplyImage}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!showAllReplies && reply.replies && reply.replies.length > 1 && (
+          <button
+            onClick={() => setShowAllReplies(true)}
+            className="mt-3 text-xs font-bold text-primary hover:underline ml-11"
+          >
+            Show {reply.replies.length - 1} more replies
+          </button>
+        )}
       </div>
     </article>
   );
@@ -440,131 +455,20 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
   const [prevThreadCount, setPrevThreadCount] = useState(0);
   const inFlightLikesRef = useState(() => new Set<string>())[0];
 
-  // --- FETCHING ---
-
-  const fetchUserProfile = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-      setUserProfile(data);
-
-      // Fetch user likes with 404 suppression
-      try {
-        const { data: threadLikes } = await supabase.from('comms_thread_likes').select('thread_id').eq('profile_id', user.id);
-        if (threadLikes) setUserLikedThreads(Array.from(new Set(threadLikes.map(l => l.thread_id))));
-      } catch { /* Table missing, skip */ }
-
-      try {
-        const { data: replyLikes } = await supabase.from('comms_reply_likes').select('reply_id').eq('profile_id', user.id);
-        if (replyLikes) setUserLikedReplies(Array.from(new Set(replyLikes.map(l => l.reply_id))));
-      } catch { /* Table missing, skip */ }
-    } else {
-      setUserProfile(null);
-      setUserLikedThreads([]);
-      setUserLikedReplies([]);
-    }
-  }, []);
-
-  const fetchThreads = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from('comms_threads')
-        .select(`
-          id, profile_id, message, image_url, likes_count, comments_count, created_at,
-          profiles (id, username, full_name, fav_driver, fav_team, avatar_url),
-          comms_replies (
-            id, thread_id, parent_id, message, image_url, likes_count, created_at,
-            profiles (id, username, full_name, fav_driver, fav_team, avatar_url)
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Group replies by parent_id for recursion
-      const formatReplies = (replies: RawReply[]): CommReply[] => {
-        const buildTree = (parentId: string | null): CommReply[] => {
-          return replies
-            .filter(r => r.parent_id === parentId)
-            .map(r => {
-              const replyProfile = pickProfile(r.profiles);
-              return ({
-              id: r.id,
-              profileId: replyProfile.id,
-              username: replyProfile.username,
-              fullName: replyProfile.full_name,
-              favDriver: replyProfile.fav_driver,
-              favTeam: replyProfile.fav_team,
-              avatarUrl: replyProfile.avatar_url,
-              message: r.message,
-              imageUrl: r.image_url?.startsWith('blob:') ? undefined : (r.image_url ?? undefined),
-              likes: r.likes_count,
-              createdAt: r.created_at,
-              replies: buildTree(r.id)
-              });
-            });
-        };
-        return buildTree(null);
-      };
-
-      const formatted: CommThread[] = ((data ?? []) as RawThread[]).map(t => {
-        const threadProfile = pickProfile(t.profiles);
-        return ({
-        id: t.id,
-        profileId: t.profile_id,
-        username: threadProfile.username,
-        fullName: threadProfile.full_name,
-        favDriver: threadProfile.fav_driver,
-        favTeam: threadProfile.fav_team,
-        avatarUrl: threadProfile.avatar_url,
-        message: t.message,
-        imageUrl: t.image_url?.startsWith('blob:') ? undefined : (t.image_url ?? undefined),
-        likes: t.likes_count,
-        // Derive comment count from the actual reply tree so it never drifts to 0.
-        comments: countReplies(formatReplies(t.comms_replies || [])),
-        createdAt: t.created_at,
-        replies: formatReplies(t.comms_replies || [])
-        });
-      });
-
-      setThreads(formatted);
-    } catch (err) {
-      console.error("Error fetching threads:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { threads: globalThreads, loading: globalLoading, userProfile: globalProfile, userLikedThreads: globalLikedThreads, userLikedReplies: globalLikedReplies, refreshData } = useComms();
 
   useEffect(() => {
-    fetchThreads();
-    fetchUserProfile();
+    setThreads(globalThreads);
+    setLoading(globalLoading);
+  }, [globalThreads, globalLoading]);
 
-    // ðŸ“¡ Real-time Subscription
-    const channel = supabase
-      .channel('paddock-threads')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'comms_threads' }, 
-        () => fetchThreads()
-      )
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'profiles' },
-        () => fetchUserProfile()
-      )
-      .subscribe();
+  useEffect(() => {
+    setUserProfile(globalProfile);
+    setUserLikedThreads(globalLikedThreads);
+    setUserLikedReplies(globalLikedReplies);
+  }, [globalProfile, globalLikedThreads, globalLikedReplies]);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      fetchUserProfile();
-    });
-
-    return () => {
-      supabase.removeChannel(channel);
-      subscription.unsubscribe();
-    };
-  }, [fetchThreads, fetchUserProfile]);
+  // --- OPTIMISTIC UPDATES & EVENT HANDLERS ---
 
   const filtered = useMemo(() => {
     if (!query) return threads;
@@ -618,30 +522,61 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
 
   // --- MUTATIONS ---
   
+  // Permission model:
+  // - Thread owner (user1): deletes the entire thread + all replies + all likes
+  // - Main reply owner (user2): deletes their reply + all nested replies under it  
+  // - Nested reply owner (user3/4): deletes only their own leaf reply
+  // All deletions go through SECURITY DEFINER RPCs to bypass RLS cross-user restrictions.
+
   const deleteThread = async (id: string) => {
-    if (!confirm("CONFIRM SIGNAL TERMINATION? THIS ACTION IS PERMANENT.")) return;
+    if (!userProfile) return;
+    if (!confirm("Delete this entire thread and all replies? This cannot be undone.")) return;
     
-    const { error } = await supabase
-      .from("comms_threads")
-      .delete()
-      .eq("id", id);
+    // Use RPC (SECURITY DEFINER) to bypass RLS: it verifies ownership server-side
+    const { error } = await supabase.rpc('delete_comm_thread', {
+      p_thread_id: id,
+      p_profile_id: userProfile.id
+    });
     
     if (error) {
-      console.error("Error deleting thread:", error);
-    } else {
-      fetchThreads();
-      if (selectedThreadId === id) closeThreadDetail();
+      console.error('deleteThread RPC error:', error);
+      if (error.message?.includes('function') || error.code === 'PGRST202') {
+        alert('SQL Setup Required. Please run the delete_comm_thread() function script in your Supabase SQL Editor.');
+      } else {
+        alert(`Delete failed: ${error.message}`);
+      }
+      return;
     }
+    
+    refreshData();
+    if (selectedThreadId === id) closeThreadDetail();
   };
 
-  const deleteReply = async (replyId: string) => {
-    if (!confirm("PURGE THIS DATA PACKET? THIS ACTION IS PERMANENT.")) return;
-    const { error } = await supabase.from("comms_replies").delete().eq("id", replyId);
+  const deleteReply = async (replyId: string, isNested: boolean = false) => {
+    if (!userProfile) return;
+    const confirmMsg = isNested
+      ? 'Delete this reply?'
+      : 'Delete this reply and all nested replies under it?';
+    if (!confirm(confirmMsg)) return;
+    
+    // Use RPC (SECURITY DEFINER) to bypass RLS.
+    // The function is responsible for checking ownership and deleting the whole subtree.
+    const { error } = await supabase.rpc('delete_comm_reply', {
+      p_reply_id: replyId,
+      p_profile_id: userProfile.id
+    });
+    
     if (error) {
-      console.error("Error purging reply:", error);
-    } else {
-      fetchThreads();
+      console.error('deleteReply RPC error:', error);
+      if (error.message?.includes('function') || error.code === 'PGRST202') {
+        alert('SQL Setup Required. Please run the delete_comm_reply() function script in your Supabase SQL Editor.');
+      } else {
+        alert(`Delete failed: ${error.message}`);
+      }
+      return;
     }
+    
+    refreshData();
   };
 
   const handleUserClick = useCallback((profileId: string) => {
@@ -740,7 +675,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
 
     if (error) console.error("Error transmitting reply:", error);
     // Always refetch after post to reconcile ids + server counts.
-    fetchThreads();
+    refreshData();
   };
 
   const uploadReplyImage = async (file: File): Promise<string | null> => {
@@ -790,22 +725,9 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
 
     try {
       if (intendedToLike) {
-        const { error: insertErr } = await supabase.from('comms_thread_likes').insert({ thread_id: threadId, profile_id: userProfile.id });
-        if (!insertErr || insertErr.code === '23505') {
-          // Count true likes from the junction table
-          const { count } = await supabase.from('comms_thread_likes').select('*', { count: 'exact', head: true }).eq('thread_id', threadId);
-          if (count !== null) {
-            await supabase.from('comms_threads').update({ likes_count: count }).eq('id', threadId);
-          }
-        } else { throw insertErr; }
+        await supabase.from('comms_thread_likes').insert({ thread_id: threadId, profile_id: userProfile.id });
       } else {
-        const { error: delErr } = await supabase.from('comms_thread_likes').delete().eq('thread_id', threadId).eq('profile_id', userProfile.id);
-        if (!delErr) {
-          const { count } = await supabase.from('comms_thread_likes').select('*', { count: 'exact', head: true }).eq('thread_id', threadId);
-          if (count !== null) {
-            await supabase.from('comms_threads').update({ likes_count: count }).eq('id', threadId);
-          }
-        } else { throw delErr; }
+        await supabase.from('comms_thread_likes').delete().eq('thread_id', threadId).eq('profile_id', userProfile.id);
       }
     } catch (e) {
       console.error('Error toggling thread like:', e);
@@ -813,6 +735,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
       setThreads((prev) => prev.map((t) => (t.id === threadId ? { ...t, likes: Math.max(0, t.likes + (!intendedToLike ? 1 : -1)) } : t)));
     } finally {
       inFlightLikesRef.delete(lockKey);
+      refreshData();
     }
   };
 
@@ -846,21 +769,9 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
 
     try {
       if (intendedToLike) {
-        const { error: insertErr } = await supabase.from('comms_reply_likes').insert({ reply_id: replyId, profile_id: userProfile.id });
-        if (!insertErr || insertErr.code === '23505') {
-          const { count } = await supabase.from('comms_reply_likes').select('*', { count: 'exact', head: true }).eq('reply_id', replyId);
-          if (count !== null) {
-            await supabase.from('comms_replies').update({ likes_count: count }).eq('id', replyId);
-          }
-        } else { throw insertErr; }
+        await supabase.from('comms_reply_likes').insert({ reply_id: replyId, profile_id: userProfile.id });
       } else {
-        const { error: delErr } = await supabase.from('comms_reply_likes').delete().eq('reply_id', replyId).eq('profile_id', userProfile.id);
-        if (!delErr) {
-          const { count } = await supabase.from('comms_reply_likes').select('*', { count: 'exact', head: true }).eq('reply_id', replyId);
-          if (count !== null) {
-            await supabase.from('comms_replies').update({ likes_count: count }).eq('id', replyId);
-          }
-        } else { throw delErr; }
+        await supabase.from('comms_reply_likes').delete().eq('reply_id', replyId).eq('profile_id', userProfile.id);
       }
     } catch (e) {
       console.error('Error toggling reply like:', e);
@@ -872,6 +783,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
       );
     } finally {
       inFlightLikesRef.delete(lockKey);
+      refreshData();
     }
   };
 
@@ -941,7 +853,6 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
         </div>
 
         <motion.div
-          layout
           className="grid grid-cols-1 gap-4 md:grid-cols-2 md:grid-flow-dense"
           variants={listContainerVariants}
           initial="hidden"
@@ -958,8 +869,6 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
               const isSelectedCard = selectedThreadId === thread.id && rightPanelMode === "detail";
               return (
               <motion.div
-                layoutId={`thread-card-${thread.id}`}
-                layout
                 key={thread.id}
                 variants={listItemVariants}
                 whileTap={{ scale: 0.98 }}
@@ -1104,22 +1013,21 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
       <aside
         className={`col-span-12 mx-auto w-full max-w-2xl xl:col-span-4 xl:max-w-none ${
           !!selectedThreadId
-            ? "fixed inset-0 z-[60] p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:relative xl:inset-auto xl:z-auto xl:p-0 pointer-events-none"
+            ? "fixed inset-0 z-[60] bg-background/90 p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:relative xl:inset-auto xl:z-auto xl:bg-transparent xl:p-0"
             : "relative"
         }`}
+        onClick={!!selectedThreadId ? closeThreadDetail : undefined}
       >
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {selectedThread ? (
             <motion.div
-              layoutId={`thread-card-${selectedThread.id}`}
-              layout
               key={selectedThread.id}
               variants={modalPanelVariants}
               initial="initial"
               animate="animate"
               exit="exit"
               transition={modalSpring}
-              className="dashboard-panel premium-scrollbar pointer-events-auto h-[calc(100dvh-7rem)] overflow-y-auto rounded-card p-4 sm:p-5 xl:h-auto xl:overflow-visible bg-surface xl:bg-transparent"
+              className="dashboard-panel premium-scrollbar h-[calc(100dvh-7rem)] overflow-y-auto rounded-card p-4 sm:p-5 xl:h-auto xl:overflow-visible"
               onClick={(event) => event.stopPropagation()}
             >
             <div className="flex items-center justify-between border-b border-outline-variant/20 pb-3">
@@ -1221,6 +1129,13 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   </div>
                   {selectedThread.likes > 0 && <span className={userLikedThreads.includes(selectedThread.id) ? "text-primary font-medium" : ""}>{selectedThread.likes}</span>}
                 </motion.button>
+
+                <div className="group flex items-center gap-2 text-sm text-on-surface-variant">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full">
+                    <MessageCircle className="h-5 w-5" />
+                  </div>
+                  {selectedThread.comments > 0 && <span>{selectedThread.comments}</span>}
+                </div>
 
                 <motion.button
                   whileTap={{ scale: 0.95 }}
@@ -1387,7 +1302,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                             fav_team: userProfile.fav_team
                           }}
                           onSuccess={() => {
-                            fetchThreads();
+                            refreshData();
                             closeCreateOverlay();
                           }}
                         />
