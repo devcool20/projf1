@@ -152,8 +152,74 @@ export type ScreeningEvent = {
   organiser: string;
   details: string;
   foodAndDrinks: string[];
+  availability: string[];
+  foodTiming: string;
+  screeningTiming: string;
+  capacityAllocation: Record<string, number>;
+  mapAsset: string | null;
+  houseRules: string;
+  contactInfo: string;
   totalSeats: number;
   bookedSeats: number;
+};
+
+export type ScreeningEventRow = {
+  id: string;
+  title: string;
+  city: string;
+  starts_at: string;
+  entry_fee: number;
+  venue: string;
+  address: string;
+  organiser: string;
+  details: string;
+  food_and_drinks: string[];
+  availability: string[] | null;
+  food_timing: string | null;
+  screening_timing: string | null;
+  capacity_allocation: Record<string, number> | null;
+  map_asset: string | null;
+  house_rules: string | null;
+  contact_info: string | null;
+  total_seats: number;
+  booked_seats: number;
+};
+
+export type ScreeningBookingRow = {
+  id: string;
+  screening_id: string;
+  profile_id: string;
+  seat_count: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ScreeningVenueRow = {
+  id: string;
+  screening_id: string;
+  name: string;
+  city: string;
+  address: string;
+  capacity: number;
+  booked_seats: number;
+  entry_fee: number;
+  screen_size: string | null;
+  photo_url: string | null;
+  screening_timing: string | null;
+  food_timing: string | null;
+  availability: string[] | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ScreeningVenueBookingRow = {
+  id: string;
+  venue_id: string;
+  profile_id: string;
+  seat_count: number;
+  created_at: string;
+  updated_at: string;
 };
 
 export type ApiDriverStanding = {
