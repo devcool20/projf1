@@ -6,12 +6,9 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { DashboardProfileModal, PremiumProfileTrigger } from "@/components/dashboard/dashboard-profile-modal";
 import {
-  Radio,
-  Target,
   Heart,
   MessageCircle,
   Clock,
-  Flag,
   Trophy,
   Users,
   ChevronRight,
@@ -298,8 +295,6 @@ export default function DashboardPage() {
         transition={{ duration: 0.15 }}
         className="surface-ink relative w-full overflow-hidden p-6 sm:p-7"
       >
-        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-violet-500/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-white/4 blur-2xl" />
         <div className="relative z-10">
           <div className="flex items-center gap-2">
             <Wifi className="h-3.5 w-3.5 text-zinc-500" />
@@ -327,9 +322,6 @@ export default function DashboardPage() {
             <div className="dashboard-panel flex h-full flex-col p-5 transition hover:border-primary/35">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/12">
-                    <Radio className="h-3.5 w-3.5 text-primary" />
-                  </div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
                     Top Thread
                   </p>
@@ -388,9 +380,6 @@ export default function DashboardPage() {
             <div className="dashboard-panel flex h-full flex-col p-5 transition hover:border-secondary/35">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-secondary/12">
-                    <Target className="h-3.5 w-3.5 text-secondary" />
-                  </div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-secondary">
                     Top Prediction
                   </p>
@@ -445,12 +434,12 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
   return (
     <div className="dashboard-panel relative flex h-full flex-col overflow-hidden rounded-[24px] p-5 text-on-surface transition hover:scale-[1.005]">
       {mapSrc ? (
-        <div className="pointer-events-none absolute right-0 top-1 h-44 w-72 opacity-95 sm:right-1 sm:top-0 sm:h-48 sm:w-80">
+        <div className="pointer-events-none absolute right-2 top-9 h-24 w-40 opacity-95 sm:right-1 sm:top-0 sm:h-48 sm:w-80">
           <Image
             src={mapSrc}
             alt={`${race.circuit} circuit map`}
             fill
-            sizes="(max-width: 640px) 288px, 320px"
+            sizes="(max-width: 640px) 160px, 320px"
             className="object-contain brightness-[0.35] contrast-[1.9] saturate-0"
           />
           <div className="absolute inset-0 bg-linear-to-l from-transparent via-white/0 to-transparent" />
@@ -459,9 +448,6 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
       <div className="pointer-events-none absolute right-0 top-0 h-36 w-36 rounded-full bg-violet-300/20 blur-3xl" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className={`flex h-7 w-7 items-center justify-center rounded ${isRaceWeekend ? "bg-alert-red/15" : "bg-primary/12"}`}>
-            <Flag className={`h-3.5 w-3.5 ${isRaceWeekend ? "text-alert-red" : "text-primary"}`} />
-          </div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
             {isRaceWeekend ? "Race Weekend Live" : "Next Race"}
           </p>
@@ -479,7 +465,7 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
 
       <div className="mt-4 flex-1">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 pr-36 sm:pr-64">
+          <div className="min-w-0 pr-24 sm:pr-64">
             <div className="flex items-center gap-2">
               <h3 className="font-headline text-lg font-semibold text-on-surface">{race.name}</h3>
             </div>

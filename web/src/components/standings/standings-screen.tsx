@@ -189,24 +189,25 @@ export function StandingsScreen({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={fastFade}
+      className="overflow-x-hidden"
     >
       {/* Header */}
-      <div className="mb-5 flex items-end justify-between border-b border-white/15 pb-3">
-        <div>
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-2 border-b border-white/15 pb-3">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <Wifi className="h-3 w-3 text-secondary" />
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-secondary">
               Live from Paddock Data Agent
             </p>
           </div>
-          <h2 className="mt-1 font-headline text-3xl font-bold">Championship Standings</h2>
+          <h2 className="mt-1 font-headline text-3xl font-bold leading-tight sm:text-4xl">Championship Standings</h2>
           <p className="mt-0.5 font-mono text-[10px] text-on-surface-variant">
             2026 Season — {drivers.length} drivers — {teams.length} constructors
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           {fetchedAt && (
-            <div className="flex items-center gap-1 font-mono text-[10px] text-on-surface-variant">
+            <div className="hidden items-center gap-1 font-mono text-[10px] text-on-surface-variant sm:flex">
               <Clock className="h-3 w-3" />
               {formatFetchedClock(fetchedAt)}
             </div>
@@ -215,7 +216,7 @@ export function StandingsScreen({
             type="button"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="btn-premium btn-outline-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-on-surface-variant transition disabled:opacity-50"
+            className="btn-premium btn-outline-glass flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wider text-on-surface-variant transition disabled:opacity-50 sm:px-3"
           >
             <RefreshCw className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} />
             Refresh

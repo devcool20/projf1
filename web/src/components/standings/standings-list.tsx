@@ -29,7 +29,7 @@ export function StandingsList({ drivers, selectedCode, onSelect, onOpenDriver, l
   }, []);
 
   return (
-    <section className="dashboard-panel relative mt-5 overflow-hidden rounded-[24px]">
+    <section className="card-surface relative mt-5 overflow-hidden rounded-[24px]">
       <div className="grid grid-cols-[2.4rem_minmax(0,1fr)_3.8rem] gap-x-2 border-b border-white/15 px-3 py-2 sm:grid-cols-[2.8rem_minmax(0,1fr)_11rem_4.6rem] sm:px-4">
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">POS</span>
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant min-w-0">DRIVER</span>
@@ -62,8 +62,8 @@ export function StandingsList({ drivers, selectedCode, onSelect, onOpenDriver, l
               onPointerLeave={handlePointerLeave}
               className={`group relative grid w-full grid-cols-[2.4rem_minmax(0,1fr)_3.8rem] items-center gap-x-2 px-3 py-2.5 text-left transition-all sm:grid-cols-[2.8rem_minmax(0,1fr)_11rem_4.6rem] sm:px-4 ${
                 isSelected
-                  ? "border-l-2 border-l-secondary bg-white/10"
-                  : "border-l-2 border-l-transparent hover:bg-white/8"
+                  ? "border-l-2 border-l-secondary bg-slate-100/95"
+                  : "border-l-2 border-l-transparent hover:bg-slate-100/75"
               }`}
               style={{ boxShadow: hoveredCode === driver.driverCode ? `inset 0 0 0 1px ${tc.accent}30` : undefined }}
             >
