@@ -6,12 +6,12 @@ import { supabase } from "@/lib/supabase";
 import { AnimatePresence, motion } from "framer-motion";
 import { FormEvent, useEffect, useMemo, useState, useCallback, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { CreateThreadPanel } from "./create-thread-panel";
 import { UserDetailPanel } from "./user-detail-panel";
-import { Trash2, Heart, MessageCircle, Signal, Shield, ChevronLeft, Send, Image as ImageIcon, X, User, Share2, Plus, ImagePlus, Loader2 } from "lucide-react";
+import { Trash2, Heart, MessageCircle, Signal, Shield, ChevronLeft, Send, Image as ImageIcon, X, User, Share2, Plus, ImagePlus, Loader2, Bookmark } from "lucide-react";
 import { applyTeamAccent, resetTeamAccent, getTeamColor } from "@/lib/team-accent";
-import { fastFade, listContainerVariants, listItemVariants, modalSpring, overlayVariants, modalPanelVariants, skeletonPulse } from "@/components/motion/premium-motion";
+import { fastFade, listContainerVariants, listItemVariants, modalSpring, overlayVariants, modalPanelVariants } from "@/components/motion/premium-motion";
 import { useComms } from "@/lib/contexts/comms-context";
 
 
@@ -69,7 +69,8 @@ type RawReply = {
   parent_id: string | null;
   message: string;
   image_url: string | null;
-  likes_count: number;
+  likes_count?: number;
+  comms_reply_likes?: { count: number }[] | null;
   created_at: string;
   profiles: RawProfile | RawProfile[] | null;
 };
@@ -79,8 +80,9 @@ type RawThread = {
   profile_id: string;
   message: string;
   image_url: string | null;
-  likes_count: number;
-  comments_count: number;
+  likes_count?: number;
+  comments_count?: number;
+  comms_thread_likes?: { count: number }[] | null;
   created_at: string;
   profiles: RawProfile | RawProfile[] | null;
   comms_replies: RawReply[] | null;
@@ -112,6 +114,56 @@ function addReplyToTree(replies: CommReply[], parentId: string | null, newReply:
     if (!r.replies?.length) return r;
     return { ...r, replies: addReplyToTree(r.replies, parentId, newReply) };
   });
+}
+
+function formatRepliesFromRaw(replies: RawReply[]): CommReply[] {
+  const buildTree = (parentId: string | null): CommReply[] =>
+    replies
+      .filter((reply) => reply.parent_id === parentId)
+      .map((reply) => {
+        const profile = pickProfile(reply.profiles);
+        return {
+          id: reply.id,
+          profileId: profile.id,
+          username: profile.username,
+          fullName: profile.full_name,
+          favDriver: profile.fav_driver,
+          favTeam: profile.fav_team,
+          avatarUrl: profile.avatar_url,
+          message: reply.message,
+          imageUrl: reply.image_url?.startsWith("blob:") ? undefined : (reply.image_url ?? undefined),
+          likes: reply.comms_reply_likes?.[0]?.count ?? reply.likes_count ?? 0,
+          createdAt: reply.created_at,
+          replies: buildTree(reply.id),
+        };
+      });
+
+  return buildTree(null);
+}
+
+function mapRawThreadToCommThread(rawThread: RawThread): CommThread {
+  const profile = pickProfile(rawThread.profiles);
+  const replies = formatRepliesFromRaw(rawThread.comms_replies ?? []);
+  return {
+    id: rawThread.id,
+    profileId: rawThread.profile_id,
+    username: profile.username,
+    fullName: profile.full_name,
+    favDriver: profile.fav_driver,
+    favTeam: profile.fav_team,
+    avatarUrl: profile.avatar_url,
+    message: rawThread.message,
+    imageUrl: rawThread.image_url?.startsWith("blob:") ? undefined : (rawThread.image_url ?? undefined),
+    likes: rawThread.comms_thread_likes?.[0]?.count ?? rawThread.likes_count ?? 0,
+    comments: countReplies(replies),
+    createdAt: rawThread.created_at,
+    replies,
+  };
+}
+
+function getDisplayMessage(message: string | null | undefined): string {
+  const normalized = typeof message === "string" ? message.trim() : "";
+  return normalized.length > 0 ? message! : "No content provided";
 }
 
 type ReplyNodeProps = {
@@ -166,6 +218,45 @@ function ExpandableText({ text, lineClamp = 3 }: { text: string; lineClamp?: num
           Show less
         </motion.button>
       )}
+    </div>
+  );
+}
+
+function ImageWithLoader({
+  src,
+  alt,
+  className = "",
+  containerClass = "",
+  onClick,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  containerClass?: string;
+  onClick?: React.MouseEventHandler<HTMLImageElement>;
+}) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  return (
+    <div className={`relative overflow-hidden ${containerClass}`}>
+      {!isLoaded && !isError && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-container-low">
+          <Loader2 className="h-4 w-4 animate-spin text-on-surface-variant" />
+        </div>
+      )}
+
+      <img
+        key={src}
+        src={src}
+        alt={alt}
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setIsError(true)}
+        onClick={onClick}
+        className={`${className} ${isLoaded ? "opacity-100" : "opacity-0"} transition-opacity`}
+      />
+
+      {isError && <div className="absolute inset-0 z-20 flex items-center justify-center text-xs text-on-surface-variant">Image unavailable</div>}
     </div>
   );
 }
@@ -233,7 +324,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
             className="absolute inset-0 flex items-center justify-center bg-surface-container-high font-headline text-xs text-on-surface hover:opacity-80 transition-opacity"
           >
             {reply.avatarUrl ? (
-              <img src={reply.avatarUrl} alt={reply.fullName} className="h-full w-full object-cover" />
+              <ImageWithLoader src={reply.avatarUrl} alt={reply.fullName} className="h-full w-full object-cover" containerClass="h-full w-full" />
             ) : (
               <span>{reply.username?.replace(/^@/, '')[0]?.toUpperCase()}</span>
             )}
@@ -252,15 +343,15 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
             onClick={() => onUserClick(reply.profileId)}
             className="flex items-baseline gap-1.5 min-w-0 hover:opacity-80 transition-opacity text-left"
           >
-            <span className="font-semibold text-sm text-on-surface truncate">{reply.fullName}</span>
-            <span className="text-xs text-on-surface-variant/60 truncate">@{reply.username?.replace(/^@/, '')}</span>
-            <span className="text-[10px] text-on-surface-variant/35 font-mono shrink-0 ml-0.5">{formatTimeAgo(reply.createdAt)}</span>
+            <span className="font-semibold text-sm text-slate-900 truncate">{reply.fullName}</span>
+            <span className="text-xs text-slate-700 truncate">@{reply.username?.replace(/^@/, '')}</span>
+            <span className="text-[10px] text-slate-600 font-mono shrink-0 ml-0.5">{formatTimeAgo(reply.createdAt)}</span>
           </button>
 
           {userProfile?.id === reply.profileId && (
             <button
               onClick={(e) => { e.stopPropagation(); onReplyDelete(reply.id, depth > 0); }}
-              className="text-on-surface-variant/25 hover:text-red-400 p-1.5 rounded-full hover:bg-red-400/10 transition-colors shrink-0"
+              className="text-on-surface-variant/85 hover:text-red-400 p-1.5 rounded-full hover:bg-red-400/10 transition-colors shrink-0"
               title="Delete"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -268,14 +359,15 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
           )}
         </div>
         
-        <p className="mt-1 text-sm leading-normal" style={{ color: '#0f172a' }}>{reply.message}</p>
+        <p className="mt-1 text-sm font-medium leading-normal !text-slate-600">{getDisplayMessage(reply.message)}</p>
 
         {reply.imageUrl && (
           <div className="relative mt-3 w-full overflow-hidden rounded-xl border border-outline-variant/25 bg-surface-dim">
-            <img 
-               src={reply.imageUrl} 
-               alt="Reply attachment" 
-               className="w-full h-auto object-contain max-h-60" 
+            <ImageWithLoader
+              src={reply.imageUrl}
+              alt="Reply attachment"
+              containerClass="relative"
+              className="w-full h-auto object-contain max-h-60"
             />
           </div>
         )}
@@ -329,7 +421,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
                       style={{ borderColor: userProfile?.fav_team ? getTeamColor(userProfile.fav_team) : 'rgb(var(--outline-variant) / 0.3)' }}
                     >
                       {userProfile?.avatar_url ? (
-                        <img src={userProfile.avatar_url} alt={userProfile.username} className="h-full w-full object-cover" />
+                        <ImageWithLoader src={userProfile.avatar_url} alt={userProfile.username} className="h-full w-full object-cover" containerClass="h-full w-full" />
                       ) : (
                         userProfile?.username?.replace(/^@/, '')[0]?.toUpperCase() || <User className="h-4 w-4" />
                       )}
@@ -360,7 +452,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
                       <button 
                         type="button" 
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-2 text-on-surface-variant/60 hover:text-secondary transition-colors"
+                        className="p-2 text-on-surface-variant hover:text-secondary transition-colors"
                       >
                         <ImagePlus className="h-5 w-5" />
                       </button>
@@ -369,7 +461,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
 
                   {replyImagePreview && (
                     <div className="relative w-full overflow-hidden rounded-xl border border-outline-variant/30 max-w-[200px]">
-                      <img src={replyImagePreview} alt="Preview" className="w-full h-auto max-h-40 object-cover" />
+                      <ImageWithLoader src={replyImagePreview} alt="Preview" className="w-full h-auto max-h-40 object-cover" containerClass="relative" />
                       <button
                         type="button"
                         onClick={() => { setReplyImageFile(null); setReplyImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
@@ -434,7 +526,6 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
   const portalMounted = useSyncExternalStore(portalSubscribe, () => true, () => false);
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [threads, setThreads] = useState<CommThread[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedThreadId, setSelectedThreadId] = useState(initialThreadId);
@@ -448,14 +539,34 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
   const [userLikedThreads, setUserLikedThreads] = useState<string[]>([]);
   const [userLikedReplies, setUserLikedReplies] = useState<string[]>([]);
+  const [userBookmarkedThreads, setUserBookmarkedThreads] = useState<string[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [likeBurstThread, setLikeBurstThread] = useState<string | null>(null);
   const [transmitPulse, setTransmitPulse] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [prevThreadCount, setPrevThreadCount] = useState(0);
+  const [isRefreshingNewComms, setIsRefreshingNewComms] = useState(false);
+  const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
+  const [isLoadingBookmarkThreads, setIsLoadingBookmarkThreads] = useState(false);
+  const loadMoreSentinelRef = useRef<HTMLDivElement | null>(null);
   const inFlightLikesRef = useState(() => new Set<string>())[0];
+  const inFlightBookmarksRef = useState(() => new Set<string>())[0];
+  const [isMobileView, setIsMobileView] = useState(false);
 
-  const { threads: globalThreads, loading: globalLoading, userProfile: globalProfile, userLikedThreads: globalLikedThreads, userLikedReplies: globalLikedReplies, refreshData } = useComms();
+  const {
+    threads: globalThreads,
+    loading: globalLoading,
+    hasMoreThreads,
+    isLoadingMoreThreads,
+    hasPendingNewComms,
+    pendingNewCommsCount,
+    userProfile: globalProfile,
+    userLikedThreads: globalLikedThreads,
+    userLikedReplies: globalLikedReplies,
+    userBookmarkedThreads: globalBookmarkedThreads,
+    loadMoreThreads,
+    refreshThreads,
+    clearPendingNewComms,
+  } = useComms();
 
   useEffect(() => {
     setThreads(globalThreads);
@@ -466,7 +577,29 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
     setUserProfile(globalProfile);
     setUserLikedThreads(globalLikedThreads);
     setUserLikedReplies(globalLikedReplies);
-  }, [globalProfile, globalLikedThreads, globalLikedReplies]);
+    setUserBookmarkedThreads(globalBookmarkedThreads);
+  }, [globalBookmarkedThreads, globalLikedReplies, globalLikedThreads, globalProfile]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const updateMatch = (matches: boolean) => {
+      setIsMobileView(Boolean(matches));
+    };
+
+    const onMatch = (event: MediaQueryListEvent) => {
+      updateMatch(event.matches);
+    };
+
+    updateMatch(mq.matches);
+
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", onMatch);
+      return () => mq.removeEventListener("change", onMatch);
+    }
+
+    mq.addListener(onMatch);
+    return () => mq.removeListener(onMatch);
+  }, []);
 
   // --- OPTIMISTIC UPDATES & EVENT HANDLERS ---
 
@@ -484,14 +617,20 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
 
   const syncThreadUrl = useCallback(
     (threadId: string | null, mode: "push" | "replace" = "push") => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
       if (threadId) params.set("t", threadId);
       else params.delete("t");
       const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+      // Mobile: avoid App Router query churn that can cause drawer jitter.
+      if (isMobileView && typeof window !== "undefined") {
+        if (mode === "replace") window.history.replaceState({}, "", nextUrl);
+        else window.history.pushState({}, "", nextUrl);
+        return;
+      }
       if (mode === "replace") router.replace(nextUrl, { scroll: false });
       else router.push(nextUrl, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [isMobileView, pathname, router],
   );
 
   const closeThreadDetail = useCallback(() => {
@@ -513,12 +652,17 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
   }, [selectedThreadId, selectedProfileId]);
 
   useEffect(() => {
-    const t = searchParams.get("t") ?? "";
-    if (t !== selectedThreadId) {
-      setSelectedThreadId(t);
-      if (t) setRightPanelMode("detail");
-    }
-  }, [searchParams, selectedThreadId]);
+    const syncFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      const threadId = params.get("t") ?? "";
+      setSelectedThreadId((current) => (current === threadId ? current : threadId));
+      if (threadId) setRightPanelMode("detail");
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, []);
 
   // --- MUTATIONS ---
   
@@ -548,7 +692,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
       return;
     }
     
-    refreshData();
+    void refreshThreads({ silent: true, keepPending: true });
     if (selectedThreadId === id) closeThreadDetail();
   };
 
@@ -576,7 +720,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
       return;
     }
     
-    refreshData();
+    void refreshThreads({ silent: true, keepPending: true });
   };
 
   const handleUserClick = useCallback((profileId: string) => {
@@ -605,30 +749,38 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
   }, [isCreateOpen]);
 
   useEffect(() => {
-    if (prevThreadCount === 0) {
-      setPrevThreadCount(threads.length);
-      return;
+    if (query.trim()) return;
+    if (!hasMoreThreads) return;
+    if (isLoadingMoreThreads) return;
+    const sentinel = loadMoreSentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry?.isIntersecting) {
+          void loadMoreThreads();
+        }
+      },
+      { rootMargin: "240px 0px 240px 0px", threshold: 0.1 },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMoreThreads, isLoadingMoreThreads, loadMoreThreads, query, filtered.length]);
+
+  const refreshForNewComms = useCallback(async () => {
+    if (isRefreshingNewComms) return;
+    setIsRefreshingNewComms(true);
+    try {
+      await refreshThreads({ silent: true, keepPending: false });
+      clearPendingNewComms();
+      setToast("Comms refreshed");
+      setTimeout(() => setToast(null), 1300);
+    } finally {
+      setIsRefreshingNewComms(false);
     }
-    if (threads.length > prevThreadCount) {
-      setToast("New transmission received");
-      setTimeout(() => setToast(null), 1800);
-      try {
-        const WinAudio = window as Window & { webkitAudioContext?: typeof AudioContext };
-        const Ctx = window.AudioContext ?? WinAudio.webkitAudioContext;
-        if (!Ctx) return;
-        const audioCtx = new Ctx();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.frequency.value = 620;
-        gain.gain.value = 0.03;
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.09);
-      } catch {}
-    }
-    setPrevThreadCount(threads.length);
-  }, [threads.length, prevThreadCount]);
+  }, [clearPendingNewComms, isRefreshingNewComms, refreshThreads]);
 
   const addReply = async (threadId: string, parentReplyId: string | null, message: string, imageUrl?: string) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -675,7 +827,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
 
     if (error) console.error("Error transmitting reply:", error);
     // Always refetch after post to reconcile ids + server counts.
-    refreshData();
+    void refreshThreads({ silent: true, keepPending: true });
   };
 
   const uploadReplyImage = async (file: File): Promise<string | null> => {
@@ -738,7 +890,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
       setThreads((prev) => prev.map((t) => (t.id === threadId ? { ...t, likes: Math.max(0, t.likes + (!intendedToLike ? 1 : -1)) } : t)));
     } finally {
       inFlightLikesRef.delete(lockKey);
-      refreshData();
+      // Keep optimistic thread state and avoid refetch flicker.
     }
   };
 
@@ -787,12 +939,106 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
       );
     } finally {
       inFlightLikesRef.delete(lockKey);
-      refreshData();
+      // Keep optimistic reply state and avoid refetch flicker.
     }
   };
 
+  const toggleBookmarkThread = async (threadId: string) => {
+    if (!userProfile) return;
+    const targetThread = threads.find((thread) => thread.id === threadId);
+    if (targetThread?.profileId === userProfile.id) return;
+
+    const lockKey = `bookmark:${threadId}`;
+    if (inFlightBookmarksRef.has(lockKey)) return;
+    inFlightBookmarksRef.add(lockKey);
+
+    const isBookmarkedLocally = userBookmarkedThreads.includes(threadId);
+    const intendedToBookmark = !isBookmarkedLocally;
+
+    setUserBookmarkedThreads((prev) =>
+      intendedToBookmark ? Array.from(new Set([...prev, threadId])) : prev.filter((id) => id !== threadId),
+    );
+
+    try {
+      const { error } = await supabase.rpc("handle_thread_bookmark", {
+        p_thread_id: threadId,
+        p_profile_id: userProfile.id,
+        p_intended_to_bookmark: intendedToBookmark,
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error toggling thread bookmark:", error);
+      setUserBookmarkedThreads((prev) =>
+        !intendedToBookmark ? Array.from(new Set([...prev, threadId])) : prev.filter((id) => id !== threadId),
+      );
+      setToast("Bookmark sync failed");
+      setTimeout(() => setToast(null), 1400);
+    } finally {
+      inFlightBookmarksRef.delete(lockKey);
+    }
+  };
+
+  const loadMissingBookmarkedThreads = useCallback(async () => {
+    const missingThreadIds = userBookmarkedThreads.filter((id) => !threads.some((thread) => thread.id === id));
+    if (!missingThreadIds.length) return;
+
+    setIsLoadingBookmarkThreads(true);
+    try {
+      const { data, error } = await supabase
+        .from("comms_threads")
+        .select(`
+          id, profile_id, message, image_url, created_at,
+          profiles (id, username, full_name, fav_driver, fav_team, avatar_url),
+          comms_thread_likes (count),
+          comms_replies (
+            id, thread_id, parent_id, message, image_url, created_at,
+            profiles (id, username, full_name, fav_driver, fav_team, avatar_url),
+            comms_reply_likes (count)
+          )
+        `)
+        .in("id", missingThreadIds)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      const fetchedThreads = ((data ?? []) as RawThread[]).map(mapRawThreadToCommThread);
+      if (!fetchedThreads.length) return;
+
+      setThreads((prev) => {
+        const prevIds = new Set(prev.map((thread) => thread.id));
+        const merged = [...fetchedThreads.filter((thread) => !prevIds.has(thread.id)), ...prev];
+        return merged;
+      });
+    } catch (error) {
+      console.error("Error loading bookmarked threads:", error);
+    } finally {
+      setIsLoadingBookmarkThreads(false);
+    }
+  }, [threads, userBookmarkedThreads]);
+
+  const openBookmarksOverlay = useCallback(async () => {
+    setIsBookmarksOpen(true);
+    await loadMissingBookmarkedThreads();
+  }, [loadMissingBookmarkedThreads]);
+
+  const bookmarkedThreads = useMemo(
+    () =>
+      userBookmarkedThreads
+        .map((id) => threads.find((thread) => thread.id === id))
+        .filter((thread): thread is CommThread => Boolean(thread))
+        .filter((thread) => !userProfile || thread.profileId !== userProfile.id),
+    [threads, userBookmarkedThreads, userProfile],
+  );
+
+  const openBookmarkedThread = useCallback(
+    (threadId: string) => {
+      setIsBookmarksOpen(false);
+      openThreadDetail(threadId);
+    },
+    [openThreadDetail],
+  );
+
   return (
-    <AnimatePresence mode="popLayout">
+    <AnimatePresence initial={false} mode="sync">
       {loading ? (
         <motion.div
           key="comms-loading"
@@ -800,7 +1046,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
           initial="hidden"
           animate="show"
           exit={{ opacity: 0 }}
-          className="grid gap-4 md:grid-cols-2 md:grid-flow-dense"
+          className="comms-light-theme grid gap-4 md:grid-cols-2 md:grid-flow-dense"
         >
           {[0, 1, 2, 3].map((i) => (
             <motion.div
@@ -826,11 +1072,11 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
       ) : (
     <motion.div
       key="comms-loaded"
-      initial={{ opacity: 0 }}
+      initial={false}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={fastFade}
-      className="grid grid-cols-12 gap-3 sm:gap-4"
+      className="comms-light-theme grid grid-cols-12 gap-3 sm:gap-4"
     >
       <AnimatePresence>
         {toast && (
@@ -845,21 +1091,58 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
-      <section className={`col-span-12 xl:col-span-8 ${selectedThreadId ? "hidden xl:block" : "block"}`}>
+      <section className={`col-span-12 ${selectedThreadId ? "hidden xl:block" : "block"}`}>
         <div className="mb-4 flex items-end justify-between border-b border-primary/20 pb-3">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/80">Transmission Feed</p>
-            <h2 className="font-headline text-3xl font-bold text-slate-900 tracking-tight">The Grid</h2>
+            <h2 className="font-headline text-3xl font-bold text-on-surface tracking-tight">The Grid</h2>
           </div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-            {filtered.length} active comms
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+              {filtered.length} active comms
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                void openBookmarksOverlay();
+              }}
+              className="btn-premium btn-outline-glass flex h-8 items-center gap-1.5 rounded-full px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary"
+              title="Open bookmarks"
+            >
+              <Bookmark className="h-3.5 w-3.5" />
+              Saved
+              {userBookmarkedThreads.length > 0 && (
+                <span className="rounded-full border border-primary/35 px-1.5 py-0.5 text-[9px] text-primary/90">
+                  {userBookmarkedThreads.length}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
+        {hasPendingNewComms && !query.trim() && (
+          <motion.button
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            whileTap={{ scale: 0.98 }}
+            type="button"
+            onClick={refreshForNewComms}
+            className="btn-premium btn-outline-glass mb-4 inline-flex items-center gap-2 rounded-full px-4 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary"
+          >
+            {isRefreshingNewComms ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+            Refresh for new comms
+            {pendingNewCommsCount > 0 && (
+              <span className="rounded-full border border-primary/35 px-2 py-0.5 text-[9px] text-primary/90">
+                +{pendingNewCommsCount}
+              </span>
+            )}
+          </motion.button>
+        )}
 
         <motion.div
           className="grid grid-cols-1 gap-4 md:grid-cols-2 md:grid-flow-dense"
           variants={listContainerVariants}
-          initial="hidden"
+          initial={false}
           animate="show"
         >
           {filtered.map((thread) => {
@@ -876,10 +1159,10 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                 key={thread.id}
                 variants={listItemVariants}
                 whileTap={{ scale: 0.98 }}
-                whileHover={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                whileHover={{ backgroundColor: "rgba(241,245,249,0.82)" }}
                 style={isSelectedCard ? {
-                  backgroundColor: 'rgba(30, 64, 175, 0.08)', // Subtle deep blue/navy tint
-                  boxShadow: '0 2px 12px rgba(30, 64, 175, 0.12)',
+                  backgroundColor: "rgba(237, 233, 254, 0.75)",
+                  boxShadow: "0 8px 20px rgba(99, 102, 241, 0.12)",
                 } : {}}
                 className={`card-surface group cursor-pointer transition-colors border border-outline-variant/30 ${
                   isSelectedCard ? "border-blue-500/30" : "hover:border-outline-variant/60 hover:shadow-md"
@@ -898,7 +1181,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                          style={{ borderColor: thread.favTeam ? getTeamColor(thread.favTeam) : 'rgb(var(--outline-variant) / 0.3)' }}
                        >
                          {thread.avatarUrl ? (
-                            <img src={thread.avatarUrl} alt={thread.fullName} className="h-full w-full object-cover" />
+                            <ImageWithLoader src={thread.avatarUrl} alt={thread.fullName} className="h-full w-full object-cover" containerClass="h-full w-full" />
                          ) : (
                             thread.username?.replace(/^@/, '')[0]?.toUpperCase()
                          )}
@@ -911,15 +1194,15 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                               e.stopPropagation();
                               openThreadDetail(thread.id);
                             }}
-                            className="font-bold text-sm text-on-surface hover:underline transition-colors text-left"
+                            className="font-bold text-sm text-slate-900 hover:underline transition-colors text-left"
                           >
                             {thread.fullName}
                           </button>
-                          <p className="text-sm text-on-surface-variant shrink-0">
+                          <p className="text-sm font-semibold text-slate-700 shrink-0">
                             @{thread.username?.replace(/^@/, '')}
                           </p>
-                          <span className="text-sm text-on-surface-variant/40" aria-hidden>·</span>
-                          <span className="text-xs text-on-surface-variant shrink-0">
+                          <span className="text-sm text-slate-600" aria-hidden>·</span>
+                          <span className="text-xs text-slate-600 shrink-0">
                             {formatTimeAgo(thread.createdAt)}
                           </span>
                         </div>
@@ -948,7 +1231,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); deleteThread(thread.id); }}
-                        className="text-on-surface-variant/50 hover:text-alert-red hover:bg-alert-red/10 flex h-7 w-7 items-center justify-center rounded-full transition-colors shrink-0"
+                        className="text-on-surface-variant/85 hover:text-alert-red hover:bg-alert-red/10 flex h-7 w-7 items-center justify-center rounded-full transition-colors shrink-0"
                         title="Terminate Broadcast"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -957,7 +1240,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   </div>
 
                   <div className="mt-3 ml-13 sm:ml-13 pr-2">
-                    <p className="text-[15px] sm:text-base leading-normal" style={{ color: '#0f172a' }}>{thread.message}</p>
+                    <p className="text-[15px] sm:text-base font-semibold leading-normal !text-slate-600">{getDisplayMessage(thread.message)}</p>
                   </div>
                 </div>
 
@@ -966,15 +1249,16 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                     onClick={() => openThreadDetail(thread.id)}
                     className="w-full overflow-hidden cursor-pointer mt-2 mb-1 px-4"
                   >
-                    <img 
-                      src={thread.imageUrl!} 
-                      alt="Thread preview" 
-                      className="w-full h-auto object-cover max-h-56 rounded-xl border border-outline-variant/20 shadow-sm" 
+                    <ImageWithLoader
+                      src={thread.imageUrl!}
+                      alt="Thread preview"
+                      className="w-full h-auto object-cover max-h-56 rounded-xl border border-outline-variant/20 shadow-sm"
+                      containerClass="relative"
                     />
                   </div>
                 )}
 
-                <div className="px-4 pb-3 flex items-center gap-6 ml-13 border-t border-outline-variant/5 pt-2 mt-2">
+                <div className="px-4 pb-3 flex items-center gap-5 ml-13 border-t border-outline-variant/5 pt-2 mt-2">
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     type="button"
@@ -995,11 +1279,49 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                      </div>
                      {thread.comments > 0 && <span>{thread.comments}</span>}
                   </div>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void shareThread(thread);
+                    }}
+                    className="group flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-secondary transition-colors"
+                  >
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-secondary/10 transition-colors">
+                      <Share2 className="h-4 w-4" />
+                    </div>
+                    {shareState === "copied" ? <span>Copied</span> : null}
+                  </motion.button>
+                  {Boolean(userProfile?.id) && !isOwner && (
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      type="button"
+                      data-active={userBookmarkedThreads.includes(thread.id) ? "true" : undefined}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void toggleBookmarkThread(thread.id);
+                      }}
+                      className="group flex items-center gap-1.5 text-xs text-slate-700 hover:text-primary transition-colors"
+                    >
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-primary/10 transition-colors">
+                        <Bookmark className={`h-4 w-4 ${userBookmarkedThreads.includes(thread.id) ? "fill-primary text-primary" : ""}`} />
+                      </div>
+                      {userBookmarkedThreads.includes(thread.id) ? <span className="text-primary font-medium">Saved</span> : null}
+                    </motion.button>
+                  )}
                 </div>
               </motion.div>
             );
           })}
         </motion.div>
+        {!query.trim() && hasMoreThreads && <div ref={loadMoreSentinelRef} className="mt-2 h-1 w-full" aria-hidden />}
+        {!query.trim() && isLoadingMoreThreads && (
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-on-surface-variant">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading more comms
+          </div>
+        )}
       </section>
 
       <AnimatePresence>
@@ -1008,30 +1330,47 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={modalSpring}
-            className="fixed inset-0 z-[50] bg-background/90 xl:hidden"
+            transition={isMobileView ? { duration: 0.18, ease: [0.22, 1, 0.36, 1] } : fastFade}
+            className="fixed inset-0 z-50 bg-white/70 xl:bg-white/12"
             onClick={closeThreadDetail}
           />
         )}
       </AnimatePresence>
       <aside
-        className={`col-span-12 mx-auto w-full max-w-2xl xl:col-span-4 xl:max-w-none ${
+        className={`mx-auto w-full max-w-2xl ${
           !!selectedThreadId
-            ? "fixed inset-0 z-[60] bg-background/90 p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:relative xl:inset-auto xl:z-auto xl:bg-transparent xl:p-0"
-            : "relative"
+            ? "fixed inset-0 z-60 bg-white/82 p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:inset-y-5 xl:left-auto xl:right-6 xl:w-[min(440px,34vw)] xl:max-w-none xl:bg-transparent xl:p-0"
+            : "hidden"
         }`}
         onClick={!!selectedThreadId ? closeThreadDetail : undefined}
       >
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence initial={false} mode="wait">
           {selectedThread ? (
             <motion.div
               key={selectedThread.id}
-              variants={modalPanelVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={modalSpring}
+              {...(isMobileView
+                ? {
+                    initial: { x: "100%", opacity: 1 },
+                    animate: { x: "0%", opacity: 1 },
+                    exit: { x: "100%", opacity: 1 },
+                    transition: { type: "spring", stiffness: 410, damping: 42, mass: 0.9 },
+                  }
+                : {
+                    initial: { x: 30, opacity: 0.96 },
+                    animate: { x: 0, opacity: 1 },
+                    exit: { x: 30, opacity: 0.96 },
+                    transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] },
+                  })}
               className="dashboard-panel premium-scrollbar h-[calc(100dvh-7rem)] overflow-y-auto rounded-card p-4 sm:p-5 xl:h-auto xl:overflow-visible"
+              style={
+                isMobileView
+                  ? {
+                      willChange: "transform",
+                      transform: "translateZ(0)",
+                      backfaceVisibility: "hidden",
+                    }
+                  : undefined
+              }
               onClick={(event) => event.stopPropagation()}
             >
             <div className="flex items-center justify-between border-b border-outline-variant/20 pb-3">
@@ -1051,7 +1390,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                 <button
                   type="button"
                   onClick={() => deleteThread(selectedThread.id)}
-                  className="text-on-surface-variant/50 hover:text-alert-red hover:bg-alert-red/10 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
+                  className="text-on-surface-variant/85 hover:text-alert-red hover:bg-alert-red/10 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
                   title="Purge Signal"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -1067,7 +1406,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                     style={{ borderColor: selectedThread.favTeam ? getTeamColor(selectedThread.favTeam) : 'rgb(var(--outline-variant) / 0.3)' }}
                   >
                     {selectedThread.avatarUrl ? (
-                      <img src={selectedThread.avatarUrl} alt={selectedThread.fullName} className="h-full w-full object-cover" />
+                      <ImageWithLoader src={selectedThread.avatarUrl} alt={selectedThread.fullName} className="h-full w-full object-cover" containerClass="h-full w-full" />
                     ) : (
                       selectedThread.username?.replace(/^@/, '')[0]?.toUpperCase()
                     )}
@@ -1075,12 +1414,12 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   <div className="flex flex-col">
                     <button
                       onClick={() => handleUserClick(selectedThread.profileId)}
-                      className="font-bold text-base hover:underline transition-all text-on-surface text-left leading-tight"
+                      className="font-bold text-[1rem] hover:underline transition-all text-slate-900 text-left leading-tight"
                     >
                       {selectedThread.fullName}
                     </button>
                     <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                      <span className="text-sm text-on-surface-variant">
+                      <span className="text-sm font-semibold text-slate-700">
                         @{selectedThread.username?.replace(/^@/, '')}
                       </span>
                     </div>
@@ -1088,15 +1427,16 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
               </div>
 
               <div className="mt-3 pt-2">
-                <p className="text-[15px] sm:text-base leading-relaxed whitespace-pre-wrap" style={{ color: '#0f172a' }}>{selectedThread.message}</p>
+                <p className="text-[15px] sm:text-base font-semibold leading-relaxed whitespace-pre-wrap !text-slate-600">{getDisplayMessage(selectedThread.message)}</p>
               </div>
 
               {selectedThread.imageUrl && (
                 <div className="relative mt-4 w-full overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-dim">
-                   <img 
-                     src={selectedThread.imageUrl} 
-                     alt="Thread attachment" 
+                   <ImageWithLoader
+                     src={selectedThread.imageUrl}
+                     alt="Thread attachment"
                      className="w-full h-auto object-contain max-h-[60vh]"
+                     containerClass="relative"
                    />
                 </div>
               )}
@@ -1116,7 +1456,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                 return null;
               })()}
 
-              <div className="mt-4 flex items-center gap-2 text-sm text-on-surface-variant border-b border-outline-variant/20 pb-4">
+              <div className="mt-4 flex items-center gap-2 text-sm text-slate-700 border-b border-outline-variant/20 pb-4">
                 <span>{formatTimeAgo(selectedThread.createdAt)}</span>
               </div>
 
@@ -1126,7 +1466,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   type="button"
                   data-active={userLikedThreads.includes(selectedThread.id) ? "true" : undefined}
                   onClick={() => likeThread(selectedThread.id)}
-                  className="group flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors"
+                  className="group flex items-center gap-2 text-sm text-slate-700 hover:text-primary transition-colors"
                 >
                   <div className="flex h-9 w-9 items-center justify-center rounded-full group-hover:bg-primary/10 transition-colors">
                     <Heart className={`h-5 w-5 ${userLikedThreads.includes(selectedThread.id) ? "fill-primary text-primary" : ""}`} />
@@ -1134,7 +1474,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   {selectedThread.likes > 0 && <span className={userLikedThreads.includes(selectedThread.id) ? "text-primary font-medium" : ""}>{selectedThread.likes}</span>}
                 </motion.button>
 
-                <div className="group flex items-center gap-2 text-sm text-on-surface-variant">
+                <div className="group flex items-center gap-2 text-sm text-slate-700">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full">
                     <MessageCircle className="h-5 w-5" />
                   </div>
@@ -1145,13 +1485,29 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   whileTap={{ scale: 0.95 }}
                   type="button"
                   onClick={() => shareThread(selectedThread)}
-                  className="group flex items-center gap-2 text-sm text-on-surface-variant hover:text-secondary transition-colors"
+                  className="group flex items-center gap-2 text-sm text-slate-700 hover:text-secondary transition-colors"
                 >
                   <div className="flex h-9 w-9 items-center justify-center rounded-full group-hover:bg-secondary/10 transition-colors">
                     <Share2 className="h-5 w-5" />
                   </div>
                   {shareState === "copied" ? "Copied" : ""}
                 </motion.button>
+                {Boolean(userProfile?.id) && userProfile?.id !== selectedThread.profileId && (
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    type="button"
+                    data-active={userBookmarkedThreads.includes(selectedThread.id) ? "true" : undefined}
+                    onClick={() => {
+                      void toggleBookmarkThread(selectedThread.id);
+                    }}
+                    className="group flex items-center gap-2 text-sm text-slate-700 hover:text-primary transition-colors"
+                  >
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full group-hover:bg-primary/10 transition-colors">
+                      <Bookmark className={`h-5 w-5 ${userBookmarkedThreads.includes(selectedThread.id) ? "fill-primary text-primary" : ""}`} />
+                    </div>
+                    {userBookmarkedThreads.includes(selectedThread.id) ? "Saved" : ""}
+                  </motion.button>
+                )}
               </div>
 
               {/* Composition Box for main thread reply */}
@@ -1161,7 +1517,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   className="flex h-14 w-14 shrink-0 overflow-hidden items-center justify-center rounded-full bg-surface-container-high border-2 border-outline-variant/30 text-on-surface font-headline text-xl cursor-pointer hover:border-primary transition-colors"
                 >
                   {userProfile?.avatar_url ? (
-                     <img src={userProfile.avatar_url} alt={userProfile.full_name} className="h-full w-full object-cover" />
+                     <ImageWithLoader src={userProfile.avatar_url} alt={userProfile.full_name} className="h-full w-full object-cover" containerClass="h-full w-full" />
                   ) : (
                      userProfile?.username?.replace(/^@/, '')[0]?.toUpperCase() || <User className="h-6 w-6 text-on-surface-variant"/>
                   )}
@@ -1170,7 +1526,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                     <textarea
                       value={replyMessage}
                       onChange={(event) => setReplyMessage(event.target.value)}
-                      className="w-full resize-none bg-transparent pt-3 text-lg text-on-surface outline-none placeholder:text-on-surface-variant/60"
+                      className="w-full resize-none bg-transparent pt-3 text-lg text-on-surface outline-none placeholder:text-on-surface-variant/85"
                       placeholder="Post your reply"
                       rows={1}
                       style={{ minHeight: '40px' }}
@@ -1182,7 +1538,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                     />
                     {replyImagePreview && (
                        <div className="relative w-full overflow-hidden rounded-lg border border-outline-variant/30">
-                         <img src={replyImagePreview} alt="Preview" className="w-full h-auto max-h-40 object-cover" />
+                         <ImageWithLoader src={replyImagePreview} alt="Preview" className="w-full h-auto max-h-40 object-cover" containerClass="relative" />
                          <button
                            type="button"
                            onClick={() => { setReplyImageFile(null); setReplyImagePreview(null); if (replyFileInputRef.current) replyFileInputRef.current.value = ""; }}
@@ -1251,6 +1607,75 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
         </AnimatePresence>
       </aside>
 
+      <AnimatePresence>
+        {isBookmarksOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={fastFade}
+            className="comms-light-theme fixed inset-0 z-180 bg-white/72 p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] backdrop-blur-sm sm:p-4"
+            onClick={() => setIsBookmarksOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+              transition={modalSpring}
+              className="dashboard-panel premium-scrollbar mx-auto h-[calc(100dvh-8rem)] w-full max-w-2xl overflow-y-auto rounded-card p-4 sm:p-5"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="mb-4 flex items-center justify-between border-b border-outline-variant/20 pb-3">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary">Comms Bookmarks</p>
+                  <h3 className="font-headline text-xl font-semibold text-on-surface">Saved Threads</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsBookmarksOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high hover:bg-surface-container-highest transition-colors"
+                  aria-label="Close bookmarks"
+                >
+                  <X className="h-4 w-4 text-on-surface" />
+                </button>
+              </div>
+
+              {isLoadingBookmarkThreads ? (
+                <div className="flex items-center justify-center gap-2 py-12 text-sm text-on-surface-variant">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading saved threads
+                </div>
+              ) : bookmarkedThreads.length === 0 ? (
+                <div className="py-12 text-center">
+                  <p className="text-sm text-on-surface-variant">No saved threads yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {bookmarkedThreads.map((thread) => (
+                    <button
+                      key={thread.id}
+                      type="button"
+                      onClick={() => openBookmarkedThread(thread.id)}
+                      className="card-surface w-full border border-outline-variant/25 p-4 text-left transition hover:border-primary/35"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-on-surface">{thread.fullName}</p>
+                          <p className="truncate text-xs text-on-surface-variant">@{thread.username?.replace(/^@/, "")}</p>
+                        </div>
+                        <Bookmark className="h-4 w-4 shrink-0 fill-primary text-primary" />
+                      </div>
+                      <p className="mt-2 line-clamp-2 text-sm !text-slate-600">{getDisplayMessage(thread.message)}</p>
+                      <div className="mt-2 text-[11px] text-on-surface-variant">{formatTimeAgo(thread.createdAt)}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {!loading &&
         portalMounted &&
         createPortal(
@@ -1273,7 +1698,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   animate="animate"
                   exit="exit"
                   transition={fastFade}
-                  className="fixed inset-0 z-199 bg-transparent p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-4"
+                  className="comms-light-theme fixed inset-0 z-199 bg-transparent p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-4"
                   onClick={closeCreateOverlay}
                 >
                   <motion.div
@@ -1306,7 +1731,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                             fav_team: userProfile.fav_team
                           }}
                           onSuccess={() => {
-                            refreshData();
+                            void refreshThreads({ silent: true, keepPending: true });
                             closeCreateOverlay();
                           }}
                         />
@@ -1339,7 +1764,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   animate="animate"
                   exit="exit"
                   transition={fastFade}
-                  className="fixed inset-0 z-[200] bg-background/80 backdrop-blur-sm p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-4 flex items-center justify-center pointer-events-auto"
+                  className="comms-light-theme fixed inset-0 z-200 bg-white/75 backdrop-blur-sm p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:p-4 flex items-center justify-center pointer-events-auto"
                   onClick={() => setSelectedProfileId("")}
                 >
                   <motion.div

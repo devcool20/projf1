@@ -120,37 +120,37 @@ export default function PaddockPremieresPage() {
             </p>
 
             <div className="mt-4 grid gap-2">
-              <div className="border border-outline-variant/25 bg-surface-container-low p-3">
+              <div className="card-surface p-3">
                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Address</p>
                 <p className="mt-1 text-sm">{selectedEvent.address}</p>
               </div>
-              <div className="border border-outline-variant/25 bg-surface-container-low p-3">
+              <div className="card-surface p-3">
                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Venue</p>
                 <p className="mt-1 text-sm">{selectedEvent.venue}</p>
               </div>
-              <div className="border border-outline-variant/25 bg-surface-container-low p-3">
+              <div className="card-surface p-3">
                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Organiser</p>
                 <p className="mt-1 text-sm">{selectedEvent.organiser}</p>
               </div>
-              <div className="border border-outline-variant/25 bg-surface-container-low p-3">
+              <div className="card-surface p-3">
                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Entry Fee</p>
                 <p className="mt-1 text-sm">Rs. {selectedEvent.entryFee}</p>
               </div>
             </div>
 
-            <div className="mt-4 border border-outline-variant/25 bg-surface-container-low p-3">
+            <div className="card-surface mt-4 p-3">
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">What to Expect</p>
               <p className="mt-2 text-sm text-on-surface-variant">{selectedEvent.details}</p>
             </div>
 
-            <div className="mt-4 border border-outline-variant/25 bg-surface-container-low p-3">
+            <div className="card-surface mt-4 p-3">
               <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
                 <UtensilsCrossed className="h-3.5 w-3.5" />
                 Food and Drink Options
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {selectedEvent.foodAndDrinks.map((item) => (
-                  <span key={item} className="border border-outline-variant/25 px-2 py-1 text-xs text-on-surface-variant">
+                  <span key={item} className="card-surface rounded-md px-2 py-1 text-xs text-on-surface-variant">
                     {item}
                   </span>
                 ))}
@@ -170,7 +170,7 @@ export default function PaddockPremieresPage() {
       </aside>
 
       <section className="col-span-12">
-        <div className="dashboard-panel relative h-52 sm:h-64 overflow-hidden rounded-[20px] border border-outline-variant/40 bg-[linear-gradient(140deg,rgba(124,58,237,0.14),rgba(0,229,255,0.12),rgba(255,77,109,0.1))] p-4">
+        <div className="surface-ink relative h-52 sm:h-64 overflow-hidden rounded-card border border-outline-variant/40 p-4">
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-on-surface-variant">Event Map</p>
           <div className="relative mt-2 h-[calc(100%-1.6rem)] rounded-[16px] border border-outline-variant/40 bg-surface-container">
             {events.map((event) => {

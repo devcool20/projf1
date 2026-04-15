@@ -1,13 +1,48 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Product } from "@/lib/types";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 type Props = {
   product: Product;
   onEquip: (product: Product) => void;
 };
+
+function ImageWithLoader({
+  src,
+  alt,
+  className = "",
+  containerClass = "",
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  containerClass?: string;
+}) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  return (
+    <div className={`relative overflow-hidden ${containerClass}`}>
+      {!isLoaded && !isError && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-container-low">
+          <Loader2 className="h-4 w-4 animate-spin text-on-surface-variant" />
+        </div>
+      )}
+      <img
+        key={src}
+        src={src}
+        alt={alt}
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setIsError(true)}
+        className={`${className} ${isLoaded ? "opacity-100" : "opacity-0"} transition-opacity`}
+      />
+      {isError && <div className="absolute inset-0 z-20 flex items-center justify-center text-xs text-on-surface-variant">Image unavailable</div>}
+    </div>
+  );
+}
 
 export function ProductCard({ product, onEquip }: Props) {
   return (
@@ -18,7 +53,12 @@ export function ProductCard({ product, onEquip }: Props) {
       style={{ transformStyle: "preserve-3d", perspective: 1000 }}
     >
       <div className="relative h-52">
-        <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
+        <ImageWithLoader
+          src={product.imageUrl}
+          alt={product.name}
+          className="h-full w-full object-cover"
+          containerClass="h-full w-full"
+        />
       </div>
       <div className="mt-3 flex items-center justify-between">
         <div>

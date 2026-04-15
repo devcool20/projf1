@@ -75,7 +75,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
 
   if (loading) {
     return (
-      <div className="flex h-80 flex-col items-center justify-center dashboard-panel rounded-[32px] border border-outline-variant/20 bg-surface/80 backdrop-blur-xl">
+      <div className="comms-light-theme flex h-80 flex-col items-center justify-center dashboard-panel rounded-pill border border-outline-variant/20 bg-surface/80 backdrop-blur-xl">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
         <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Syncing Racing Identity...</p>
       </div>
@@ -91,7 +91,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
       initial={{ opacity: 0, y: 20, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.98 }}
-      className="relative overflow-hidden rounded-[32px] bg-surface/95 backdrop-blur-2xl border border-outline-variant/30 shadow-[0_32px_80px_rgba(0,0,0,0.4)] max-h-[90dvh] flex flex-col premium-scrollbar"
+      className="comms-light-theme relative overflow-hidden rounded-pill bg-surface/95 backdrop-blur-2xl border border-outline-variant/30 shadow-[0_32px_80px_rgba(0,0,0,0.4)] max-h-[90dvh] flex flex-col premium-scrollbar"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Dynamic Background Element */}
@@ -112,7 +112,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
         whileTap={{ scale: 0.9 }}
         whileHover={{ scale: 1.1 }}
         onClick={onBack}
-        className="absolute right-6 top-6 z-[60] flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-highest/60 backdrop-blur-md border border-outline-variant/30 text-on-surface transition-all shadow-xl"
+        className="absolute right-6 top-6 z-60 flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-highest/60 backdrop-blur-md border border-outline-variant/30 text-on-surface transition-all shadow-xl"
       >
         <X className="h-5 w-5" />
       </motion.button>
@@ -121,7 +121,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
         <header className="relative mb-8">
           <div className="flex items-center gap-6">
             <div 
-              className="relative h-28 w-28 shrink-0 rounded-[2rem] overflow-hidden border-2 flex items-center justify-center bg-surface-container-high transition-all shadow-inner group"
+              className="relative h-28 w-28 shrink-0 rounded-4xl overflow-hidden border-2 flex items-center justify-center bg-surface-container-high transition-all shadow-inner group"
               style={{ borderColor: teamColor || "rgb(var(--primary))" }}
             >
               <AnimatePresence mode="wait">
@@ -137,7 +137,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
                 ) : (
                   <motion.div 
                     key="placeholder"
-                    className="flex h-full w-full items-center justify-center bg-gradient-to-br from-surface-container-high to-surface-container-highest"
+                    className="flex h-full w-full items-center justify-center bg-linear-to-br from-surface-container-high to-surface-container-highest"
                   >
                     <User className="h-10 w-10 text-on-surface/20" />
                   </motion.div>

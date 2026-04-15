@@ -491,6 +491,19 @@ export const raceCalendar: RaceWeekend[] = [
     round: 5,
     totalRounds: 24,
   },
+  {
+    id: "r6",
+    name: "Miami Grand Prix",
+    circuit: "Miami International Autodrome",
+    city: "Miami",
+    country: "United States",
+    flagEmoji: "🇺🇸",
+    fp1Iso: "2026-04-24T16:30:00.000Z",
+    qualifyingIso: "2026-04-25T20:00:00.000Z",
+    raceIso: "2026-04-26T20:00:00.000Z",
+    round: 6,
+    totalRounds: 24,
+  },
 ];
 
 export const pitWallThreads: PitWallThread[] = [

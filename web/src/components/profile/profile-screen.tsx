@@ -351,7 +351,7 @@ export function ProfileScreen() {
         
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="z-10 flex min-w-0 flex-1 flex-wrap items-start gap-4 sm:gap-5">
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-primary/20 bg-white/80">
+            <div className="card-surface relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-primary/20">
               {profile?.avatar_url ? (
                 <img
                   src={profile.avatar_url}
@@ -368,9 +368,9 @@ export function ProfileScreen() {
               <p className="font-mono text-[10px] uppercase tracking-[0.24em]" style={{ color: teamAccent }}>Super License</p>
               <h2 className="mt-1 wrap-break-word font-headline text-2xl font-semibold sm:text-4xl">{profile?.full_name || "Driver"}</h2>
               <p className="text-sm font-medium text-on-surface-variant">{profile?.username || "@driver"}</p>
-              <motion.label 
+              <motion.label
                 whileTap={{ scale: 0.95 }}
-                className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-outline-variant/30 bg-surface px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-on-surface hover:border-primary/40 hover:text-primary transition-colors shadow-sm"
+                className="card-surface mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-outline-variant/30 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-on-surface hover:border-primary/40 hover:text-primary transition-colors"
               >
                 <Upload className="h-3.5 w-3.5" />
                 {uploadingAvatar ? "Uploading..." : "Upload photo"}
@@ -390,7 +390,7 @@ export function ProfileScreen() {
              <motion.button
                whileTap={{ scale: 0.95 }}
                onClick={handleLogout}
-               className="group flex items-center gap-1.5 rounded-full border border-alert-red/20 bg-alert-red/5 px-4 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-alert-red hover:bg-alert-red hover:text-white transition-all shadow-sm"
+               className="group card-surface flex items-center gap-1.5 rounded-full border border-alert-red/30 bg-alert-red/10 px-4 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-alert-red hover:bg-alert-red hover:text-white transition-all"
              >
                <LogOut className="h-3 w-3" /> Terminate Link
              </motion.button>
@@ -433,11 +433,11 @@ export function ProfileScreen() {
               </div>
             </div>
           </div>
-          <div className="rounded-xl border border-outline-variant/10 bg-surface-container-low/50 p-4 shadow-sm">
+          <div className="card-surface p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-semibold">Career Points</p>
             <p className="mt-1 font-headline text-2xl font-bold text-primary">{profile?.points || 0}</p>
           </div>
-          <div className="rounded-xl border border-outline-variant/10 bg-surface-container-low/50 p-4 shadow-sm">
+          <div className="card-surface p-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-semibold">License Level</p>
             <p className="mt-1 font-headline text-2xl font-bold text-secondary">A-Class</p>
           </div>
@@ -456,7 +456,7 @@ export function ProfileScreen() {
               <p className="font-mono text-xs text-on-surface-variant py-4">No comms transmitted.</p>
             ) : (
               comms.map((comm) => (
-                <div key={comm.id} className="rounded-xl border border-outline-variant/10 bg-surface-container-low/40 p-4 hover:border-primary/30 hover:bg-surface-container-low transition-all cursor-default shadow-sm">
+                <div key={comm.id} className="card-surface cursor-default p-4 transition-all hover:border-primary/35">
                   <p className="font-mono text-[10px] text-primary/80 font-bold uppercase tracking-wider">{formatTimeAgo(comm.created_at)}</p>
                   <p className="mt-2 text-[15px] sm:text-base text-on-surface leading-normal line-clamp-3">{comm.message}</p>
                   <div className="mt-3 flex items-center gap-4 text-xs font-semibold text-on-surface-variant/80 uppercase tracking-wide">
@@ -480,7 +480,7 @@ export function ProfileScreen() {
               <p className="font-mono text-xs text-on-surface-variant py-4">No predictions deployed.</p>
             ) : (
               predictions.map((pred) => (
-                <div key={pred.id} className="rounded-xl border border-outline-variant/10 bg-surface-container-low/40 p-4 hover:border-secondary/30 hover:bg-surface-container-low transition-all cursor-default shadow-sm">
+                <div key={pred.id} className="card-surface cursor-default p-4 transition-all hover:border-secondary/35">
                   <div className="flex items-start justify-between">
                     <p className="font-mono text-[11px] font-bold text-secondary uppercase tracking-[0.2em]">{pred.prediction_config?.event_name || "Grand Prix"}</p>
                     <p className="font-mono text-[10px] text-on-surface-variant/80 font-bold uppercase tracking-wider">{formatTimeAgo(pred.created_at)}</p>
@@ -488,7 +488,7 @@ export function ProfileScreen() {
                   
                   <div className="mt-4 grid grid-cols-3 gap-2">
                     {pred.top3.map((driver: string, idx: number) => (
-                      <div key={idx} className="rounded-lg border border-outline-variant/10 p-2.5 text-center bg-surface-dim/40 shadow-sm">
+                      <div key={idx} className="card-surface rounded-lg p-2.5 text-center">
                         <span className="block font-mono text-[9px] font-bold tracking-widest text-[#94a3b8] uppercase">P{idx+1}</span>
                         <span className="mt-1 block font-headline text-xs font-semibold text-on-surface truncate">{driver.split(' ').pop()}</span>
                       </div>

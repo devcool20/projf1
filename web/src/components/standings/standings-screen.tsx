@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useMemo, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useMemo, useRef, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Users, RefreshCw, Wifi, WifiOff, Clock } from "lucide-react";
 import type { ApiDriverStanding, ApiTeamStanding } from "@/lib/types";
@@ -57,6 +57,7 @@ export function StandingsScreen({
   const [modalTeamName, setModalTeamName] = useState("");
   /** Pixel box matching intrinsic video aspect (scaled), so object-contain has no letterboxing */
   const [driverVideoBox, setDriverVideoBox] = useState<{ w: number; h: number } | null>(null);
+  const warmedVideoSrcRef = useRef<Set<string>>(new Set());
 
   const loadData = async () => {
     try {
@@ -119,6 +120,18 @@ export function StandingsScreen({
   useEffect(() => {
     setDriverVideoBox(null);
   }, [modalDriverCode]);
+
+  useEffect(() => {
+    if (!drivers.length) return;
+    const controller = new AbortController();
+    for (const driver of drivers) {
+      const src = getAvatarSrc(driver.driverName);
+      if (warmedVideoSrcRef.current.has(src)) continue;
+      warmedVideoSrcRef.current.add(src);
+      void fetch(src, { cache: "force-cache", signal: controller.signal }).catch(() => {});
+    }
+    return () => controller.abort();
+  }, [drivers]);
 
   const measureDriverAvatarBox = useCallback((el: HTMLVideoElement) => {
     const vw = el.videoWidth;
@@ -331,7 +344,7 @@ export function StandingsScreen({
                         loop
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="auto"
                         onLoadedMetadata={(e) => measureDriverAvatarBox(e.currentTarget)}
                         onLoadedData={(e) => measureDriverAvatarBox(e.currentTarget)}
                       />

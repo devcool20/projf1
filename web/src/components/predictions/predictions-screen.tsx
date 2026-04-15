@@ -12,7 +12,6 @@ import {
   matchConfigToRound,
 } from "@/lib/f1-calendar-2026";
 import { PredictionCreatorModal } from "@/components/predictions/prediction-creator-modal";
-import { MovingBorderButton } from "@/components/ui/moving-border";
 import { ArrowLeft, Calendar, ChevronRight, Heart, MapPin, Plus } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -62,17 +61,35 @@ type SelectedGp = {
 };
 
 export function PredictionsScreen() {
+  const REQUEST_TIMEOUT_MS = 12000;
   const portalMounted = useSyncExternalStore(portalSubscribe, () => true, () => false);
   const [configs, setConfigs] = useState<PredictionConfigRow[]>([]);
   const [predictions, setPredictions] = useState<RacePrediction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selected, setSelected] = useState<SelectedGp | null>(null);
   const [creatorOpen, setCreatorOpen] = useState(false);
   const [highlightPredictionId, setHighlightPredictionId] = useState<string>("");
   const [preselectedEventId, setPreselectedEventId] = useState<string>("");
   const [nowTick, setNowTick] = useState(() => Date.now());
   const selectedEventIdRef = useRef<string | null>(null);
+  const refreshInFlightRef = useRef<Promise<void> | null>(null);
   selectedEventIdRef.current = selected?.config?.id ?? null;
+
+  const withTimeout = useCallback(
+    async <T,>(promise: PromiseLike<T>, label: string): Promise<T> => {
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error(`${label} timed out`)), REQUEST_TIMEOUT_MS);
+      });
+      try {
+        return await Promise.race([promise, timeoutPromise]);
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+      }
+    },
+    [REQUEST_TIMEOUT_MS],
+  );
 
   const horizonRounds = useMemo(
     () => F1_2026_CALENDAR.filter((r) => isRoundInPredictionHorizon(r, new Date(nowTick), 30)),
@@ -89,46 +106,75 @@ export function PredictionsScreen() {
   );
 
   const fetchConfigs = useCallback(async () => {
-    const { data, error } = await supabase.from("prediction_config").select("id, event_name, qualifying_at, lat, is_active");
+    const result = await withTimeout(
+      supabase.from("prediction_config").select("id, event_name, qualifying_at, lat, is_active"),
+      "Prediction config fetch",
+    );
+    const { data, error } = result as { data: PredictionConfigRow[] | null; error: { message?: string } | null };
     if (error) {
-      console.error(error);
-      setConfigs([]);
-      return;
+      throw error;
     }
     setConfigs((data ?? []) as PredictionConfigRow[]);
-  }, []);
+  }, [withTimeout]);
 
   const fetchPredictionsForEvent = useCallback(async (eventId: string) => {
-    const { data, error } = await supabase
-      .from("race_predictions")
-      .select(`id, top3, pole_position, driver_of_the_day, likes_count, created_at, profiles (username, full_name)`)
-      .eq("event_id", eventId)
-      .order("likes_count", { ascending: false });
-    if (error) {
+    try {
+      const result = await withTimeout(
+        supabase
+          .from("race_predictions")
+          .select(`id, top3, pole_position, driver_of_the_day, likes_count, created_at, profiles (username, full_name)`)
+          .eq("event_id", eventId)
+          .order("likes_count", { ascending: false }),
+        "Prediction list fetch",
+      );
+      const { data, error } = result as { data: RawPredictionRow[] | null; error: { message?: string } | null };
+      if (error) throw error;
+      const formatted: RacePrediction[] = ((data ?? []) as RawPredictionRow[]).map((p) => {
+        const profile = pickProfile(p.profiles);
+        return {
+          id: p.id,
+          username: profile.username,
+          fullName: profile.full_name,
+          createdAt: new Date(p.created_at).toLocaleDateString("en-GB"),
+          top3: p.top3,
+          polePosition: p.pole_position,
+          driverOfTheDay: p.driver_of_the_day,
+          likes: p.likes_count,
+        };
+      });
+      setPredictions(formatted);
+      setLoadError(null);
+    } catch (error) {
       console.error(error);
       setPredictions([]);
-      return;
+      setLoadError("Predictions took too long to load. Tap refresh.");
     }
-    const formatted: RacePrediction[] = ((data ?? []) as RawPredictionRow[]).map((p) => {
-      const profile = pickProfile(p.profiles);
-      return {
-        id: p.id,
-        username: profile.username,
-        fullName: profile.full_name,
-        createdAt: new Date(p.created_at).toLocaleDateString("en-GB"),
-        top3: p.top3,
-        polePosition: p.pole_position,
-        driverOfTheDay: p.driver_of_the_day,
-        likes: p.likes_count,
-      };
-    });
-    setPredictions(formatted);
-  }, []);
+  }, [withTimeout]);
 
   const refreshAll = useCallback(async () => {
-    setLoading(true);
-    await fetchConfigs();
-    setLoading(false);
+    if (refreshInFlightRef.current) {
+      await refreshInFlightRef.current;
+      return;
+    }
+    const task = (async () => {
+      setLoadError(null);
+      setLoading(true);
+      try {
+        await fetchConfigs();
+      } catch (error) {
+        console.error(error);
+        setLoadError("Prediction calendar took too long to load. Try refreshing.");
+        setConfigs([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+    refreshInFlightRef.current = task;
+    try {
+      await task;
+    } finally {
+      refreshInFlightRef.current = null;
+    }
   }, [fetchConfigs]);
 
   useEffect(() => {
@@ -258,7 +304,7 @@ export function PredictionsScreen() {
             </p>
           </div>
           {selected && (
-            <div className="shrink-0 rounded-xl border border-white/10 bg-white/6 px-4 py-3">
+            <div className="card-surface shrink-0 rounded-xl px-4 py-3">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Qualifying countdown</p>
               <p className="mt-1 font-mono text-xl font-semibold tabular-nums text-white sm:text-2xl">{countdown}</p>
               <p className="mt-1 text-xs font-medium text-zinc-500">{postLocked ? "Locked" : "Open for picks"}</p>
@@ -266,6 +312,14 @@ export function PredictionsScreen() {
           )}
         </div>
       </header>
+      {loadError && (
+        <div className="dashboard-panel mb-5 flex items-center justify-between gap-3 p-4 text-sm">
+          <p className="text-on-surface-variant">{loadError}</p>
+          <button type="button" onClick={() => void refreshAll()} className="btn-premium btn-outline-glass rounded-full px-3 py-1.5 text-xs">
+            Refresh
+          </button>
+        </div>
+      )}
 
       <AnimatePresence mode="popLayout">
       {!selected ? (
@@ -276,9 +330,9 @@ export function PredictionsScreen() {
           exit={{ opacity: 0 }}
           transition={fastFade}
         >
-          <h2 className="mb-4 font-headline text-[15px] font-semibold tracking-tight text-slate-900">Upcoming Grands Prix</h2>
+          <h2 className="mb-4 font-headline text-[15px] font-semibold tracking-tight text-on-surface">Upcoming Grands Prix</h2>
           {enriched.length === 0 ? (
-            <div className="dashboard-panel p-8 text-center text-sm text-slate-600">
+            <div className="dashboard-panel p-8 text-center text-sm text-on-surface-variant">
               No races in the 30-day prediction window right now. Check back closer to the next Grand Prix.
             </div>
           ) : (
@@ -288,30 +342,26 @@ export function PredictionsScreen() {
               initial="hidden"
               animate="show"
             >
-              {enriched.map(({ round, config }, idx) => (
-                  <MovingBorderButton
+              {enriched.map(({ round, config }) => (
+                  <motion.button
                     key={round.slug}
-                    as={motion.button}
                     type="button"
-                    borderRadius="1.25rem"
-                    duration={4200 + (idx % 4) * 280}
-                    containerClassName="h-full"
                     className="dashboard-panel group relative flex h-full w-full flex-col overflow-hidden px-5 pb-4 pt-4 text-left transition hover:border-primary/25"
                     onClick={() => setSelected({ round, config })}
                     variants={listItemVariants}
                     transition={fastFade}
                   >
-                    <p className="pr-6 font-headline text-[15px] font-semibold leading-snug tracking-tight text-slate-900">
+                    <p className="pr-6 font-headline text-[15px] font-semibold leading-snug tracking-tight text-on-surface">
                       {round.name}
                     </p>
-                    <p className="mt-1 text-[10px] font-medium leading-snug text-slate-500">{round.circuit}</p>
+                    <p className="mt-1 text-[10px] font-medium leading-snug text-on-surface-variant">{round.circuit}</p>
                     <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-200/70 pt-3">
-                      <span className="gp-meta-row inline-flex items-center gap-1.5 text-slate-600">
-                        <MapPin className="h-3 w-3 text-slate-400" strokeWidth={2} aria-hidden />
+                      <span className="gp-meta-row inline-flex items-center gap-1.5 text-on-surface-variant">
+                        <MapPin className="h-3 w-3 text-on-surface-variant/70" strokeWidth={2} aria-hidden />
                         {round.country}
                       </span>
-                      <span className="gp-meta-row inline-flex items-center gap-1.5 text-slate-600">
-                        <Calendar className="h-3 w-3 text-slate-400" strokeWidth={2} aria-hidden />
+                      <span className="gp-meta-row inline-flex items-center gap-1.5 text-on-surface-variant">
+                        <Calendar className="h-3 w-3 text-on-surface-variant/70" strokeWidth={2} aria-hidden />
                         {formatGpRange(round)}
                       </span>
                     </div>
@@ -321,7 +371,7 @@ export function PredictionsScreen() {
                         aria-hidden
                       />
                     </div>
-                  </MovingBorderButton>
+                  </motion.button>
               ))}
             </motion.div>
           )}
@@ -347,26 +397,26 @@ export function PredictionsScreen() {
             <div className="flex flex-wrap items-start gap-4">
               <span className="text-4xl">{selected.round.flagEmoji}</span>
               <div className="min-w-0 flex-1">
-                <h2 className="font-headline text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">{selected.round.name}</h2>
-                <p className="mt-1 text-sm text-slate-600">{selected.round.circuit}</p>
-                <p className="mt-2 text-xs text-slate-500">{formatGpRange(selected.round)}</p>
+                <h2 className="font-headline text-2xl font-semibold tracking-tight text-on-surface sm:text-3xl">{selected.round.name}</h2>
+                <p className="mt-1 text-sm text-on-surface-variant">{selected.round.circuit}</p>
+                <p className="mt-2 text-xs text-on-surface-variant">{formatGpRange(selected.round)}</p>
               </div>
-              <div className="rounded-2xl border border-slate-200/90 bg-slate-50 px-4 py-3 text-right">
-                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Grid predictions</p>
-                <p className="font-mono text-2xl font-semibold tabular-nums text-slate-900">{predictions.length}</p>
+              <div className="card-surface rounded-2xl px-4 py-3 text-right">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-on-surface-variant">Grid predictions</p>
+                <p className="font-mono text-2xl font-semibold tabular-nums text-on-surface">{predictions.length}</p>
               </div>
             </div>
           </div>
 
-          <h3 className="mb-3 font-headline text-[15px] font-semibold text-slate-900">Community picks</h3>
+          <h3 className="mb-3 font-headline text-[15px] font-semibold text-on-surface">Community picks</h3>
           {!selected.config ? (
-            <div className="dashboard-panel p-6 text-sm text-slate-600">
+            <div className="dashboard-panel p-6 text-sm text-on-surface-variant">
               This round is not linked to <code className="font-mono text-xs">prediction_config</code> yet, so
               community submissions cannot load. After your admin adds a row whose{" "}
               <code className="font-mono text-xs">event_name</code> matches this Grand Prix, predictions appear here.
             </div>
           ) : predictions.length === 0 ? (
-            <div className="dashboard-panel p-8 text-center text-sm text-slate-600">
+            <div className="dashboard-panel p-8 text-center text-sm text-on-surface-variant">
               No predictions yet for this Grand Prix. Be the first — tap + to deploy yours.
             </div>
           ) : (
@@ -387,37 +437,37 @@ export function PredictionsScreen() {
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="font-headline text-[15px] font-semibold tracking-tight text-slate-900">{prediction.fullName}</p>
-                      <p className="mt-0.5 text-xs text-slate-500">
+                      <p className="font-headline text-[15px] font-semibold tracking-tight text-on-surface">{prediction.fullName}</p>
+                      <p className="mt-0.5 text-xs text-on-surface-variant">
                         {prediction.username} · {prediction.createdAt}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => likePrediction(prediction.id)}
-                      className="btn-premium btn-outline-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-slate-600"
+                      className="btn-premium btn-outline-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-on-surface-variant"
                     >
                       <Heart className="h-3.5 w-3.5" />
                       {prediction.likes}
                     </button>
                   </div>
-                  <p className="mt-4 text-[11px] font-medium uppercase tracking-wider text-slate-500">Podium</p>
+                  <p className="mt-4 text-[11px] font-medium uppercase tracking-wider text-on-surface-variant">Podium</p>
                   <div className="mt-2 grid gap-2 sm:grid-cols-3">
                     {prediction.top3.map((driver, index) => (
-                      <div key={`${prediction.id}-${driver}`} className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3">
+                      <div key={`${prediction.id}-${driver}`} className="card-surface rounded-xl p-3">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">P{index + 1}</p>
-                        <p className="mt-1 font-headline text-sm font-semibold text-slate-900">{driver}</p>
+                        <p className="mt-1 font-headline text-sm font-semibold text-on-surface">{driver}</p>
                       </div>
                     ))}
                   </div>
                   <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                    <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Pole</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">{prediction.polePosition}</p>
+                    <div className="card-surface rounded-xl p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant">Pole</p>
+                      <p className="mt-1 text-sm font-medium text-on-surface">{prediction.polePosition}</p>
                     </div>
-                    <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Driver of the day</p>
-                      <p className="mt-1 text-sm font-medium text-slate-900">{prediction.driverOfTheDay}</p>
+                    <div className="card-surface rounded-xl p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant">Driver of the day</p>
+                      <p className="mt-1 text-sm font-medium text-on-surface">{prediction.driverOfTheDay}</p>
                     </div>
                   </div>
                 </motion.article>

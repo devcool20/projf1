@@ -1,13 +1,48 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Team, Transcript } from "@/lib/types";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 type Props = {
   transcript: Transcript;
   team: Team | undefined;
 };
+
+function ImageWithLoader({
+  src,
+  alt,
+  className = "",
+  containerClass = "",
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  containerClass?: string;
+}) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  return (
+    <div className={`relative overflow-hidden ${containerClass}`}>
+      {!isLoaded && !isError && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-container-low">
+          <Loader2 className="h-4 w-4 animate-spin text-on-surface-variant" />
+        </div>
+      )}
+      <img
+        key={src}
+        src={src}
+        alt={alt}
+        onLoad={() => setIsLoaded(true)}
+        onError={() => setIsError(true)}
+        className={`${className} ${isLoaded ? "opacity-100" : "opacity-0"} transition-opacity`}
+      />
+      {isError && <div className="absolute inset-0 z-20 flex items-center justify-center text-xs text-on-surface-variant">Image unavailable</div>}
+    </div>
+  );
+}
 
 export function TranscriptCard({ transcript, team }: Props) {
   const borderColor = transcript.severity === "warning" ? "#e10600" : team?.accent ?? "#7ef6ee";
@@ -35,7 +70,12 @@ export function TranscriptCard({ transcript, team }: Props) {
 
       {transcript.mediaUrl && (
         <div className="relative mt-4 h-44 overflow-hidden">
-          <Image src={transcript.mediaUrl} alt="Telemetry media frame" fill className="object-cover grayscale hover:grayscale-0" />
+          <ImageWithLoader
+            src={transcript.mediaUrl}
+            alt="Telemetry media frame"
+            className="h-full w-full object-cover grayscale hover:grayscale-0"
+            containerClass="h-full w-full"
+          />
         </div>
       )}
 

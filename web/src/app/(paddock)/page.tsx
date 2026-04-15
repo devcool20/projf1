@@ -2,15 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { DashboardProfileModal, PremiumProfileTrigger } from "@/components/dashboard/dashboard-profile-modal";
 import {
   Radio,
-  Calendar,
   Target,
   Heart,
   MessageCircle,
-  MapPin,
   Clock,
   Flag,
   Trophy,
@@ -20,13 +19,12 @@ import {
   Zap,
 } from "lucide-react";
 import { TelemetryTicker } from "@/components/shell/telemetry-ticker";
-import { MovingBorderButton } from "@/components/ui/moving-border";
 import {
   commThreads,
   racePredictions,
   raceCalendar,
 } from "@/lib/mock-data";
-import { computeSignalScore, getSignalLabel } from "@/lib/signal-score";
+import { computeSignalScore } from "@/lib/signal-score";
 import type { CommThread, RacePrediction, RaceWeekend } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 
@@ -101,6 +99,15 @@ function classifyActivity(score: number) {
 
 function getNextRace(calendar: RaceWeekend[]): { race: RaceWeekend; isRaceWeekend: boolean } | null {
   const now = Date.now();
+  const miamiRace = calendar.find((race) => race.name.toLowerCase().includes("miami"));
+  if (miamiRace) {
+    const raceEnd = new Date(miamiRace.raceIso).getTime() + 3 * 3600_000;
+    if (raceEnd > now) {
+      const fp1 = new Date(miamiRace.fp1Iso).getTime();
+      const isRaceWeekend = now >= fp1 && now <= raceEnd;
+      return { race: miamiRace, isRaceWeekend };
+    }
+  }
   for (const race of calendar) {
     const raceEnd = new Date(race.raceIso).getTime() + 3 * 3600_000;
     if (raceEnd > now) {
@@ -112,6 +119,22 @@ function getNextRace(calendar: RaceWeekend[]): { race: RaceWeekend; isRaceWeeken
   return calendar.length > 0
     ? { race: calendar[calendar.length - 1], isRaceWeekend: false }
     : null;
+}
+
+function getCircuitMapSrc(race: RaceWeekend): string | null {
+  const raceName = race.name.toLowerCase();
+  const circuitName = race.circuit.toLowerCase();
+  if (raceName.includes("miami") || circuitName.includes("miami")) return "/maps/2026trackmiamidetailed.avif";
+  if (raceName.includes("monaco") || circuitName.includes("monte carlo")) return "/maps/2026trackmontecarlodetailed.avif";
+  if (raceName.includes("canadian") || circuitName.includes("gilles villeneuve")) return "/maps/2026trackmontrealdetailed.avif";
+  return null;
+}
+
+function getCountryFlagAsset(race: RaceWeekend): string | null {
+  const country = race.country.toLowerCase();
+  if (country.includes("united states")) return "/flags/us.svg";
+  if (country.includes("saudi")) return "/flags/sa.svg";
+  return null;
 }
 
 function useCountdown(targetIso: string) {
@@ -269,7 +292,7 @@ export default function DashboardPage() {
         <PremiumProfileTrigger onPress={() => setProfileOpen(true)} />
       </div>
       <DashboardProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
-      {/* Hero — premium ink (no moving border; border lives on bento cards below) */}
+      {/* Hero */}
       <motion.section
         {...fadeIn}
         transition={{ duration: 0.15 }}
@@ -298,16 +321,10 @@ export default function DashboardPage() {
         animate="show"
         className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
       >
-        {/* 1. Top Thread of the Hour — moving border */}
+        {/* 1. Top Thread of the Hour */}
         <motion.div variants={gridItem} className="xl:col-span-1">
           <Link href={topThread ? `/comms?t=${topThread.id}` : "/comms"} className="group block h-full">
-            <MovingBorderButton
-              as="div"
-              borderRadius="1.25rem"
-              duration={4600}
-              containerClassName="h-full"
-              className="dashboard-panel flex h-full flex-col p-5 transition hover:border-primary/35"
-            >
+            <div className="dashboard-panel flex h-full flex-col p-5 transition hover:border-primary/35">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/12">
@@ -330,26 +347,26 @@ export default function DashboardPage() {
               {topThread ? (
                 <div className="mt-4">
                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                    <p className="font-headline text-sm font-semibold text-slate-900">{topThread.username}</p>
-                    <p className="text-[11px] font-medium text-slate-500">{topThread.fullName}</p>
+                    <p className="font-headline text-sm font-semibold text-on-surface">{topThread.username}</p>
+                    <p className="text-[11px] font-medium text-on-surface-variant">{topThread.fullName}</p>
                   </div>
-                  <p className="mt-2 line-clamp-3 text-sm font-normal leading-relaxed text-slate-600">
+                  <p className="mt-2 line-clamp-3 text-sm font-normal leading-relaxed text-on-surface-variant">
                     {topThread.message}
                   </p>
-                  <div className="mt-4 flex items-center gap-4 text-xs font-medium text-slate-500">
+                  <div className="mt-4 flex items-center gap-4 text-xs font-medium text-on-surface-variant">
                     <span className="flex items-center gap-1"><Heart className="h-3 w-3" />{topThread.likes}</span>
                     <span className="flex items-center gap-1"><MessageCircle className="h-3 w-3" />{topThread.comments}</span>
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{topThread.createdAt}</span>
                   </div>
                 </div>
               ) : (
-                <p className="mt-4 text-sm text-slate-500">No live thread feed yet.</p>
+                <p className="mt-4 text-sm text-on-surface-variant">No live thread feed yet.</p>
               )}
 
               <div className="mt-auto flex items-center gap-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
                 Open Comms <ChevronRight className="h-3 w-3" />
               </div>
-            </MovingBorderButton>
+            </div>
           </Link>
         </motion.div>
 
@@ -368,13 +385,7 @@ export default function DashboardPage() {
             }
             className="group block h-full"
           >
-            <MovingBorderButton
-              as="div"
-              borderRadius="1.25rem"
-              duration={5000}
-              containerClassName="h-full"
-              className="dashboard-panel flex h-full flex-col p-5 transition hover:border-secondary/35"
-            >
+            <div className="dashboard-panel flex h-full flex-col p-5 transition hover:border-secondary/35">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-secondary/12">
@@ -396,25 +407,25 @@ export default function DashboardPage() {
 
               {topPrediction ? (
                 <div className="mt-4">
-                  <h3 className="line-clamp-1 font-headline text-[15px] font-semibold text-slate-900">{topPrediction.eventName}</h3>
+                  <h3 className="line-clamp-1 font-headline text-[15px] font-semibold text-on-surface">{topPrediction.eventName}</h3>
                   <div className="mt-1 flex flex-wrap items-baseline gap-2">
-                    <p className="font-headline text-sm font-semibold text-slate-900">{topPrediction.username}</p>
-                    <p className="text-[11px] font-medium text-slate-500">{topPrediction.fullName}</p>
+                    <p className="font-headline text-sm font-semibold text-on-surface">{topPrediction.username}</p>
+                    <p className="text-[11px] font-medium text-on-surface-variant">{topPrediction.fullName}</p>
                   </div>
-                  <div className="mt-3 space-y-1.5 text-xs text-slate-600">
+                  <div className="mt-3 space-y-1.5 text-xs text-on-surface-variant">
                     <div className="flex items-center gap-1.5"><Trophy className="h-3.5 w-3.5 text-primary" />{topPrediction.top3.join(" · ")}</div>
                     <div className="flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-secondary" />Pole: {topPrediction.polePosition}</div>
                     <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-tertiary" />DOTD: {topPrediction.driverOfTheDay}</div>
                   </div>
                 </div>
               ) : (
-                <p className="mt-4 text-sm text-slate-500">No live prediction feed yet.</p>
+                <p className="mt-4 text-sm text-on-surface-variant">No live prediction feed yet.</p>
               )}
 
               <div className="mt-auto flex items-center gap-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-secondary">
                 Open Prediction <ChevronRight className="h-3 w-3" />
               </div>
-            </MovingBorderButton>
+            </div>
           </Link>
         </motion.div>
       </motion.div>
@@ -428,16 +439,30 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
   if (!data) return null;
   const { race, isRaceWeekend } = data;
   const isLive = countdown === "LIVE NOW";
+  const mapSrc = getCircuitMapSrc(race);
+  const flagSrc = getCountryFlagAsset(race);
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-[24px] border border-white/15 bg-linear-to-br from-primary/80 via-primary/55 to-secondary/65 p-5 text-white shadow-[0_22px_45px_rgba(124,58,237,0.35)] transition hover:scale-[1.005]">
-      <div className="absolute right-0 top-0 h-36 w-36 rounded-full bg-white/20 blur-3xl" />
+    <div className="dashboard-panel relative flex h-full flex-col overflow-hidden rounded-[24px] p-5 text-on-surface transition hover:scale-[1.005]">
+      {mapSrc ? (
+        <div className="pointer-events-none absolute right-0 top-1 h-44 w-72 opacity-95 sm:right-1 sm:top-0 sm:h-48 sm:w-80">
+          <Image
+            src={mapSrc}
+            alt={`${race.circuit} circuit map`}
+            fill
+            sizes="(max-width: 640px) 288px, 320px"
+            className="object-contain brightness-[0.35] contrast-[1.9] saturate-0"
+          />
+          <div className="absolute inset-0 bg-linear-to-l from-transparent via-white/0 to-transparent" />
+        </div>
+      ) : null}
+      <div className="pointer-events-none absolute right-0 top-0 h-36 w-36 rounded-full bg-violet-300/20 blur-3xl" />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className={`flex h-7 w-7 items-center justify-center rounded ${isRaceWeekend ? "bg-alert-red/20" : "bg-primary/15"}`}>
+          <div className={`flex h-7 w-7 items-center justify-center rounded ${isRaceWeekend ? "bg-alert-red/15" : "bg-primary/12"}`}>
             <Flag className={`h-3.5 w-3.5 ${isRaceWeekend ? "text-alert-red" : "text-primary"}`} />
           </div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant">
             {isRaceWeekend ? "Race Weekend Live" : "Next Race"}
           </p>
         </div>
@@ -453,23 +478,30 @@ function NextRaceCard({ data }: { data: { race: RaceWeekend; isRaceWeekend: bool
       </div>
 
       <div className="mt-4 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">{race.flagEmoji}</span>
-          <h3 className="font-headline text-lg font-semibold text-white">{race.name}</h3>
-        </div>
-        <p className="mt-1 text-[11px] font-medium text-white/65">{race.circuit}</p>
-        <div className="mt-2 flex items-center gap-2 text-xs font-medium text-white/70">
-          <MapPin className="h-3 w-3" />{race.city}, {race.country}
-          <span className="text-outline-variant">·</span>
-          Round {race.round}/{race.totalRounds}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 pr-36 sm:pr-64">
+            <div className="flex items-center gap-2">
+              <h3 className="font-headline text-lg font-semibold text-on-surface">{race.name}</h3>
+            </div>
+            <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-on-surface-variant">
+              {flagSrc ? (
+                <span className="relative h-4 w-6 overflow-hidden rounded-[2px] border border-slate-300/70">
+                  <Image src={flagSrc} alt={`${race.country} flag`} fill sizes="24px" className="object-cover" />
+                </span>
+              ) : (
+                <span className="text-base leading-none">{race.flagEmoji}</span>
+              )}
+              <span>{race.country}</span>
+            </div>
+          </div>
         </div>
 
         {/* Countdown */}
-        <div className="mt-4 rounded-card border border-white/20 bg-black/25 px-4 py-3 backdrop-blur-md">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/65">
+        <div className="mt-4 rounded-card border border-outline-variant/30 bg-white/80 px-4 py-3">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
             {isLive ? "Race Status" : "Lights Out In"}
           </p>
-          <p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-white">
+          <p className="mt-1 font-mono text-3xl font-semibold tabular-nums text-on-surface">
             {countdown}
           </p>
         </div>

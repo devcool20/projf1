@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Manrope, Syne } from "next/font/google";
 import "./globals.css";
+import { AppLayout } from "@/components/layout/app-layout";
 
 const headingFont = Syne({
   variable: "--font-heading",
@@ -35,7 +36,9 @@ export default function RootLayout({
       lang="en"
       className={`${headingFont.variable} ${bodyFont.variable} ${telemetryFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-base font-body text-on-surface">{children}</body>
+      <body className="min-h-full bg-base font-body text-on-surface">
+        <AppLayout>{children}</AppLayout>
+      </body>
     </html>
   );
 }

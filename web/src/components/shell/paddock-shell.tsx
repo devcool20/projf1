@@ -1,6 +1,6 @@
 "use client";
 
-import { PageTransition } from "@/components/motion/page-transition";
+import { SharedLayout } from "@/components/motion/page-transition";
 import { PropsWithChildren } from "react";
 import { PaddockBottomNav } from "./paddock-bottom-nav";
 
@@ -10,8 +10,11 @@ export function PaddockShell({ children }: PropsWithChildren) {
       <div className="grid h-screen grid-cols-12 px-3 pt-3">
         <main
           className="premium-scrollbar col-span-12 h-full overflow-y-auto rounded-[24px] bg-transparent px-2 pb-36 pt-2 xl:col-span-12 [transform:translateZ(0)]"
+          id="paddock-main"
         >
-          <PageTransition>{children}</PageTransition>
+          <SharedLayout itemId="paddock-shell">
+            {children}
+          </SharedLayout>
         </main>
       </div>
       <PaddockBottomNav />
