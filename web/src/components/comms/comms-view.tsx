@@ -9,6 +9,7 @@ import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { CreateThreadPanel } from "./create-thread-panel";
 import { UserDetailPanel } from "./user-detail-panel";
+import { LikeButton, BookmarkButton } from "./micro-interactions";
 import { Trash2, Heart, MessageCircle, Signal, Shield, ChevronLeft, Send, Image as ImageIcon, X, User, Share2, Plus, ImagePlus, Loader2, Bookmark } from "lucide-react";
 import { applyTeamAccent, resetTeamAccent, getTeamColor } from "@/lib/team-accent";
 import { fastFade, listContainerVariants, listItemVariants, modalSpring, overlayVariants, modalPanelVariants } from "@/components/motion/premium-motion";
@@ -359,7 +360,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
           )}
         </div>
         
-        <p className="mt-1 text-sm font-medium leading-normal !text-slate-600">{getDisplayMessage(reply.message)}</p>
+        <p className="mt-1 text-sm font-medium leading-normal text-slate-600!">{getDisplayMessage(reply.message)}</p>
 
         {reply.imageUrl && (
           <div className="relative mt-3 w-full overflow-hidden rounded-xl border border-outline-variant/25 bg-surface-dim">
@@ -1240,7 +1241,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   </div>
 
                   <div className="mt-3 ml-13 sm:ml-13 pr-2">
-                    <p className="text-[15px] sm:text-base font-semibold leading-normal !text-slate-600">{getDisplayMessage(thread.message)}</p>
+                    <p className="text-[15px] sm:text-base font-semibold leading-normal text-slate-600!">{getDisplayMessage(thread.message)}</p>
                   </div>
                 </div>
 
@@ -1259,20 +1260,18 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                 )}
 
                 <div className="px-4 pb-3 flex items-center gap-5 ml-13 border-t border-outline-variant/5 pt-2 mt-2">
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
+                  <div
                     onClick={(e) => {
-                       e.stopPropagation();
-                       likeThread(thread.id);
+                      e.stopPropagation();
                     }}
-                    className="group flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-primary transition-colors"
                   >
-                     <div className="flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-primary/10 transition-colors">
-                       <Heart className={`h-4 w-4 ${userLikedThreads.includes(thread.id) ? "fill-primary text-primary" : ""}`} />
-                     </div>
-                     {thread.likes > 0 && <span className={userLikedThreads.includes(thread.id) ? "text-primary font-medium" : ""}>{thread.likes}</span>}
-                  </motion.button>
+                    <LikeButton
+                      liked={userLikedThreads.includes(thread.id)}
+                      count={thread.likes}
+                      onToggle={() => likeThread(thread.id)}
+                      size="sm"
+                    />
+                  </div>
                   <div className="group flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-secondary transition-colors cursor-pointer" onClick={() => openThreadDetail(thread.id)}>
                      <div className="flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-secondary/10 transition-colors">
                        <MessageCircle className="h-4 w-4" />
@@ -1293,22 +1292,19 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                     </div>
                     {shareState === "copied" ? <span>Copied</span> : null}
                   </motion.button>
-                  {Boolean(userProfile?.id) && !isOwner && (
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      type="button"
-                      data-active={userBookmarkedThreads.includes(thread.id) ? "true" : undefined}
+                  {Boolean(userProfile?.id) && (
+                    <div
                       onClick={(e) => {
                         e.stopPropagation();
-                        void toggleBookmarkThread(thread.id);
                       }}
-                      className="group flex items-center gap-1.5 text-xs text-slate-700 hover:text-primary transition-colors"
                     >
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-primary/10 transition-colors">
-                        <Bookmark className={`h-4 w-4 ${userBookmarkedThreads.includes(thread.id) ? "fill-primary text-primary" : ""}`} />
-                      </div>
-                      {userBookmarkedThreads.includes(thread.id) ? <span className="text-primary font-medium">Saved</span> : null}
-                    </motion.button>
+                      <BookmarkButton
+                        bookmarked={userBookmarkedThreads.includes(thread.id)}
+                        onToggle={() => void toggleBookmarkThread(thread.id)}
+                        disabled={thread.profileId === userProfile?.id}
+                        size="sm"
+                      />
+                    </div>
                   )}
                 </div>
               </motion.div>
@@ -1427,7 +1423,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
               </div>
 
               <div className="mt-3 pt-2">
-                <p className="text-[15px] sm:text-base font-semibold leading-relaxed whitespace-pre-wrap !text-slate-600">{getDisplayMessage(selectedThread.message)}</p>
+                <p className="text-[15px] sm:text-base font-semibold leading-relaxed whitespace-pre-wrap text-slate-600!">{getDisplayMessage(selectedThread.message)}</p>
               </div>
 
               {selectedThread.imageUrl && (
@@ -1461,18 +1457,12 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
               </div>
 
               <div className="flex items-center justify-around py-2 border-b border-outline-variant/20">
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  type="button"
-                  data-active={userLikedThreads.includes(selectedThread.id) ? "true" : undefined}
-                  onClick={() => likeThread(selectedThread.id)}
-                  className="group flex items-center gap-2 text-sm text-slate-700 hover:text-primary transition-colors"
-                >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full group-hover:bg-primary/10 transition-colors">
-                    <Heart className={`h-5 w-5 ${userLikedThreads.includes(selectedThread.id) ? "fill-primary text-primary" : ""}`} />
-                  </div>
-                  {selectedThread.likes > 0 && <span className={userLikedThreads.includes(selectedThread.id) ? "text-primary font-medium" : ""}>{selectedThread.likes}</span>}
-                </motion.button>
+                <LikeButton
+                  liked={userLikedThreads.includes(selectedThread.id)}
+                  count={selectedThread.likes}
+                  onToggle={() => likeThread(selectedThread.id)}
+                  size="md"
+                />
 
                 <div className="group flex items-center gap-2 text-sm text-slate-700">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full">
@@ -1492,21 +1482,13 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   </div>
                   {shareState === "copied" ? "Copied" : ""}
                 </motion.button>
-                {Boolean(userProfile?.id) && userProfile?.id !== selectedThread.profileId && (
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    type="button"
-                    data-active={userBookmarkedThreads.includes(selectedThread.id) ? "true" : undefined}
-                    onClick={() => {
-                      void toggleBookmarkThread(selectedThread.id);
-                    }}
-                    className="group flex items-center gap-2 text-sm text-slate-700 hover:text-primary transition-colors"
-                  >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full group-hover:bg-primary/10 transition-colors">
-                      <Bookmark className={`h-5 w-5 ${userBookmarkedThreads.includes(selectedThread.id) ? "fill-primary text-primary" : ""}`} />
-                    </div>
-                    {userBookmarkedThreads.includes(selectedThread.id) ? "Saved" : ""}
-                  </motion.button>
+                {Boolean(userProfile?.id) && (
+                  <BookmarkButton
+                    bookmarked={userBookmarkedThreads.includes(selectedThread.id)}
+                    onToggle={() => void toggleBookmarkThread(selectedThread.id)}
+                    disabled={selectedThread.profileId === userProfile?.id}
+                    size="md"
+                  />
                 )}
               </div>
 
@@ -1665,7 +1647,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                         </div>
                         <Bookmark className="h-4 w-4 shrink-0 fill-primary text-primary" />
                       </div>
-                      <p className="mt-2 line-clamp-2 text-sm !text-slate-600">{getDisplayMessage(thread.message)}</p>
+                      <p className="mt-2 line-clamp-2 text-sm text-slate-600!">{getDisplayMessage(thread.message)}</p>
                       <div className="mt-2 text-[11px] text-on-surface-variant">{formatTimeAgo(thread.createdAt)}</div>
                     </button>
                   ))}
