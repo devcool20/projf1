@@ -24,6 +24,8 @@ export type FloatingDockItem = {
   active?: boolean;
 };
 
+export type FloatingDockVariant = "default" | "dark";
+
 /** Slightly tighter springs on the tray, softer on the glyph for a liquid feel */
 const springTray = { mass: 0.15, stiffness: 400, damping: 30 };
 const springIcon = { mass: 0.12, stiffness: 480, damping: 34 };
@@ -34,12 +36,14 @@ function IconContainer({
   icon,
   href,
   active,
+  variant,
 }: {
   mouseX: MotionValue<number>;
   title: string;
   icon: React.ReactNode;
   href: string;
   active?: boolean;
+  variant: FloatingDockVariant;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -62,6 +66,16 @@ function IconContainer({
 
   const [hovered, setHovered] = useState(false);
 
+  const inactive =
+    variant === "dark"
+      ? "border-slate-600/90 bg-slate-900/90 text-slate-400 hover:border-slate-500 hover:bg-slate-800 hover:text-slate-100"
+      : "border-slate-200/90 bg-slate-100/95 text-slate-600 hover:border-slate-300 hover:bg-white hover:text-slate-800";
+
+  const tooltip =
+    variant === "dark"
+      ? "border-slate-600/90 bg-slate-950/95 text-slate-200 shadow-[0_12px_28px_rgba(0,0,0,0.45)]"
+      : "border-slate-200/90 bg-white/95 text-slate-700 shadow-lg";
+
   return (
     <Link
       href={href}
@@ -77,7 +91,7 @@ function IconContainer({
           "relative flex aspect-square items-center justify-center rounded-full border transition-colors duration-200",
           active
             ? "border-primary/40 bg-primary/14 text-primary shadow-[0_0_0_1px_rgba(124,58,237,0.1)]"
-            : "border-slate-200/90 bg-slate-100/95 text-slate-600 hover:border-slate-300 hover:bg-white hover:text-slate-800",
+            : inactive,
         )}
       >
         {active && (
@@ -94,7 +108,10 @@ function IconContainer({
               animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: 5, scale: 0.96, filter: "blur(2px)" }}
               transition={{ type: "spring", stiffness: 540, damping: 36 }}
-              className="pointer-events-none absolute -top-[2.35rem] left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg border border-slate-200/90 bg-white/95 px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-slate-700 shadow-lg backdrop-blur-md"
+              className={cn(
+                "pointer-events-none absolute -top-[2.35rem] left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg border px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em] backdrop-blur-md",
+                tooltip,
+              )}
             >
               {title}
             </motion.span>
@@ -118,13 +135,20 @@ export function FloatingDock({
   items,
   desktopClassName,
   mobileClassName,
+  variant = "default",
 }: {
   items: FloatingDockItem[];
   desktopClassName?: string;
   /** Kept for API compatibility with Aceternity demo; merged into the bar on small screens */
   mobileClassName?: string;
+  variant?: FloatingDockVariant;
 }) {
   const mouseX = useMotionValue(Infinity);
+
+  const tray =
+    variant === "dark"
+      ? "border-white/12 bg-slate-950/92 shadow-[0_16px_48px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+      : "border-slate-200/90 bg-white/92 shadow-[0_12px_28px_rgba(15,23,42,0.1)] backdrop-blur-xl";
 
   return (
     <motion.div
@@ -132,13 +156,14 @@ export function FloatingDock({
       onPointerLeave={() => mouseX.set(Infinity)}
       onPointerCancel={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto flex h-14 w-fit items-center justify-center gap-2 overflow-visible rounded-2xl border border-slate-200/90 bg-white/92 px-2.5 shadow-[0_12px_28px_rgba(15,23,42,0.1)] backdrop-blur-xl sm:h-20 sm:gap-6 sm:rounded-3xl sm:px-8",
+        "mx-auto flex h-14 w-fit items-center justify-center gap-2 overflow-visible rounded-2xl border px-2.5 sm:h-20 sm:gap-6 sm:rounded-3xl sm:px-8",
+        tray,
         desktopClassName,
         mobileClassName,
       )}
     >
       {items.map((item) => (
-        <IconContainer key={item.href} mouseX={mouseX} {...item} />
+        <IconContainer key={item.href} mouseX={mouseX} variant={variant} {...item} />
       ))}
     </motion.div>
   );

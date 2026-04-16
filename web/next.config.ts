@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    /** Local /public cards: avoid long-lived optimizer cache when filenames stay the same */
+    minimumCacheTTL: 0,
     remotePatterns: [
       {
         protocol: "https",
