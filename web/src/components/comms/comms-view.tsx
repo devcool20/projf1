@@ -1038,6 +1038,8 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
     [openThreadDetail],
   );
 
+  const desktopDetailRailWidth = "calc(min(440px, 34vw) + 1.5rem)";
+
   return (
     <AnimatePresence initial={false} mode="sync">
       {loading ? (
@@ -1092,7 +1094,10 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
-      <section className={`col-span-12 ${selectedThreadId ? "hidden xl:block" : "block"}`}>
+      <section
+        className={`col-span-12 ${selectedThreadId ? "hidden xl:block" : "block"}`}
+        style={selectedThreadId && !isMobileView ? { paddingRight: desktopDetailRailWidth } : undefined}
+      >
         <div className="mb-4 flex items-end justify-between border-b border-primary/20 pb-3">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary/80">Transmission Feed</p>
@@ -1141,7 +1146,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
         )}
 
         <motion.div
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 md:grid-flow-dense"
+          className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 md:grid-flow-dense"
           variants={listContainerVariants}
           initial={false}
           animate="show"
@@ -1320,55 +1325,58 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
         )}
       </section>
 
-      <AnimatePresence>
-        {!!selectedThreadId && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={isMobileView ? { duration: 0.18, ease: [0.22, 1, 0.36, 1] } : fastFade}
-            className="fixed inset-0 z-50 bg-white/70 xl:bg-white/12"
-            onClick={closeThreadDetail}
-          />
-        )}
-      </AnimatePresence>
-      <aside
-        className={`mx-auto w-full max-w-2xl ${
-          !!selectedThreadId
-            ? "fixed inset-0 z-60 bg-white/82 p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:inset-y-5 xl:left-auto xl:right-6 xl:w-[min(440px,34vw)] xl:max-w-none xl:bg-transparent xl:p-0"
-            : "hidden"
-        }`}
-        onClick={!!selectedThreadId ? closeThreadDetail : undefined}
-      >
-        <AnimatePresence initial={false} mode="wait">
-          {selectedThread ? (
-            <motion.div
-              key={selectedThread.id}
-              {...(isMobileView
-                ? {
-                    initial: { x: "100%", opacity: 1 },
-                    animate: { x: "0%", opacity: 1 },
-                    exit: { x: "100%", opacity: 1 },
-                    transition: { type: "spring", stiffness: 410, damping: 42, mass: 0.9 },
-                  }
-                : {
-                    initial: { x: 30, opacity: 0.96 },
-                    animate: { x: 0, opacity: 1 },
-                    exit: { x: 30, opacity: 0.96 },
-                    transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] },
-                  })}
-              className="dashboard-panel premium-scrollbar h-[calc(100dvh-7rem)] overflow-y-auto rounded-card p-4 sm:p-5 xl:h-auto xl:overflow-visible"
-              style={
-                isMobileView
-                  ? {
-                      willChange: "transform",
-                      transform: "translateZ(0)",
-                      backfaceVisibility: "hidden",
-                    }
-                  : undefined
-              }
-              onClick={(event) => event.stopPropagation()}
+      {portalMounted &&
+        createPortal(
+          <>
+            <AnimatePresence>
+              {!!selectedThreadId && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={isMobileView ? { duration: 0.18, ease: [0.22, 1, 0.36, 1] } : fastFade}
+                  className="fixed inset-0 z-50 bg-white/70 xl:hidden"
+                  onClick={closeThreadDetail}
+                />
+              )}
+            </AnimatePresence>
+            <aside
+              className={`mx-auto w-full max-w-2xl ${
+                !!selectedThreadId
+                  ? "fixed inset-0 z-60 bg-white/82 p-3 pb-[calc(5.5rem+env(safe-area-inset-bottom))] xl:inset-y-5 xl:left-auto xl:right-6 xl:w-[min(440px,34vw)] xl:max-w-none xl:bg-transparent xl:p-0"
+                  : "hidden"
+              }`}
+              onClick={!!selectedThreadId && isMobileView ? closeThreadDetail : undefined}
             >
+              <AnimatePresence initial={false} mode="wait">
+                {selectedThread ? (
+                  <motion.div
+                    key={selectedThread.id}
+                    {...(isMobileView
+                      ? {
+                          initial: { x: "100%", opacity: 1 },
+                          animate: { x: "0%", opacity: 1 },
+                          exit: { x: "100%", opacity: 1 },
+                          transition: { type: "spring", stiffness: 410, damping: 42, mass: 0.9 },
+                        }
+                      : {
+                          initial: { x: 30, opacity: 0.96 },
+                          animate: { x: 0, opacity: 1 },
+                          exit: { x: 30, opacity: 0.96 },
+                          transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] },
+                        })}
+                    className="dashboard-panel premium-scrollbar h-[calc(100dvh-7rem)] overflow-y-auto overscroll-contain rounded-card p-4 sm:p-5 xl:h-[calc(100dvh-2.5rem)] xl:overflow-y-auto"
+                    style={
+                      isMobileView
+                        ? {
+                            willChange: "transform",
+                            transform: "translateZ(0)",
+                            backfaceVisibility: "hidden",
+                          }
+                        : undefined
+                    }
+                    onClick={(event) => event.stopPropagation()}
+                  >
             <div className="flex items-center justify-between border-b border-outline-variant/20 pb-3">
               <div className="flex items-center gap-4">
                 <motion.button
@@ -1584,10 +1592,13 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                 )}
               </div>
             </div>
-          </motion.div>
-          ) : null}
-        </AnimatePresence>
-      </aside>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </aside>
+          </>,
+          document.body,
+        )}
 
       <AnimatePresence>
         {isBookmarksOpen && (
