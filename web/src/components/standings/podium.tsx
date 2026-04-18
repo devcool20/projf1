@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Crown } from "lucide-react";
+import { StarIcon } from "@heroicons/react/24/solid";
 import type { ApiDriverStanding } from "@/lib/types";
 import { getTeamColor } from "@/lib/team-colors";
 
@@ -44,9 +44,9 @@ export function Podium({ topThree, selectedCode, onSelect, onOpenDriver }: Props
               style={{ background: tc.bg }}
             >
               {isP1 && (
-                <Crown
+                <StarIcon
                   className="absolute -top-3 left-1/2 h-5 w-5 -translate-x-1/2 text-primary sm:h-6 sm:w-6"
-                  strokeWidth={2.2}
+                  aria-hidden
                 />
               )}
 

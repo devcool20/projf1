@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarDays, ChevronRight, Clock3, Loader2 } from "lucide-react";
+import {
+  ArrowPathIcon,
+  CalendarDaysIcon,
+  ChevronRightIcon,
+  ClockIcon,
+} from "@heroicons/react/24/outline";
 import { supabase } from "@/lib/supabase";
 import { ScreeningEventRow, ScreeningVenueRow } from "@/lib/types";
 import { formatScreeningDateLabel } from "@/lib/screenings";
@@ -111,7 +116,7 @@ export default function PaddockPremieresPage() {
         </div>
         <div className="dashboard-panel flex min-h-[260px] items-center justify-center p-4">
           <div className="inline-flex items-center gap-2 text-on-surface-variant">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <ArrowPathIcon className="h-4 w-4 animate-spin" aria-hidden />
             <span className="font-mono text-xs uppercase tracking-[0.2em]">Loading paddock premieres</span>
           </div>
         </div>
@@ -148,7 +153,7 @@ export default function PaddockPremieresPage() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <h2 className="font-headline text-2xl leading-tight">{primaryRace.title}</h2>
                 <span className="chip-premium">
-                  <CalendarDays className="h-3.5 w-3.5" />
+                  <CalendarDaysIcon className="h-3.5 w-3.5" aria-hidden />
                   {primaryRace.dateLabel}
                 </span>
               </div>
@@ -162,7 +167,7 @@ export default function PaddockPremieresPage() {
               <div className="mt-4 flex items-center justify-end">
                 <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
                   Choose venue
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRightIcon className="h-4 w-4" aria-hidden />
                 </span>
               </div>
             </Link>
@@ -175,7 +180,7 @@ export default function PaddockPremieresPage() {
                 <div className="card-surface mt-3 p-4">
                   <h3 className="font-headline text-xl">{nextRace.title}</h3>
                   <p className="mt-2 inline-flex items-center gap-1 text-xs text-on-surface-variant">
-                    <Clock3 className="h-3.5 w-3.5" />
+                    <ClockIcon className="h-3.5 w-3.5" aria-hidden />
                     {nextRace.dateLabel}
                   </p>
                   <p className="mt-2 text-xs text-on-surface-variant">

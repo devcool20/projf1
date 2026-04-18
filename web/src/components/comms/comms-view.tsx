@@ -10,7 +10,20 @@ import { usePathname, useRouter } from "next/navigation";
 import { CreateThreadPanel } from "./create-thread-panel";
 import { UserDetailPanel } from "./user-detail-panel";
 import { LikeButton, BookmarkButton } from "./micro-interactions";
-import { Trash2, Heart, MessageCircle, Signal, Shield, ChevronLeft, Send, Image as ImageIcon, X, User, Share2, Plus, ImagePlus, Loader2, Bookmark } from "lucide-react";
+import {
+  ArrowPathIcon,
+  BookmarkIcon,
+  ChatBubbleLeftRightIcon,
+  ChevronLeftIcon,
+  HeartIcon,
+  PhotoIcon,
+  PlusIcon,
+  ShareIcon,
+  SignalIcon,
+  TrashIcon,
+  UserIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { applyTeamAccent, resetTeamAccent, getTeamColor } from "@/lib/team-accent";
 import { fastFade, listContainerVariants, listItemVariants, modalSpring, overlayVariants, modalPanelVariants } from "@/components/motion/premium-motion";
 import { useComms } from "@/lib/contexts/comms-context";
@@ -243,7 +256,7 @@ function ImageWithLoader({
     <div className={`relative overflow-hidden ${containerClass}`}>
       {!isLoaded && !isError && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-container-low">
-          <Loader2 className="h-4 w-4 animate-spin text-on-surface-variant" />
+          <ArrowPathIcon className="h-4 w-4 animate-spin text-on-surface-variant" />
         </div>
       )}
 
@@ -355,7 +368,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
               className="text-on-surface-variant/85 hover:text-red-400 p-1.5 rounded-full hover:bg-red-400/10 transition-colors shrink-0"
               title="Delete"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <TrashIcon className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
@@ -386,7 +399,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
           >
             <div className="relative flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-primary/10 transition-colors">
               <LikeBurst show={showBurst} />
-              <Heart className={`h-4 w-4 ${userLikedReplies.includes(reply.id) ? "fill-primary" : ""}`} />
+              <HeartIcon className={`h-4 w-4 ${userLikedReplies.includes(reply.id) ? "fill-primary" : ""}`} />
             </div>
             {reply.likes > 0 && <span>{reply.likes}</span>}
           </motion.button>
@@ -398,7 +411,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
               className="group flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-secondary transition-colors"
             >
                <div className="flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-secondary/10 transition-colors">
-                <MessageCircle className="h-4 w-4" />
+                <ChatBubbleLeftRightIcon className="h-4 w-4" />
               </div>
               Reply
             </motion.button>
@@ -424,7 +437,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
                       {userProfile?.avatar_url ? (
                         <ImageWithLoader src={userProfile.avatar_url} alt={userProfile.username} className="h-full w-full object-cover" containerClass="h-full w-full" />
                       ) : (
-                        userProfile?.username?.replace(/^@/, '')[0]?.toUpperCase() || <User className="h-4 w-4" />
+                        userProfile?.username?.replace(/^@/, '')[0]?.toUpperCase() || <UserIcon className="h-4 w-4" />
                       )}
                     </div>
                   </div>
@@ -455,7 +468,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
                         onClick={() => fileInputRef.current?.click()}
                         className="p-2 text-on-surface-variant hover:text-secondary transition-colors"
                       >
-                        <ImagePlus className="h-5 w-5" />
+                        <PhotoIcon className="h-5 w-5" />
                       </button>
                     </div>
                   </div>
@@ -468,7 +481,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
                         onClick={() => { setReplyImageFile(null); setReplyImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
                         className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 transition-colors"
                       >
-                        <X className="h-3 w-3" />
+                        <XMarkIcon className="h-3 w-3" />
                       </button>
                     </div>
                   )}
@@ -480,7 +493,7 @@ function ReplyNode({ reply, depth, onReplySubmit, onReplyLike, onReplyDelete, on
                       disabled={!replyMessage.trim() || isSubmitting}
                       className="btn-premium px-5 py-1.5 text-xs font-bold bg-primary text-on-primary rounded-full disabled:opacity-50"
                     >
-                      {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Reply"}
+                      {isSubmitting ? <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" /> : "Reply"}
                     </motion.button>
                   </div>
                 </div>
@@ -1115,7 +1128,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
               className="btn-premium btn-outline-glass flex h-8 items-center gap-1.5 rounded-full px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary"
               title="Open bookmarks"
             >
-              <Bookmark className="h-3.5 w-3.5" />
+              <BookmarkIcon className="h-3.5 w-3.5" />
               Saved
               {userBookmarkedThreads.length > 0 && (
                 <span className="rounded-full border border-primary/35 px-1.5 py-0.5 text-[9px] text-primary/90">
@@ -1135,7 +1148,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
             onClick={refreshForNewComms}
             className="btn-premium btn-outline-glass mb-4 inline-flex items-center gap-2 rounded-full px-4 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary"
           >
-            {isRefreshingNewComms ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+            {isRefreshingNewComms ? <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" /> : <PlusIcon className="h-3.5 w-3.5" />}
             Refresh for new comms
             {pendingNewCommsCount > 0 && (
               <span className="rounded-full border border-primary/35 px-2 py-0.5 text-[9px] text-primary/90">
@@ -1216,7 +1229,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                         <div className="flex items-center gap-2 mt-1">
                           {score > 0 && (
                             <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-container border border-outline-variant/20">
-                              <Signal className="h-2.5 w-2.5" style={{ color: signal.color }} />
+                              <SignalIcon className="h-2.5 w-2.5" style={{ color: signal.color }} />
                               <span className="font-mono text-[8px] uppercase tracking-wider font-bold" style={{ color: signal.color }}>
                                 Signal {score}
                               </span>
@@ -1240,7 +1253,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                         className="text-on-surface-variant/85 hover:text-alert-red hover:bg-alert-red/10 flex h-7 w-7 items-center justify-center rounded-full transition-colors shrink-0"
                         title="Terminate Broadcast"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <TrashIcon className="h-4 w-4" />
                       </button>
                     )}
                   </div>
@@ -1279,7 +1292,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   </div>
                   <div className="group flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-secondary transition-colors cursor-pointer" onClick={() => openThreadDetail(thread.id)}>
                      <div className="flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-secondary/10 transition-colors">
-                       <MessageCircle className="h-4 w-4" />
+                       <ChatBubbleLeftRightIcon className="h-4 w-4" />
                      </div>
                      {thread.comments > 0 && <span>{thread.comments}</span>}
                   </div>
@@ -1293,7 +1306,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                     className="group flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-secondary transition-colors"
                   >
                     <div className="flex h-7 w-7 items-center justify-center rounded-full group-hover:bg-secondary/10 transition-colors">
-                      <Share2 className="h-4 w-4" />
+                      <ShareIcon className="h-4 w-4" />
                     </div>
                     {shareState === "copied" ? <span>Copied</span> : null}
                   </motion.button>
@@ -1319,7 +1332,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
         {!query.trim() && hasMoreThreads && <div ref={loadMoreSentinelRef} className="mt-2 h-1 w-full" aria-hidden />}
         {!query.trim() && isLoadingMoreThreads && (
           <div className="mt-4 flex items-center justify-center gap-2 text-xs text-on-surface-variant">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <ArrowPathIcon className="h-4 w-4 animate-spin" />
             Loading more comms
           </div>
         )}
@@ -1385,7 +1398,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   onClick={closeThreadDetail}
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high hover:bg-surface-container-highest transition-colors"
                 >
-                  <ChevronLeft className="h-4 w-4 text-on-surface" />
+                  <ChevronLeftIcon className="h-4 w-4 text-on-surface" />
                 </motion.button>
                 <h2 className="font-bold text-lg text-on-surface">Post</h2>
               </div>
@@ -1397,7 +1410,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   className="text-on-surface-variant/85 hover:text-alert-red hover:bg-alert-red/10 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
                   title="Purge Signal"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <TrashIcon className="h-4 w-4" />
                 </button>
               )}
             </div>
@@ -1451,7 +1464,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                 const detailSignal = getSignalLabel(detailScore);
                 if (detailScore > 0) return (
                   <div className="mt-4 flex items-center gap-2 rounded-full border border-outline-variant/20 bg-surface-container-low px-3 py-1.5 w-fit">
-                    <Signal className="h-3 w-3" style={{ color: detailSignal.color }} />
+                    <SignalIcon className="h-3 w-3" style={{ color: detailSignal.color }} />
                     <span className="text-xs text-on-surface-variant font-mono">
                       Signal <strong style={{ color: detailSignal.color }}>{detailScore}</strong>
                     </span>
@@ -1474,7 +1487,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
 
                 <div className="group flex items-center gap-2 text-sm text-slate-700">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full">
-                    <MessageCircle className="h-5 w-5" />
+                    <ChatBubbleLeftRightIcon className="h-5 w-5" />
                   </div>
                   {selectedThread.comments > 0 && <span>{selectedThread.comments}</span>}
                 </div>
@@ -1486,7 +1499,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   className="group flex items-center gap-2 text-sm text-slate-700 hover:text-secondary transition-colors"
                 >
                   <div className="flex h-9 w-9 items-center justify-center rounded-full group-hover:bg-secondary/10 transition-colors">
-                    <Share2 className="h-5 w-5" />
+                    <ShareIcon className="h-5 w-5" />
                   </div>
                   {shareState === "copied" ? "Copied" : ""}
                 </motion.button>
@@ -1509,7 +1522,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   {userProfile?.avatar_url ? (
                      <ImageWithLoader src={userProfile.avatar_url} alt={userProfile.full_name} className="h-full w-full object-cover" containerClass="h-full w-full" />
                   ) : (
-                     userProfile?.username?.replace(/^@/, '')[0]?.toUpperCase() || <User className="h-6 w-6 text-on-surface-variant"/>
+                     userProfile?.username?.replace(/^@/, '')[0]?.toUpperCase() || <UserIcon className="h-6 w-6 text-on-surface-variant"/>
                   )}
                 </div>
                  <div className="flex-1 space-y-3">
@@ -1534,7 +1547,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                            onClick={() => { setReplyImageFile(null); setReplyImagePreview(null); if (replyFileInputRef.current) replyFileInputRef.current.value = ""; }}
                            className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80 transition-colors"
                          >
-                           <X className="h-3 w-3" />
+                           <XMarkIcon className="h-3 w-3" />
                          </button>
                        </div>
                      )}
@@ -1629,13 +1642,13 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                   className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high hover:bg-surface-container-highest transition-colors"
                   aria-label="Close bookmarks"
                 >
-                  <X className="h-4 w-4 text-on-surface" />
+                  <XMarkIcon className="h-4 w-4 text-on-surface" />
                 </button>
               </div>
 
               {isLoadingBookmarkThreads ? (
                 <div className="flex items-center justify-center gap-2 py-12 text-sm text-on-surface-variant">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <ArrowPathIcon className="h-4 w-4 animate-spin" />
                   Loading saved threads
                 </div>
               ) : bookmarkedThreads.length === 0 ? (
@@ -1656,7 +1669,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                           <p className="truncate font-semibold text-on-surface">{thread.fullName}</p>
                           <p className="truncate text-xs text-on-surface-variant">@{thread.username?.replace(/^@/, "")}</p>
                         </div>
-                        <Bookmark className="h-4 w-4 shrink-0 fill-primary text-primary" />
+                        <BookmarkIcon className="h-4 w-4 shrink-0 fill-primary text-primary" />
                       </div>
                       <p className="mt-2 line-clamp-2 text-sm text-slate-600!">{getDisplayMessage(thread.message)}</p>
                       <div className="mt-2 text-[11px] text-on-surface-variant">{formatTimeAgo(thread.createdAt)}</div>
@@ -1680,7 +1693,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
               className="fab-premium bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 sm:right-6 h-12 w-12 text-lg"
               aria-label="Create thread"
             >
-              <Plus className="h-5 w-5" />
+              <PlusIcon className="h-5 w-5" />
             </motion.button>
 
             <AnimatePresence>
@@ -1711,7 +1724,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                         onClick={closeCreateOverlay}
                         className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-highest border border-outline-variant/30 shadow-sm hover:bg-surface-container-high transition-colors"
                       >
-                        <X className="h-4 w-4 text-on-surface" />
+                        <XMarkIcon className="h-4 w-4 text-on-surface" />
                       </motion.button>
                     </div>
                     {userProfile ? (
@@ -1736,7 +1749,7 @@ export function CommsView({ query, initialThreadId = "" }: Props) {
                           onClick={closeCreateOverlay}
                           className="btn-premium btn-outline-glass ml-auto mb-4 flex h-8 w-8 items-center justify-center rounded-full p-0"
                         >
-                          <X className="h-4 w-4" />
+                          <XMarkIcon className="h-4 w-4" />
                         </button>
                         <h3 className="font-headline text-xl uppercase tracking-wider text-primary">Radio Silence</h3>
                         <p className="mt-2 font-mono text-sm uppercase tracking-widest text-on-surface-variant">

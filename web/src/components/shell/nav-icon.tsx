@@ -1,41 +1,45 @@
 import {
-  Clapperboard,
-  Gauge,
-  IdCard,
-  LayoutDashboard,
-  Radio,
-  Route,
-  ShoppingBag,
-  Trophy,
-  Wrench,
-} from "lucide-react";
+  ChatBubbleLeftRightIcon,
+  FilmIcon,
+  IdentificationIcon,
+  MapIcon,
+  PresentationChartLineIcon,
+  SparklesIcon,
+  Squares2X2Icon,
+  TrophyIcon,
+  WrenchScrewdriverIcon,
+} from "@heroicons/react/24/outline";
 
 type Props = {
   icon: string;
   className?: string;
 };
 
+/** Dock icons: Heroicons outline 24 — tuned for legibility at small sizes in the magnifying dock */
 export function NavIcon({ icon, className }: Props) {
+  const cn = className ?? "";
   switch (icon) {
     case "layout-dashboard":
-      return <LayoutDashboard className={className} />;
+      return <Squares2X2Icon className={cn} aria-hidden />;
     case "radio":
-      return <Radio className={className} />;
+      return <ChatBubbleLeftRightIcon className={cn} aria-hidden />;
     case "gauge":
-      return <Gauge className={className} />;
+      return <PresentationChartLineIcon className={cn} aria-hidden />;
     case "route":
-      return <Route className={className} />;
+      return <MapIcon className={cn} aria-hidden />;
     case "clapperboard":
-      return <Clapperboard className={className} />;
+      return <FilmIcon className={cn} aria-hidden />;
     case "trophy":
-      return <Trophy className={className} />;
+      return <TrophyIcon className={cn} aria-hidden />;
     case "wrench":
-      return <Wrench className={className} />;
+      return <WrenchScrewdriverIcon className={cn} aria-hidden />;
     case "shopping-bag":
-      return <ShoppingBag className={className} />;
+      return <SparklesIcon className={cn} aria-hidden />;
+    case "sparkles":
+      return <SparklesIcon className={cn} aria-hidden />;
     case "id-card":
-      return <IdCard className={className} />;
+      return <IdentificationIcon className={cn} aria-hidden />;
     default:
-      return <LayoutDashboard className={className} />;
+      return <Squares2X2Icon className={cn} aria-hidden />;
   }
 }

@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { ParcFermeCard } from "./collectible-card";
 
@@ -34,7 +34,7 @@ export function CardDetailView({ card, onClose }: CardDetailViewProps) {
             className="parc-detail-panel pointer-events-auto absolute bottom-4 left-4 right-4 h-[78dvh] overflow-hidden rounded-3xl border border-white/15 bg-slate-950/96 shadow-[0_26px_72px_rgba(2,6,23,0.58)] lg:bottom-auto lg:left-auto lg:right-6 lg:top-6 lg:h-[calc(100dvh-3rem)] lg:w-[min(520px,40vw)]"
           >
             <button type="button" onClick={onClose} className="parc-detail-close" aria-label="Close details">
-              <X className="h-4 w-4" />
+              <XMarkIcon className="h-4 w-4" aria-hidden />
             </button>
 
             <div className="parc-detail-scroll premium-scrollbar p-4 sm:p-5">
@@ -68,9 +68,9 @@ export function CardDetailView({ card, onClose }: CardDetailViewProps) {
                 <div>
                   <p className="parc-detail-kicker">Driver collectible</p>
                   <h3 className="parc-detail-title">{card.title}</h3>
-                  <p className="parc-detail-subtitle">Paddock Parc Fermé series</p>
+                  <p className="parc-detail-subtitle">Paddock Parc FermÃ© series</p>
                   <p className="parc-detail-description">
-                    Limited driver portrait card for {card.title}. Part of the Parc Fermé grid collection—tap
+                    Limited driver portrait card for {card.title}. Part of the Parc FermÃ© grid collectionâ€”tap
                     the rail to browse, open the center card for details.
                   </p>
 
@@ -78,7 +78,7 @@ export function CardDetailView({ card, onClose }: CardDetailViewProps) {
                     <span>F1</span>
                     <span>Portrait</span>
                     <span>Limited</span>
-                    <span>Parc Fermé</span>
+                    <span>Parc FermÃ©</span>
                   </div>
 
                   <div className="parc-spec-grid">
@@ -88,7 +88,7 @@ export function CardDetailView({ card, onClose }: CardDetailViewProps) {
                     </div>
                     <div>
                       <p className="parc-spec-label">Collection</p>
-                      <p className="parc-spec-value">Parc Fermé Grid</p>
+                      <p className="parc-spec-value">Parc FermÃ© Grid</p>
                     </div>
                     <div>
                       <p className="parc-spec-label">Season</p>

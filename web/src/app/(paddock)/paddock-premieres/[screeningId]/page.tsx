@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, CalendarDays, Loader2, MapPin, Monitor, UtensilsCrossed, X } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ArrowPathIcon,
+  CalendarDaysIcon,
+  ComputerDesktopIcon,
+  MapPinIcon,
+  SparklesIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { AnimatePresence, motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -241,7 +249,7 @@ export default function ScreeningVenuePage() {
         </div>
         <div className="dashboard-panel flex min-h-[280px] items-center justify-center p-4">
           <div className="inline-flex items-center gap-2 text-on-surface-variant">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <ArrowPathIcon className="h-4 w-4 animate-spin" aria-hidden />
             <span className="font-mono text-xs uppercase tracking-[0.2em]">Loading venues</span>
           </div>
         </div>
@@ -253,12 +261,12 @@ export default function ScreeningVenuePage() {
     <div className="mx-auto w-full max-w-[1400px] space-y-4 pb-24">
       <section className="surface-ink p-5 sm:p-6">
         <Link href="/paddock-premieres" className="mb-3 inline-flex items-center gap-2 text-xs text-zinc-300 hover:text-white">
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeftIcon className="h-4 w-4" aria-hidden />
           Back to races
         </Link>
         <h1 className="font-headline text-3xl font-bold text-white">{screening?.title ?? "Race Screening"}</h1>
         <p className="mt-2 inline-flex items-center gap-1 text-sm text-zinc-300">
-          <CalendarDays className="h-4 w-4" />
+          <CalendarDaysIcon className="h-4 w-4" aria-hidden />
           {screening?.dateLabel ?? ""}
         </p>
       </section>
@@ -308,7 +316,7 @@ export default function ScreeningVenuePage() {
                 </div>
                 <div className="card-surface p-3">
                   <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-                    <Monitor className="h-3.5 w-3.5" />
+                    <ComputerDesktopIcon className="h-3.5 w-3.5" aria-hidden />
                     Screen Size
                   </p>
                   <p className="mt-1 text-sm text-on-surface-variant">{selectedVenue.screenSize || "Not set"}</p>
@@ -322,7 +330,7 @@ export default function ScreeningVenuePage() {
                 </div>
                 <div className="card-surface p-3 sm:col-span-2">
                   <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-                    <UtensilsCrossed className="h-3.5 w-3.5" />
+                    <SparklesIcon className="h-3.5 w-3.5" aria-hidden />
                     Available
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
@@ -375,7 +383,7 @@ export default function ScreeningVenuePage() {
                         <div className="min-w-0 flex-1">
                           <p className="font-headline text-lg">{venue.name}</p>
                           <p className="mt-1 inline-flex items-center gap-1 text-xs text-on-surface-variant">
-                            <MapPin className="h-3.5 w-3.5" />
+                            <MapPinIcon className="h-3.5 w-3.5" aria-hidden />
                             {venue.city}
                           </p>
                           <p className="mt-1 text-xs text-on-surface-variant">{venue.seatsLeft} left · Rs. {formatCurrency(venue.entryFee)}</p>
@@ -413,7 +421,7 @@ export default function ScreeningVenuePage() {
                 onClick={closeBookingModal}
                 className="absolute right-3 top-3 rounded-full border border-white/15 bg-white/8 p-1.5 text-zinc-300 backdrop-blur-md transition hover:bg-white/15 hover:text-white"
               >
-                <X className="h-4 w-4" />
+                <XMarkIcon className="h-4 w-4" aria-hidden />
               </button>
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary">Booking Modal</p>
               <h2 className="mt-2 font-headline text-xl text-white">{selectedVenue.name}</h2>

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore, FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessageSquarePlus, X } from "lucide-react";
+import { ChatBubbleBottomCenterTextIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { supabase } from "@/lib/supabase";
 import { predictionDriverPool } from "@/lib/mock-data";
 
@@ -208,7 +208,7 @@ export function PredictionCreatorModal({
                 className="btn-premium btn-outline-glass flex h-10 w-10 shrink-0 items-center justify-center rounded-full p-0 text-slate-600"
                 aria-label="Close"
               >
-                <X className="h-5 w-5" />
+                <XMarkIcon className="h-5 w-5" aria-hidden />
               </motion.button>
             </div>
 
@@ -305,7 +305,7 @@ export function PredictionCreatorModal({
                   type="submit"
                   className="btn-premium btn-primary flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-headline text-sm font-bold tracking-wide text-white disabled:cursor-not-allowed"
                 >
-                  <MessageSquarePlus className="h-4 w-4" />
+                  <ChatBubbleBottomCenterTextIcon className="h-4 w-4" aria-hidden />
                   {postLocked ? "Locked" : "Deploy prediction"}
                 </button>
                 {submitError ? <p className="text-center text-sm text-red-600">{submitError}</p> : null}

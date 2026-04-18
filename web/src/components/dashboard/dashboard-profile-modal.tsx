@@ -3,7 +3,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { UserRound, X } from "lucide-react";
+import { UserCircleIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ProfileScreen } from "@/components/profile/profile-screen";
 
 type DashboardProfileModalProps = {
@@ -21,7 +21,7 @@ export function PremiumProfileTrigger({ onPress }: { onPress: () => void }) {
       whileTap={{ scale: 0.97 }}
       className="btn-premium btn-outline-glass group relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full p-0 text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/35"
     >
-      <UserRound className="h-[19px] w-[19px]" strokeWidth={2.25} aria-hidden />
+      <UserCircleIcon className="h-[19px] w-[19px]" aria-hidden />
     </motion.button>
   );
 }
@@ -95,7 +95,7 @@ export function DashboardProfileModal({ open, onClose }: DashboardProfileModalPr
                 onClick={onClose}
                 className="btn-premium btn-outline-glass flex h-10 w-10 items-center justify-center rounded-full p-0 text-slate-600"
               >
-                <X className="h-5 w-5" strokeWidth={2} />
+                <XMarkIcon className="h-5 w-5" aria-hidden />
               </motion.button>
             </div>
 

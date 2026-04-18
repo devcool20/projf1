@@ -23,7 +23,7 @@ export const navItems: NavItem[] = [
   { label: "Predictions", href: "/predictions", icon: "gauge" },
   { label: "Paddock Premieres", href: "/paddock-premieres", icon: "clapperboard" },
   { label: "Standings", href: "/standings", icon: "trophy" },
-  { label: "Parc Ferme", href: "/parc-ferme", icon: "shopping-bag" },
+  { label: "Parc Ferme", href: "/parc-ferme", icon: "sparkles" },
 ];
 
 export const teams: Team[] = [

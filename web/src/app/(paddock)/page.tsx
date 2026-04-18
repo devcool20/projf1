@@ -6,15 +6,15 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { DashboardProfileModal, PremiumProfileTrigger } from "@/components/dashboard/dashboard-profile-modal";
 import {
-  Heart,
-  MessageCircle,
-  Clock,
-  Trophy,
-  Users,
-  ChevronRight,
-  Wifi,
-  Zap,
-} from "lucide-react";
+  BoltIcon,
+  ChatBubbleLeftRightIcon,
+  ChevronRightIcon,
+  ClockIcon,
+  HeartIcon,
+  TrophyIcon,
+  UsersIcon,
+  WifiIcon,
+} from "@heroicons/react/24/outline";
 import { TelemetryTicker } from "@/components/shell/telemetry-ticker";
 import {
   commThreads,
@@ -297,7 +297,7 @@ export default function DashboardPage() {
       >
         <div className="relative z-10">
           <div className="flex items-center gap-2">
-            <Wifi className="h-3.5 w-3.5 text-zinc-500" />
+            <WifiIcon className="h-3.5 w-3.5 text-zinc-500" aria-hidden />
             <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
               Mission Control Active
             </p>
@@ -346,9 +346,9 @@ export default function DashboardPage() {
                     {topThread.message}
                   </p>
                   <div className="mt-4 flex items-center gap-4 text-xs font-medium text-on-surface-variant">
-                    <span className="flex items-center gap-1"><Heart className="h-3 w-3" />{topThread.likes}</span>
-                    <span className="flex items-center gap-1"><MessageCircle className="h-3 w-3" />{topThread.comments}</span>
-                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{topThread.createdAt}</span>
+                    <span className="flex items-center gap-1"><HeartIcon className="h-3 w-3" aria-hidden />{topThread.likes}</span>
+                    <span className="flex items-center gap-1"><ChatBubbleLeftRightIcon className="h-3 w-3" aria-hidden />{topThread.comments}</span>
+                    <span className="flex items-center gap-1"><ClockIcon className="h-3 w-3" aria-hidden />{topThread.createdAt}</span>
                   </div>
                 </div>
               ) : (
@@ -356,7 +356,7 @@ export default function DashboardPage() {
               )}
 
               <div className="mt-auto flex items-center gap-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary">
-                Open Comms <ChevronRight className="h-3 w-3" />
+                Open Comms <ChevronRightIcon className="h-3 w-3" aria-hidden />
               </div>
             </div>
           </Link>
@@ -402,9 +402,9 @@ export default function DashboardPage() {
                     <p className="text-[11px] font-medium text-on-surface-variant">{topPrediction.fullName}</p>
                   </div>
                   <div className="mt-3 space-y-1.5 text-xs text-on-surface-variant">
-                    <div className="flex items-center gap-1.5"><Trophy className="h-3.5 w-3.5 text-primary" />{topPrediction.top3.join(" · ")}</div>
-                    <div className="flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-secondary" />Pole: {topPrediction.polePosition}</div>
-                    <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-tertiary" />DOTD: {topPrediction.driverOfTheDay}</div>
+                    <div className="flex items-center gap-1.5"><TrophyIcon className="h-3.5 w-3.5 text-primary" aria-hidden />{topPrediction.top3.join(" · ")}</div>
+                    <div className="flex items-center gap-1.5"><BoltIcon className="h-3.5 w-3.5 text-secondary" aria-hidden />Pole: {topPrediction.polePosition}</div>
+                    <div className="flex items-center gap-1.5"><UsersIcon className="h-3.5 w-3.5 text-tertiary" aria-hidden />DOTD: {topPrediction.driverOfTheDay}</div>
                   </div>
                 </div>
               ) : (
@@ -412,7 +412,7 @@ export default function DashboardPage() {
               )}
 
               <div className="mt-auto flex items-center gap-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-secondary">
-                Open Prediction <ChevronRight className="h-3 w-3" />
+                Open Prediction <ChevronRightIcon className="h-3 w-3" aria-hidden />
               </div>
             </div>
           </Link>

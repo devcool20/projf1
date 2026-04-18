@@ -2,11 +2,21 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { Loader2, Trophy, Signal, Clock, Heart, MessageCircle, X, Shield, Star } from "lucide-react";
+import {
+  ArrowPathIcon,
+  ChatBubbleLeftRightIcon,
+  ClockIcon,
+  HeartIcon,
+  ShieldCheckIcon,
+  SignalIcon,
+  StarIcon,
+  TrophyIcon,
+  UserIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import { DriverVideo } from "@/components/ui/driver-video";
 import { applyTeamAccent, getTeamColor } from "@/lib/team-accent";
-import { User } from "lucide-react";
 
 type Profile = {
   id: string;
@@ -76,7 +86,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
   if (loading) {
     return (
       <div className="comms-light-theme flex h-80 flex-col items-center justify-center dashboard-panel rounded-pill border border-outline-variant/20 bg-surface/80 backdrop-blur-xl">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <ArrowPathIcon className="h-10 w-10 animate-spin text-primary" aria-hidden />
         <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">Syncing Racing Identity...</p>
       </div>
     );
@@ -114,7 +124,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
         onClick={onBack}
         className="absolute right-6 top-6 z-60 flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-highest/60 backdrop-blur-md border border-outline-variant/30 text-on-surface transition-all shadow-xl"
       >
-        <X className="h-5 w-5" />
+        <XMarkIcon className="h-5 w-5" aria-hidden />
       </motion.button>
 
       <div className="flex-1 overflow-y-auto premium-scrollbar p-6 sm:p-8">
@@ -139,7 +149,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
                     key="placeholder"
                     className="flex h-full w-full items-center justify-center bg-linear-to-br from-surface-container-high to-surface-container-highest"
                   >
-                    <User className="h-10 w-10 text-on-surface/20" />
+                    <UserIcon className="h-10 w-10 text-on-surface/20" aria-hidden />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -178,7 +188,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-primary/10">
-                  <Shield className="h-4 w-4 text-primary" />
+                  <ShieldCheckIcon className="h-4 w-4 text-primary" aria-hidden />
                 </div>
                 <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-bold">Affiliation</span>
               </div>
@@ -205,7 +215,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-secondary/10">
-                  <Star className="h-4 w-4 text-secondary" />
+                  <StarIcon className="h-4 w-4 text-secondary" aria-hidden />
                 </div>
                 <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-bold">Preferred Driver</span>
               </div>
@@ -222,7 +232,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
         {/* Career Stats Card */}
         <div className="rounded-2xl bg-slate-900 p-6 mb-8 text-white relative overflow-hidden shadow-xl">
           <div className="absolute right-0 top-0 h-full w-48 opacity-10 pointer-events-none">
-            <Trophy className="h-full w-full rotate-12 scale-110" />
+            <TrophyIcon className="h-full w-full rotate-12 scale-110" aria-hidden />
           </div>
           <div className="relative z-10 flex border-b border-white/10 pb-4 mb-4 items-end justify-between">
             <div>
@@ -230,7 +240,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
               <h3 className="font-headline text-xl mt-1">Ranking Statistics</h3>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/10">
-              <Signal className="h-3 w-3 text-secondary" />
+              <SignalIcon className="h-3 w-3 text-secondary" aria-hidden />
               <span className="font-mono text-[9px] uppercase tracking-widest">Active Link</span>
             </div>
           </div>
@@ -258,7 +268,7 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
           
           {comms.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 bg-surface-container-low rounded-2xl border border-dashed border-outline-variant/30">
-              <Clock className="h-8 w-8 text-on-surface-variant/20 mb-3" />
+              <ClockIcon className="mb-3 h-8 w-8 text-on-surface-variant/20" aria-hidden />
               <p className="text-xs text-on-surface-variant font-mono uppercase tracking-widest">No transmissions recorded.</p>
             </div>
           ) : (
@@ -271,17 +281,17 @@ export function UserDetailPanel({ profileId, onBack, onTeamAccent }: Props) {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2 text-[10px] font-mono text-on-surface-variant font-medium">
-                      <Clock className="h-3 w-3" />
+                      <ClockIcon className="h-3 w-3" aria-hidden />
                       {new Date(comm.created_at).toLocaleDateString()}
                     </div>
                   </div>
                   <p className="text-sm text-slate-700 line-clamp-2 leading-relaxed font-medium">{comm.message}</p>
                   <div className="mt-4 flex items-center gap-4 text-[10px] font-mono text-on-surface-variant">
                     <span className="flex items-center gap-1.5 px-2 py-1 rounded bg-surface-container/50 group-hover:bg-primary/5 group-hover:text-primary transition-colors">
-                      <Heart className="h-3 w-3" /> {comm.likes_count}
+                      <HeartIcon className="h-3 w-3" aria-hidden /> {comm.likes_count}
                     </span>
                     <span className="flex items-center gap-1.5 px-2 py-1 rounded bg-surface-container/50 group-hover:bg-secondary/5 group-hover:text-secondary transition-colors">
-                      <MessageCircle className="h-3 w-3" /> {comm.comments_count}
+                      <ChatBubbleLeftRightIcon className="h-3 w-3" aria-hidden /> {comm.comments_count}
                     </span>
                   </div>
                 </motion.div>

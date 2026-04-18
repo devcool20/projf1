@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Users } from "lucide-react";
+import { UsersIcon } from "@heroicons/react/24/outline";
 import type { ApiTeamStanding, ApiDriverStanding } from "@/lib/types";
 import { getTeamColor } from "@/lib/team-colors";
 
@@ -50,7 +50,7 @@ export function ConstructorsView({ teams, drivers, onOpenTeam }: Props) {
                       {team.teamName}
                     </h4>
                     <div className="mt-0.5 flex items-center gap-1 text-on-surface-variant">
-                      <Users className="h-3 w-3" />
+                      <UsersIcon className="h-3 w-3" aria-hidden />
                       <span className="font-mono text-[10px]">
                         {teamDrivers.map((d) => d.driverCode).join(" · ") || "—"}
                       </span>

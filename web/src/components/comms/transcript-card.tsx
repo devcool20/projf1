@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Team, Transcript } from "@/lib/types";
-import { Loader2 } from "lucide-react";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
 type Props = {
@@ -28,7 +28,7 @@ function ImageWithLoader({
     <div className={`relative overflow-hidden ${containerClass}`}>
       {!isLoaded && !isError && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-container-low">
-          <Loader2 className="h-4 w-4 animate-spin text-on-surface-variant" />
+          <ArrowPathIcon className="h-4 w-4 animate-spin text-on-surface-variant" aria-hidden />
         </div>
       )}
       <img

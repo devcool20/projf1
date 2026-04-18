@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useState, useMemo, useRef, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Users, RefreshCw, Wifi, WifiOff, Clock } from "lucide-react";
+import {
+  ArrowPathIcon,
+  ClockIcon,
+  SignalSlashIcon,
+  TrophyIcon,
+  UsersIcon,
+  WifiIcon,
+} from "@heroicons/react/24/outline";
 import type { ApiDriverStanding, ApiTeamStanding } from "@/lib/types";
 import { fetchDriverStandings, fetchTeamStandings } from "@/lib/api";
 import { Podium } from "./podium";
@@ -149,7 +156,7 @@ export function StandingsScreen({
   if (error) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center gap-4">
-        <WifiOff className="h-12 w-12 text-alert-red" />
+        <SignalSlashIcon className="h-12 w-12 text-alert-red" aria-hidden />
         <p className="font-mono text-sm text-alert-red">{error}</p>
         <p className="max-w-md text-center font-mono text-xs text-on-surface-variant">
           Make sure the Paddock Data Agent is reachable from this frontend.
@@ -159,7 +166,7 @@ export function StandingsScreen({
           onClick={handleRefresh}
           className="btn-premium btn-primary mt-2 flex items-center gap-2 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-base"
         >
-          <RefreshCw className="h-3.5 w-3.5" />
+          <ArrowPathIcon className="h-3.5 w-3.5" aria-hidden />
           Retry
         </button>
       </div>
@@ -195,7 +202,7 @@ export function StandingsScreen({
       <div className="mb-5 flex flex-wrap items-end justify-between gap-2 border-b border-white/15 pb-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <Wifi className="h-3 w-3 text-secondary" />
+            <WifiIcon className="h-3 w-3 text-secondary" aria-hidden />
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-secondary">
               Live from Paddock Data Agent
             </p>
@@ -208,7 +215,7 @@ export function StandingsScreen({
         <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           {fetchedAt && (
             <div className="hidden items-center gap-1 font-mono text-[10px] text-on-surface-variant sm:flex">
-              <Clock className="h-3 w-3" />
+              <ClockIcon className="h-3 w-3" aria-hidden />
               {formatFetchedClock(fetchedAt)}
             </div>
           )}
@@ -218,7 +225,7 @@ export function StandingsScreen({
             disabled={refreshing}
             className="btn-premium btn-outline-glass flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wider text-on-surface-variant transition disabled:opacity-50 sm:px-3"
           >
-            <RefreshCw className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} />
+            <ArrowPathIcon className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} aria-hidden />
             Refresh
           </button>
         </div>
@@ -227,8 +234,8 @@ export function StandingsScreen({
       {/* Tabs */}
       <div className="mb-5 flex gap-1 rounded-full border border-white/15 bg-white/5 p-1 backdrop-blur-md w-fit">
         {([
-          { key: "drivers" as Tab, label: "Drivers", icon: <Trophy className="h-3.5 w-3.5" /> },
-          { key: "constructors" as Tab, label: "Constructors", icon: <Users className="h-3.5 w-3.5" /> },
+          { key: "drivers" as Tab, label: "Drivers", icon: <TrophyIcon className="h-3.5 w-3.5" aria-hidden /> },
+          { key: "constructors" as Tab, label: "Constructors", icon: <UsersIcon className="h-3.5 w-3.5" aria-hidden /> },
         ]).map(({ key, label, icon }) => (
           <button
             key={key}

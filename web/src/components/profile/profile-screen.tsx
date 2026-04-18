@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Loader2, ShieldAlert, LogOut, Upload, Camera, ChevronDown } from "lucide-react";
+import {
+  ArrowPathIcon,
+  ArrowRightOnRectangleIcon,
+  ArrowUpTrayIcon,
+  CameraIcon,
+  ChevronDownIcon,
+  ShieldExclamationIcon,
+} from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 import { formatTimeAgo } from "@/lib/format";
 import { predictionDriverPool } from "@/lib/mock-data";
@@ -244,7 +251,7 @@ export function ProfileScreen() {
   if (loading) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <ArrowPathIcon className="h-10 w-10 animate-spin text-primary" aria-hidden />
         <p className="mt-4 font-mono text-xs uppercase tracking-[0.3em] text-on-surface-variant">Syncing Super License...</p>
       </div>
     );
@@ -313,7 +320,7 @@ export function ProfileScreen() {
 
             {authError && (
               <div className="flex items-center gap-2 border border-alert-red/20 bg-alert-red/10 p-2 text-xs text-alert-red">
-                <ShieldAlert className="h-4 w-4" />
+                <ShieldExclamationIcon className="h-4 w-4" aria-hidden />
                 {authError}
               </div>
             )}
@@ -360,7 +367,7 @@ export function ProfileScreen() {
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-primary">
-                  <Camera className="h-6 w-6" />
+                  <CameraIcon className="h-6 w-6" aria-hidden />
                 </div>
               )}
             </div>
@@ -372,7 +379,7 @@ export function ProfileScreen() {
                 whileTap={{ scale: 0.95 }}
                 className="card-surface mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-outline-variant/30 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-on-surface hover:border-primary/40 hover:text-primary transition-colors"
               >
-                <Upload className="h-3.5 w-3.5" />
+                <ArrowUpTrayIcon className="h-3.5 w-3.5" aria-hidden />
                 {uploadingAvatar ? "Uploading..." : "Upload photo"}
                 <input
                   type="file"
@@ -392,7 +399,7 @@ export function ProfileScreen() {
                onClick={handleLogout}
                className="group card-surface flex items-center gap-1.5 rounded-full border border-alert-red/30 bg-alert-red/10 px-4 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-alert-red hover:bg-alert-red hover:text-white transition-all"
              >
-               <LogOut className="h-3 w-3" /> Terminate Link
+               <ArrowRightOnRectangleIcon className="h-3 w-3" aria-hidden /> Terminate Link
              </motion.button>
              <span className="px-3 py-1 font-mono text-[10px] tracking-[0.2em] uppercase" style={{ border: `1px solid ${teamAccent}88`, background: `${teamAccent}22`, color: teamAccent }}>
                 Verified
@@ -413,7 +420,7 @@ export function ProfileScreen() {
                 {teamPool.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                <ChevronDown className="h-4 w-4 text-on-surface-variant" />
+                <ChevronDownIcon className="h-4 w-4 text-on-surface-variant" aria-hidden />
               </div>
             </div>
           </div>
@@ -429,7 +436,7 @@ export function ProfileScreen() {
                 {predictionDriverPool.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                <ChevronDown className="h-4 w-4 text-on-surface-variant" />
+                <ChevronDownIcon className="h-4 w-4 text-on-surface-variant" aria-hidden />
               </div>
             </div>
           </div>

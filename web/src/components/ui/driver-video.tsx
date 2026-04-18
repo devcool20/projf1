@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User } from "lucide-react";
+import { UserIcon } from "@heroicons/react/24/outline";
 
 type Props = {
   driverName: string | null;
@@ -13,7 +13,7 @@ export function DriverVideo({ driverName, className = "h-16 w-16" }: Props) {
     // If no driver selected, show a beautiful ghost/placeholder
     return (
       <div className={`relative overflow-hidden rounded bg-surface-container-high border border-outline-variant/30 flex items-center justify-center ${className}`}>
-        <User className="w-1/2 h-1/2 text-on-surface-variant/50" />
+        <UserIcon className="w-1/2 h-1/2 text-on-surface-variant/50" aria-hidden />
         {/* Vignette */}
         <div className="absolute inset-0 rounded shadow-[inset_0_0_12px_rgba(0,0,0,0.8)] pointer-events-none" />
       </div>

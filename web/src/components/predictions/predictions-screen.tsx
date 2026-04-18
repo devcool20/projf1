@@ -12,7 +12,14 @@ import {
   matchConfigToRound,
 } from "@/lib/f1-calendar-2026";
 import { PredictionCreatorModal } from "@/components/predictions/prediction-creator-modal";
-import { ArrowLeft, Calendar, ChevronRight, Heart, MapPin, Plus } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  CalendarDaysIcon,
+  ChevronRightIcon,
+  HeartIcon,
+  MapPinIcon,
+  PlusIcon,
+} from "@heroicons/react/24/outline";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
@@ -357,16 +364,16 @@ export function PredictionsScreen() {
                     <p className="mt-1 text-[10px] font-medium leading-snug text-on-surface-variant">{round.circuit}</p>
                     <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-200/70 pt-3">
                       <span className="gp-meta-row inline-flex items-center gap-1.5 text-on-surface-variant">
-                        <MapPin className="h-3 w-3 text-on-surface-variant/70" strokeWidth={2} aria-hidden />
+                        <MapPinIcon className="h-3 w-3 text-on-surface-variant/70" aria-hidden />
                         {round.country}
                       </span>
                       <span className="gp-meta-row inline-flex items-center gap-1.5 text-on-surface-variant">
-                        <Calendar className="h-3 w-3 text-on-surface-variant/70" strokeWidth={2} aria-hidden />
+                        <CalendarDaysIcon className="h-3 w-3 text-on-surface-variant/70" aria-hidden />
                         {formatGpRange(round)}
                       </span>
                     </div>
                     <div className="mt-3 flex justify-end">
-                      <ChevronRight
+                      <ChevronRightIcon
                         className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-primary"
                         aria-hidden
                       />
@@ -389,7 +396,7 @@ export function PredictionsScreen() {
             onClick={() => setSelected(null)}
             className="btn-premium btn-outline-glass mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-slate-700"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeftIcon className="h-4 w-4" aria-hidden />
             All Grands Prix
           </button>
 
@@ -447,7 +454,7 @@ export function PredictionsScreen() {
                       onClick={() => likePrediction(prediction.id)}
                       className="btn-premium btn-outline-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-on-surface-variant"
                     >
-                      <Heart className="h-3.5 w-3.5" />
+                      <HeartIcon className="h-3.5 w-3.5" aria-hidden />
                       {prediction.likes}
                     </button>
                   </div>
@@ -487,7 +494,7 @@ export function PredictionsScreen() {
             onClick={() => setCreatorOpen(true)}
             className="fab-premium bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-4 z-200 h-11 w-11 text-lg transition hover:scale-105 active:scale-95 sm:right-6"
           >
-            <Plus className="h-5 w-5" strokeWidth={2.25} />
+            <PlusIcon className="h-5 w-5" aria-hidden />
           </button>,
           document.body,
         )}

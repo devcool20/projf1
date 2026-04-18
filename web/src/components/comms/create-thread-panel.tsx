@@ -2,7 +2,12 @@
 
 import { useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { ImagePlus, Loader2, Send, X } from "lucide-react";
+import {
+  ArrowPathIcon,
+  PaperAirplaneIcon,
+  PhotoIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import { getTeamColor } from "@/lib/team-accent";
 import { SharedLayout } from "@/components/motion/page-transition";
@@ -35,7 +40,7 @@ function ImageWithLoader({
     <div className={`relative overflow-hidden ${containerClass}`}>
       {!isLoaded && !isError && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-container-low">
-          <Loader2 className="h-4 w-4 animate-spin text-on-surface-variant" />
+          <ArrowPathIcon className="h-4 w-4 animate-spin text-on-surface-variant" aria-hidden />
         </div>
       )}
 
@@ -175,7 +180,7 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
                   }}
                   className="btn-premium absolute right-2 top-2 rounded-full border border-white/35 bg-black/55 p-1.5 text-white shadow-[0_4px_18px_rgba(0,0,0,0.35)] backdrop-blur-md transition-colors hover:bg-black/70"
                 >
-                  <X className="h-4 w-4" />
+                  <XMarkIcon className="h-4 w-4" aria-hidden />
                 </motion.button>
               </motion.div>
             )}
@@ -189,7 +194,7 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
               className="btn-premium btn-outline-glass flex items-center gap-2 rounded-lg px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.15em] text-on-surface-variant"
               disabled={isSubmitting}
             >
-              <ImagePlus className="h-4 w-4" />
+              <PhotoIcon className="h-4 w-4" aria-hidden />
               Attach Intel
             </motion.button>
             <input
@@ -207,9 +212,9 @@ export function CreateThreadPanel({ profile, onSuccess }: Props) {
               className="btn-premium btn-primary px-6 py-2.5 text-sm tracking-widest uppercase group"
             >
               {isSubmitting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <ArrowPathIcon className="h-4 w-4 animate-spin" aria-hidden />
               ) : (
-                <Send className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <PaperAirplaneIcon className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" aria-hidden />
               )}
               Transmit
             </motion.button>

@@ -1,7 +1,13 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Flag, Users, Trophy, Gauge, MapPin } from "lucide-react";
+import {
+  ChartBarIcon,
+  FlagIcon,
+  MapPinIcon,
+  TrophyIcon,
+  UsersIcon,
+} from "@heroicons/react/24/outline";
 import type { ApiDriverStanding } from "@/lib/types";
 import { getTeamColor, getNationalityFlag } from "@/lib/team-colors";
 
@@ -53,25 +59,25 @@ export function DriverDetailPanel({ driver, allDrivers }: Props) {
         {/* Stat Grid */}
         <div className="grid grid-cols-2 gap-2.5">
           <StatCard
-            icon={<Trophy className="h-3.5 w-3.5" />}
+            icon={<TrophyIcon className="h-3.5 w-3.5" aria-hidden />}
             label="Points"
             value={String(driver.points)}
             accent={tc.accent}
           />
           <StatCard
-            icon={<Gauge className="h-3.5 w-3.5" />}
+            icon={<ChartBarIcon className="h-3.5 w-3.5" aria-hidden />}
             label="Position"
             value={`${driver.position}${positionSuffix}`}
             accent={tc.accent}
           />
           <StatCard
-            icon={<Flag className="h-3.5 w-3.5" />}
+            icon={<FlagIcon className="h-3.5 w-3.5" aria-hidden />}
             label="Nationality"
             value={`${getNationalityFlag(driver.nationality)} ${driver.nationality}`}
             accent={tc.accent}
           />
           <StatCard
-            icon={<MapPin className="h-3.5 w-3.5" />}
+            icon={<MapPinIcon className="h-3.5 w-3.5" aria-hidden />}
             label="Gap to P1"
             value={gap === 0 ? "Leader" : `-${gap} pts`}
             accent={gap === 0 ? "#7ef6ee" : "#ff725d"}
@@ -96,7 +102,7 @@ export function DriverDetailPanel({ driver, allDrivers }: Props) {
         {teammates.length > 0 && (
           <div>
             <p className="mb-2 font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">
-              <Users className="mr-1 inline h-3 w-3" />
+              <UsersIcon className="mr-1 inline h-3 w-3" aria-hidden />
               Teammate{teammates.length > 1 ? "s" : ""}
             </p>
             {teammates.map((tm) => (

@@ -16,7 +16,7 @@ This file is the canonical context brief for engineers and LLM agents working in
 ## 2) Tech Stack and Runtime
 
 - Framework: `next@16` with App Router.
-- UI: `react@19`, `framer-motion`, `lucide-react`.
+- UI: `react@19`, `framer-motion`, `@heroicons/react` (outline/solid; [Heroicons](https://heroicons.com/) set).
 - Charts package present: `recharts` (currently not heavily used in visible codepaths).
 - Data backend: `@supabase/supabase-js`.
 - Styling: Tailwind v4 via `@import "tailwindcss"` and CSS theme tokens in `src/app/globals.css`.

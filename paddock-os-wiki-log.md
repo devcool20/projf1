@@ -319,3 +319,170 @@ Without this, frontend behavior can appear partially functional but will degrade
 - Dashboard Next Race card reflects Miami with larger, high-contrast map and country-flag treatment.
 - Desktop text visibility has been repeatedly hardened in Comms with explicit content color strategy and fallback handling.
 
+---
+
+## 7. Parc Ferme Session Wiki Log (Start -> Latest)
+**Date**: April 17, 2026  
+**Scope**: Parc Fermé rail performance, asset cache invalidation, card/dock visual system, single-screen layout stability, full-bleed rendering, and final card image fill + right-edge whitespace fix.
+
+### 7.1 User Intent and Product Direction
+This session was a focused UX/performance pass on the Parc Fermé experience. The user repeatedly emphasized:
+- cinematic card browsing that feels smooth on mobile and desktop,
+- immediate visual parity after replacing card PNG assets,
+- dark, premium fullscreen presentation with no white flashes or gutters,
+- dock and rails that visually belong to the same scene,
+- and collectible cards whose images fill the shape cleanly.
+
+The delivery pattern was iterative QA: each visual/runtime issue was fixed, validated, and then refined after user screenshot feedback.
+
+---
+
+### 7.2 Phase-by-Phase Technical Narrative
+
+#### Phase A - Asset Refresh Correctness (No stale card images)
+**Issue reported**: Replaced `/public/cards/*.png` files were not reflected immediately.
+
+**Implementation**:
+- Added `withCardAssetVersion()` in `web/src/lib/parc-card-assets.ts`.
+- Wired `imageSrc` generation in `web/src/app/(paddock)/parc-ferme/page.tsx` through that helper.
+- Set `unoptimized` conditionally for local `/cards/` images in:
+  - `web/src/components/parc-ferme/collectible-card.tsx`
+  - `web/src/components/parc-ferme/card-detail-view.tsx`
+- Set `images.minimumCacheTTL: 0` in `web/next.config.ts`.
+
+**Design/architecture decision**:
+- **Versioned URL cache busting** was chosen over ad-hoc manual renaming because it centralizes cache invalidation and keeps card file names stable.
+- **Local-card `unoptimized`** was used for deterministic development behavior and to avoid waiting on image optimization cache churn during fast iteration.
+
+**Tradeoff**:
+- Disabling optimization for local card assets can increase raw payload vs optimized pipeline, but guaranteed freshness was prioritized for this design-heavy flow.
+
+---
+
+#### Phase B - Mobile Drag Performance (rail jank elimination)
+**Issue reported**: Dragging the rail on mobile felt jittery and heavy.
+
+**Implementation** in `web/src/components/parc-ferme/card-rail.tsx`:
+- Introduced `requestAnimationFrame` batching for drag index updates:
+  - `dragRafRef` and `pendingIndexRef`
+  - `scheduleIndexFromDrag(next)` to collapse multiple pointer moves into one frame commit
+- Added `cancelDragRaf()` on pointer end/cancel.
+- Snapping now resolves from `pendingIndexRef` to avoid stale frame state.
+- Tuned non-drag tween timing/easing for tighter settle behavior.
+
+**Architecture decision**:
+- Use **frame-synced state updates** for high-frequency pointer interaction to align React state commits with the browser render loop.
+
+**Why**:
+- Pointer move events can fire much faster than render cadence; direct `setState` on each event causes avoidable reconciliation pressure and inconsistent frame pacing.
+
+**Tradeoff**:
+- Slightly more complex pointer lifecycle bookkeeping, but significant interaction smoothness and battery/runtime efficiency improvement on mobile.
+
+---
+
+#### Phase C - Single-screen Scenic Composition + Dock Harmony
+**Issue cluster**:
+- layout overflow/stacking behavior caused unstable viewport fit,
+- dock visual treatment did not fully match the dark Parc atmosphere.
+
+**Implementation**:
+- Updated layout composition in `web/src/app/(paddock)/parc-ferme/page.tsx` to a true single-screen flex column shell.
+- Removed conflicting gradients/highlights and stabilized the grid background treatment in `web/src/app/globals.css`.
+- Enabled dark dock variant for Parc route in:
+  - `web/src/components/ui/floating-dock.tsx`
+  - `web/src/components/shell/paddock-bottom-nav.tsx`
+
+**Design decision**:
+- Treat Parc Fermé as a dedicated “immersive route mode” rather than just another page in the normal white/light paddock flow.
+
+**Why**:
+- The route’s visual identity depends on continuity from hero -> rail -> dock; mixed shell theming breaks immersion and reveals seams.
+
+---
+
+#### Phase D - Card Form Language (single clipped layer, collectible realism)
+**Issue/goal**:
+- improve card visual fidelity while avoiding fake frame artifacts at clipped corners.
+
+**Implementation**:
+- Reworked collectible card rendering in `web/src/components/parc-ferme/collectible-card.tsx` and related Parc CSS:
+  - single `.parc-show-card` clipped geometry with dog-ear,
+  - layered gloss/meta treatment,
+  - center-card emphasis and cleaner depth stack.
+- Aligned detail panel collectible framing in `web/src/components/parc-ferme/card-detail-view.tsx`.
+
+**Design decision**:
+- Use one clipped primary layer (instead of multiple pseudo-frame layers) to avoid transparency mismatches and edge artifacts.
+
+**Tradeoff**:
+- Less “ornamental framing” flexibility, but cleaner geometry and fewer rendering artifacts under transforms.
+
+---
+
+#### Phase E - Final user-reported issues: image fill + right white strip
+**Final issue from screenshot**:
+1. card images were not filling the card face (contain behavior left visible blank area),  
+2. a white strip appeared on the right side.
+
+**Root cause analysis**:
+- Card rail image slot used constrained dimensions (`~84% x 70%`) plus `object-fit: contain`.
+- Global `body` is white by default, so any tiny overflow/gutter/subpixel edge on Parc route exposed a white seam.
+
+**Implementation**:
+- In `web/src/app/globals.css`:
+  - `.parc-card-image-slot` -> full `inset: 0`
+  - `.parc-card-image` -> `object-fit: cover`, tuned `object-position`
+  - `.parc-detail-image` -> `cover` with matching positioning
+  - added route-scoped root styling:
+    - `html.parc-ferme-route, body.parc-ferme-route { background-color: #02050c; overflow-x: clip; }`
+- In `web/src/components/shell/paddock-shell.tsx`:
+  - added `useEffect` that toggles `parc-ferme-route` class on `html` and `body` only while on `/parc-ferme`
+  - tightened full-width container classes to prevent horizontal overflow edge cases
+- In `web/src/components/parc-ferme/card-detail-view.tsx`:
+  - removed conflicting `object-contain` and padding class from detail image.
+
+**Architecture decision**:
+- Use **route-scoped DOM class toggling** for full-bleed root behavior rather than global dark body defaults.
+
+**Why**:
+- Preserves existing light-theme routes while guaranteeing Parc route never reveals white under any scroll/gutter condition.
+
+**Tradeoff**:
+- Requires client-side mount effect in shell, but keeps theme boundaries explicit and low-risk for the rest of the app.
+
+---
+
+### 7.3 System Architecture Decisions (Consolidated)
+1. **Route-mode architecture for Parc Fermé**  
+   Parc is treated as a themed runtime mode (layout + dock + root background + interaction rules), not merely a component swap.
+
+2. **Interaction architecture for rails**  
+   Drag behavior is modeled as high-frequency input stream -> RAF-batched state commit -> snap resolution. This reduces state thrash and keeps the rail physically responsive.
+
+3. **Asset freshness architecture**  
+   Cache invalidation moved into a helper-level URL versioning strategy and route asset policy (`unoptimized` for local cards + low TTL config) for deterministic iteration.
+
+4. **Visual layering architecture**  
+   Card face, gloss, and metadata overlays were reorganized to maintain depth while keeping image fill predictable across clipping + transforms.
+
+5. **Scoped theming boundary**  
+   Full-bleed dark behavior is applied only on `/parc-ferme` via explicit classing, preventing collateral regressions in other paddock routes.
+
+---
+
+### 7.4 Validation and Reliability Notes
+- Production build passed after final fixes (`next build`).
+- Lint warning (`max-w-[100%]`) was addressed by moving to `max-w-full`.
+- Remaining fine-tuning expected: per-driver face framing may require slight `object-position` adjustments if any specific portrait crops unfavorably.
+
+---
+
+### 7.5 Final Outcome for This Session
+At the end of this chat, Parc Fermé behavior is aligned with the user’s target:
+- card images fill the collectible face,
+- right-edge white strip is removed through route-scoped full-bleed root styling,
+- drag rail remains smooth under mobile interaction pressure,
+- asset swaps are immediately reflected without stale-cache confusion,
+- and the entire view maintains a consistent dark premium presentation from headline to dock.
+
